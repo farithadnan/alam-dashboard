@@ -43,6 +43,12 @@ body {
   transition: border-color .15s, color .15s;
 }
 .ghostbtn:hover { border-color: var(--color-accent); color: var(--color-fg); }
+.chip {
+  background: var(--color-panel); border: 1px solid var(--color-line); border-radius: 999px;
+  color: var(--color-fg); padding: 7px 12px; min-height: 40px; font: inherit; font-size: 13px;
+  cursor: pointer; transition: border-color .15s;
+}
+.chip:hover { border-color: var(--color-accent); }
 .btn-primary {
   background: var(--color-accent); color: #fff; border: none; border-radius: 10px;
   min-height: 44px; padding: 10px 16px; font: inherit; font-weight: 650; font-size: 14px;

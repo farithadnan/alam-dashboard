@@ -2,6 +2,7 @@
 import { app } from "../lib/store.svelte.js";
 import { wmo, cityOf, numColor } from "../lib/flags.js";
 import { tr, trFmt, bandLabel, bandAdvice } from "../lib/i18n.svelte.js";
+import { deriveAlerts, shortPlaces } from "../lib/alerts.js";
 import Warnings from "./Warnings.svelte";
 
 let { onNavigate = () => {} } = $props();
@@ -16,6 +17,7 @@ const warnings = $derived(app.data?.hazards?.warnings ?? []);
 const quakes = $derived(app.data?.hazards?.earthquakes ?? []);
 const climate = $derived(app.data?.hazards?.climate ?? null);
 const news = $derived(app.data?.news ?? []);
+const derived = $derived(deriveAlerts(app.data?.forecast ?? []));
 
 function atTown(o) {
   const t = (townName || "").toLowerCase().replace(/\s+/g, " ");
@@ -63,6 +65,18 @@ function atTown(o) {
     {phase.includes("El Niño") ? tr("climateEl") : phase.includes("La Niña") ? tr("climateLa") : tr("climateNeutral")}{#if v != null} · {v > 0 ? "+" : ""}{v}°C{#if season} ({season}){/if}{/if}
   </p>
   <p class="caption">{phase.includes("El Niño") ? tr("climateElEffect") : phase.includes("La Niña") ? tr("climateLaEffect") : tr("climateNeutralEffect")}</p>
+{/if}
+{#if derived.length}
+  <ul class="list-none m-0 border-t border-line p-0">
+    {#each derived as a (a.type)}
+      <li class="flex items-start gap-2 border-b border-line px-2.5 py-3">
+        <span class="text-[18px]" aria-hidden="true">{a.type === "rain" ? "🌧️" : "🌡️"}</span>
+        <div class="min-w-0 text-[14.5px] font-semibold leading-tight">
+          {a.type === "rain" ? trFmt("alertRain", { p: a.value, places: shortPlaces(a.places) }) : trFmt("alertHeat", { c: a.value, places: shortPlaces(a.places) })}
+        </div>
+      </li>
+    {/each}
+  </ul>
 {/if}
 
 <h3 class="qh">{tr("newsTitle")}</h3>

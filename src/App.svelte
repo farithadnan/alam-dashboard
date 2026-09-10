@@ -1,6 +1,6 @@
 <script>
 import { onMount } from "svelte";
-import { app, load } from "./lib/store.svelte.js";
+import { app, load, initSaved, toggleSaved, isSaved, pushRecent, townInfo } from "./lib/store.svelte.js";
 import { theme, toggleTheme, applyTheme } from "./lib/theme.svelte.js";
 import { lang, setLang, tr } from "./lib/i18n.svelte.js";
 import { nearestState } from "./lib/flags.js";
@@ -20,6 +20,7 @@ let locBusy = $state(false);
 const states = $derived(app.data?.states ?? []);
 const towns = $derived((app.data?.allTowns ?? []).filter((t) => t.state === app.state));
 const townName = $derived(app.data?.weather?.find((r) => r.station === app.town && r.kind === "weather")?.stationName ?? app.data?.allTowns?.find((t) => t.station === app.town)?.name ?? app.town ?? "");
+const currentTown = $derived(townInfo(app.town));
 
 const NAV = [
   { view: "home", icon: "home", key: "navHome" },
@@ -35,9 +36,25 @@ $effect(() => {
 onMount(() => {
   load();
   applyTheme();
+  initSaved();
   const t = setInterval(() => { if (!document.hidden) load(); }, 300000); // 5 min, paused when tab hidden
   return () => clearInterval(t);
 });
+function selectTown(t) {
+  if (!t) return;
+  if (t.state) app.state = t.state;
+  app.town = t.station;
+  pushRecent({ station: t.station, name: t.name, state: t.state });
+  locOpen = false;
+}
+function onTownPick(e) {
+  const t = townInfo(e.currentTarget.value);
+  if (t) pushRecent({ station: t.station, name: t.name, state: t.state });
+  locOpen = false;
+}
+function saveCurrent() {
+  if (currentTown) toggleSaved(currentTown);
+}
 function useLocation() {
   if (!navigator.geolocation) return;
   locBusy = true;
@@ -112,6 +129,22 @@ function toggleLang() {
   <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4" onclick={() => (locOpen = false)} role="dialog" aria-modal="true">
     <div class="w-full max-w-sm rounded-2xl border border-line bg-panel p-5 shadow-2xl" onclick={(e) => e.stopPropagation()}>
       <h2 class="mt-0 mb-3 text-[16px] font-bold">{tr("changeLoc")}</h2>
+      {#if app.saved.length}
+        <div class="caption text-[12px]">{tr("savedPlaces")}</div>
+        <div class="mb-2 mt-1 flex flex-wrap gap-1.5">
+          {#each app.saved as s (s.station)}
+            <button class="chip" onclick={() => selectTown(s)}>{s.name} <span class="text-accent">{isSaved(s.station) ? "★" : ""}</span></button>
+          {/each}
+        </div>
+      {/if}
+      {#if app.recent.length}
+        <div class="caption text-[12px]">{tr("recentPlaces")}</div>
+        <div class="mb-2 mt-1 flex flex-wrap gap-1.5">
+          {#each app.recent as s (s.station)}
+            <button class="chip" onclick={() => selectTown(s)}>{s.name}</button>
+          {/each}
+        </div>
+      {/if}
       <label class="flex flex-col gap-1">
         <span class="caption text-[12px]">{tr("state")}</span>
         <select id="state-select" bind:value={app.state}>
@@ -122,13 +155,18 @@ function toggleLang() {
       </label>
       <label class="mt-3 flex flex-col gap-1">
         <span class="caption text-[12px]">{tr("town")}</span>
-        <select id="town-select" bind:value={app.town} onchange={() => (locOpen = false)}>
+        <select id="town-select" bind:value={app.town} onchange={onTownPick}>
           {#each towns as t (t.station)}
             <option value={t.station}>{t.name}</option>
           {/each}
         </select>
       </label>
-      <button class="btn-primary mt-4 w-full" onclick={useLocation}>{locBusy ? tr("locating") : tr("useLoc")}</button>
+      <div class="mt-3 flex gap-2">
+        <button class="ghostbtn flex-1" onclick={saveCurrent} aria-pressed={isSaved(app.town)}>
+          {isSaved(app.town) ? "★ " + tr("savedOn") : "☆ " + tr("saveTown")}
+        </button>
+        <button class="btn-primary flex-1" onclick={useLocation}>{locBusy ? tr("locating") : tr("useLoc")}</button>
+      </div>
     </div>
   </div>
 {/if}

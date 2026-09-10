@@ -23,7 +23,6 @@ const groups = $derived(groupBy(quakes.slice().sort((a, b) => b.magnitude - a.ma
 let open = $state(null);
 </script>
 
-
 <h3 class="qh">{tr("quakeTitle")}</h3>
 <p class="caption -mt-1">{tr("quakeCap")}</p>
 
