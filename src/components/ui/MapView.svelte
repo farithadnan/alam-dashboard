@@ -12,11 +12,11 @@ onMount(() => {
   map = L.map(el, { zoomControl: true, attributionControl: true }).setView([4.1, 109.2], 5);
   const key = import.meta.env.VITE_CARTO_KEY;
   L.tileLayer(
-    `https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png${key ? `?key=${key}` : ""}`,
+    `https://{s}.basemaps.cartocdn.com/rastertiles/light_all/{z}/{x}/{y}{r}.png${key ? `?key=${key}` : ""}`,
     {
-      attribution: "&copy; OpenStreetMap contributors &copy; CARTO",
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>',
       subdomains: "abcd",
-      maxZoom: 19,
+      maxZoom: 20,
     },
   ).addTo(map);
   draw();
