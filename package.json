@@ -1,14 +1,18 @@
 {
   "name": "alam-dashboard",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "vite build",
     "dev": "vite",
+    "build": "vite build",
     "preview": "node scripts/preview.mjs"
   },
   "devDependencies": {
-    "vite": "^7.0.0"
+    "@sveltejs/vite-plugin-svelte": "^5.1.1",
+    "@tailwindcss/vite": "^4.3.3",
+    "svelte": "^5.0.0",
+    "tailwindcss": "^4.1.0",
+    "vite": "^6.0.0"
   }
 }
