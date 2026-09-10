@@ -2,6 +2,7 @@
 import { onMount } from "svelte";
 import { app, load } from "./lib/store.svelte.js";
 import { theme, toggleTheme, applyTheme } from "./lib/theme.svelte.js";
+import { lang, setLang, tr } from "./lib/i18n.svelte.js";
 import { nearestState } from "./lib/flags.js";
 import Area from "./components/Area.svelte";
 import Hazards from "./components/Hazards.svelte";
@@ -36,20 +37,24 @@ function useLocation() {
     { timeout: 8000 },
   );
 }
+function toggleLang() {
+  setLang(lang.code === "en" ? "ms" : "en");
+}
 </script>
 
 <header class="mx-auto w-full max-w-[1024px] px-5 pt-[16px]">
   <div class="flex flex-wrap items-center justify-between gap-2">
     <span class="text-[17px] font-bold tracking-wide">Alam<span class="text-accent">.</span></span>
     <div class="flex items-center gap-2">
-      {#if app.loading}<span class="caption text-[12px]">Updating…</span>{/if}
-      <button class="ghostbtn" onclick={toggleTheme} aria-label="Toggle dark mode" title="Dark mode">{theme.dark ? "☀" : "☾"}</button>
+      {#if app.loading}<span class="caption text-[12px]">{tr("updating")}</span>{/if}
+      <button class="ghostbtn" onclick={toggleLang} title="Language">{lang.code === "en" ? "BM" : "EN"}</button>
+      <button class="ghostbtn" onclick={toggleTheme} title="Dark mode" aria-label="Toggle dark mode">{theme.dark ? "☀" : "☾"}</button>
     </div>
   </div>
 
   <div class="mt-3 flex flex-wrap items-end gap-2">
     <label class="flex flex-col gap-0.5">
-      <span class="caption text-[12px]">State</span>
+      <span class="caption text-[12px]">{tr("state")}</span>
       <select bind:value={app.state}>
         {#each states as name (name)}
           <option value={name}>{name}</option>
@@ -57,24 +62,24 @@ function useLocation() {
       </select>
     </label>
     <label class="flex flex-col gap-0.5">
-      <span class="caption text-[12px]">Town</span>
+      <span class="caption text-[12px]">{tr("town")}</span>
       <select bind:value={app.town}>
         {#each towns as t (t)}
           <option value={t}>{app.data?.weather?.find((r) => r.station === t && r.kind === "weather")?.stationName ?? t}</option>
         {/each}
       </select>
     </label>
-    <button class="btn-primary" onclick={useLocation}>{locBusy ? "Locating…" : "Use my location"}</button>
+    <button class="btn-primary" onclick={useLocation}>{locBusy ? tr("locating") : tr("useLoc")}</button>
   </div>
 
   {#if townName && app.state}
-    <p class="caption mt-1 uppercase tracking-wide text-[12px]">Location: {townName}, {app.state}</p>
+    <p class="caption mt-1 uppercase tracking-wide text-[12px]">{tr("location")}: {townName}, {app.state}</p>
   {/if}
 </header>
 
-<nav class="mx-auto w-full max-w-[1024px] mt-3 flex gap-1 border-b border-line px-5">
-  <button class:on={view === "area"} class="navbtn" onclick={() => (view = "area")}>Air and weather</button>
-  <button class:on={view === "hazards"} class="navbtn" onclick={() => (view = "hazards")}>Hazards</button>
+<nav class="mx-auto mt-3 w-full max-w-[1024px] flex gap-1 border-b border-line px-5">
+  <button class:on={view === "area"} class="navbtn" onclick={() => (view = "area")}>{tr("navAir")}</button>
+  <button class:on={view === "hazards"} class="navbtn" onclick={() => (view = "hazards")}>{tr("navHazards")}</button>
 </nav>
 
 <main class="mx-auto w-full max-w-[1024px] px-5 pt-1 pb-10">
@@ -87,11 +92,11 @@ function useLocation() {
 
 <footer class="mx-auto w-full max-w-[1024px] border-t border-line px-5 py-5 text-[12.5px] text-muted">
   <div class="flex flex-wrap items-center gap-x-4 gap-y-1">
-    <button class="ghostbtn" onclick={() => (aboutOpen = !aboutOpen)} aria-expanded={aboutOpen}>About Alam</button>
-    <span>Sources: DOE · MET · USGS · NOAA · Open-Meteo</span>
+    <button class="ghostbtn" onclick={() => (aboutOpen = !aboutOpen)} aria-expanded={aboutOpen}>{tr("about")}</button>
+    <span>{tr("sources")}</span>
   </div>
   {#if aboutOpen}
-    <p class="mt-2 max-w-[52ch]">Alam is a free, non-commercial dashboard for air quality, weather and hazard alerts across Malaysia, fed by public data from DOE APIMS, MET Malaysia, USGS, NOAA, and Open-Meteo. Data is not guaranteed; verify official sources before acting on it.</p>
+    <p class="mt-2 max-w-[52ch]">{tr("aboutText")}</p>
   {/if}
-  <p class="mt-2">© 2026 Farith Adnan · Not affiliated with any government body.</p>
+  <p class="mt-2">{tr("copyright")}</p>
 </footer>

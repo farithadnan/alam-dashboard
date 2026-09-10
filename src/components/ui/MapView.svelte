@@ -1,0 +1,47 @@
+<script>
+import { onMount, onDestroy } from "svelte";
+import L from "leaflet";
+
+let { pts = [], fit = true } = $props(); // pts: [{lat, lon, title, color, size}]
+let el;
+let map;
+let icons = [];
+
+onMount(() => {
+  if (!el) return;
+  map = L.map(el, { zoomControl: true, attributionControl: true }).setView([4.1, 109.2], 5);
+  L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+    attribution: "&copy; OpenStreetMap contributors",
+    maxZoom: 18,
+  }).addTo(map);
+  draw();
+  return () => { if (map) { map.remove(); map = null; } };
+});
+onDestroy(() => { if (map) { map.remove(); map = null; } });
+
+function draw() {
+  if (!map || !pts.length) return;
+  for (const i of icons) if (map) map.removeLayer(i);
+  icons = [];
+  for (const p of pts) {
+    const d = p.size || 10;
+    const icon = L.divIcon({
+      className: "alam-pin",
+      html: `<div style="width:${d}px;height:${d}px;border-radius:50%;background:${p.color || "#c14a1f"};border:2px solid #fff;box-shadow:0 1px 3px rgba(0,0,0,.45);font-size:${Math.max(8, d * 0.55)}px;font-weight:700;color:#fff;display:flex;align-items:center;justify-content:center">${p.num ?? ""}</div>`,
+      iconSize: [d, d],
+      iconAnchor: [d / 2, d / 2],
+    });
+    const m = L.marker([p.lat, p.lon], { icon }).addTo(map);
+    if (p.title) m.bindPopup(p.title);
+    icons.push(m);
+  }
+  if (fit && pts.length) {
+    map.fitBounds(L.latLngBounds(pts.map((p) => [p.lat, p.lon])).pad(0.25));
+  }
+}
+$effect(() => {
+  if (map) draw();
+});
+</script>
+
+<div bind:this={el} class="h-64 w-full rounded-xl" style="z-index:0" aria-label="Map"></div>
