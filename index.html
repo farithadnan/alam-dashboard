@@ -4,37 +4,52 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="color-scheme" content="light">
-  <title>Udara · Johor air quality</title>
+  <title>Alam · Malaysia air, weather &amp; hazards</title>
   <link rel="stylesheet" href="/styles.css">
 </head>
 <body>
   <header class="top">
-    <span class="brand">Udara<span class="dot">.</span></span>
-    <button id="refresh" class="ghost" type="button">Refresh</button>
+    <div class="top-bar">
+      <span class="brand">Alam<span class="dot">.</span></span>
+      <button id="refresh" class="ghost" type="button">Refresh</button>
+    </div>
+    <nav class="topnav" id="nav">
+      <button type="button" data-view="air" class="on">Air quality</button>
+      <button type="button" data-view="hazards">Hazards</button>
+      <button type="button" data-view="weather" disabled title="Coming soon">Weather</button>
+    </nav>
   </header>
-  <main>
-    <h1>Johor air quality</h1>
-    <p class="sub">Live readings from <span class="src">DOE APIMS</span> · updated <span id="ago">…</span></p>
-    <ul class="band-legend" id="legend"></ul>
-    <section id="detail" class="detail" hidden>
-      <div class="detail-head">
-        <span class="name" id="dname"></span>
-        <span class="val" id="dval"></span>
-        <button id="dclose" class="ghost" type="button" aria-label="Close trend">×</button>
-      </div>
-      <svg id="chart" class="chart" role="img" aria-label="24-hour AQI trend"></svg>
-      <p class="meta" id="dmeta"></p>
-    </section>
-    <ul id="stations" class="stations"><li class="muted">Loading…</li></ul>
-    <p class="health" id="worst"></p>
 
-    <section class="hazards">
-      <h2>Hazards</h2>
+  <main>
+    <!-- Air quality view -->
+    <section id="view-air" class="view on">
+      <h1>Johor air quality</h1>
+      <p class="sub">Live readings from <span class="src">DOE APIMS</span> · updated <span id="ago">…</span></p>
+      <ul class="band-legend" id="legend"></ul>
+      <section id="detail" class="detail" hidden>
+        <div class="detail-head">
+          <span class="name" id="dname"></span>
+          <span class="val" id="dval"></span>
+          <button id="dclose" class="ghost" type="button" aria-label="Close trend">×</button>
+        </div>
+        <svg id="chart" class="chart" role="img" aria-label="24-hour AQI trend"></svg>
+        <p class="meta" id="dmeta"></p>
+      </section>
+      <ul id="stations" class="stations"><li class="muted">Loading…</li></ul>
+      <p class="health" id="worst"></p>
+    </section>
+
+    <!-- Hazards view -->
+    <section id="view-hazards" class="view">
+      <h1>Natural hazards</h1>
+      <p class="sub">From <span class="src">USGS &amp; NOAA</span> · updated <span id="hago">…</span></p>
       <div id="climate" class="climate muted">Loading…</div>
-      <h3 class="qh">Recent quakes · SE Asia</h3>
+      <h3 class="qh">Recent earthquakes · magnitude 4.5+</h3>
       <ul id="quakes" class="stations"></ul>
+      <p class="health" id="hworst"></p>
     </section>
   </main>
+
   <script type="module" src="/main.js"></script>
 </body>
 </html>

@@ -19,9 +19,25 @@ const legend = $("legend");
 const ago = $("ago");
 const worst = $("worst");
 const detail = $("detail");
+const hago = $("hago");
+const hworst = $("hworst");
 
 let selected = null; // station id
 
+/* ---- top-bar nav (solat.my style): one view at a time ---- */
+const nav = $("nav");
+nav.addEventListener("click", (e) => {
+  const btn = e.target.closest("button[data-view]");
+  if (!btn || btn.disabled) return;
+  switchView(btn.dataset.view);
+  if (btn.dataset.view === "hazards" && !$("climate").textContent) loadHazards();
+});
+function switchView(name) {
+  nav.querySelectorAll("button").forEach((b) => b.classList.toggle("on", b.dataset.view === name));
+  document.querySelectorAll(".view").forEach((v) => v.classList.toggle("on", v.id === "view-" + name));
+}
+
+/* ---- air quality ---- */
 function renderLegend() {
   legend.innerHTML = "";
   for (const b of BANDS) {
@@ -69,14 +85,13 @@ function labelOf(r) { return (r.stationName || r.station).split(",")[0]; }
 
 async function selectStation(r) {
   selected = r.station;
-  document.querySelectorAll(".stations li").forEach((li) =>
+  document.querySelectorAll("#stations li").forEach((li) =>
     li.classList.toggle("sel", li.querySelector(".name")?.textContent === labelOf(r)),
   );
   detail.hidden = false;
   $("dname").textContent = r.stationName || r.station;
   $("dval").textContent = String(r.value);
   $("dval").style.color = r.band.color;
-  $("dmeta").textContent = `${r.band.label} now · 24-hour trend`;
   const rows = await loadHistory(r.station);
   drawChart(rows);
 }
@@ -84,7 +99,7 @@ async function selectStation(r) {
 function closeDetail() {
   selected = null;
   detail.hidden = true;
-  document.querySelectorAll(".stations li").forEach((li) => li.classList.remove("sel"));
+  document.querySelectorAll("#stations li").forEach((li) => li.classList.remove("sel"));
 }
 
 async function loadHistory(station) {
@@ -122,11 +137,11 @@ function drawChart(rows) {
     `<path d="${area}" fill="${color}" opacity="0.12"/>`,
     `<path d="${d}" fill="none" stroke="${color}" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>`,
     `<text x="${W - PAD}" y="${PAD + 12}" text-anchor="end" fill="${color}" font-size="13" font-weight="700">${last}</text>`,
-    `<text x="${pts[0][0]}" y="${H - 2}" fill="#8a8277" font-size="11">24h</text>`,
   ].join("");
-  $("dmeta").textContent = `${rows[rows.length - 1].value} now (${rows[0].value} ${rows.length - 1}h ago, peak ${mx})`;
+  $("dmeta").textContent = `Now ${last}, 24h ago ${rows[0].value}, today's peak ${mx}.`;
 }
 
+/* ---- hazards (plain language for a general audience) ---- */
 function timeAgo(iso) {
   const s = (Date.now() - new Date(iso).getTime()) / 1000;
   if (s < 3600) return `${Math.max(1, Math.round(s / 60))}m ago`;
@@ -138,6 +153,11 @@ function magColor(m) {
   if (m >= 5) return "#e05d2b";
   return "#8a8277";
 }
+function magWord(m) {
+  if (m >= 6) return "strong";
+  if (m >= 5) return "moderate";
+  return "light";
+}
 
 async function loadHazards() {
   try {
@@ -146,6 +166,7 @@ async function loadHazards() {
     const d = await res.json();
     renderClimate(d.climate);
     renderQuakes(d.earthquakes || []);
+    hago.textContent = new Date().toLocaleTimeString();
   } catch (e) {
     $("climate").textContent = "Hazards unavailable (" + e.message + ")";
   }
@@ -154,18 +175,26 @@ async function loadHazards() {
 function renderClimate(climate) {
   const el = $("climate");
   if (!climate) { el.textContent = "No climate phase yet."; return; }
+  const phase = climate.meta?.phase || "Neutral";
+  const color = phase.includes("El Niño") ? "#d3342f" : phase.includes("La Niña") ? "#2563eb" : "#8a8277";
+  const text = phase.includes("El Niño")
+    ? "El Niño is active — the equatorial Pacific is running warmer than usual."
+    : phase.includes("La Niña")
+    ? "La Niña is active — the equatorial Pacific is running cooler than usual."
+    : "Neither El Niño nor La Niña — the equatorial Pacific is near normal.";
   el.innerHTML = "";
   const b = document.createElement("b");
-  b.textContent = climate.meta?.phase || "—";
-  b.style.color = (climate.meta?.phase || "").includes("El Niño") ? "#d3342f" : (climate.meta?.phase || "").includes("La Niña") ? "#2563eb" : "#8a8277";
-  el.append(b, document.createTextNode(` · anomaly ${climate.value >= 0 ? "+" : ""}${climate.value}°C · ${climate.meta?.season ?? ""} ${climate.meta?.year ?? ""}`));
+  b.textContent = phase;
+  b.style.color = color;
+  el.append(b, document.createTextNode(" — " + text));
 }
 
 function renderQuakes(quakes) {
   const ul = $("quakes");
   ul.innerHTML = "";
-  if (!quakes.length) { ul.innerHTML = '<li class="muted">No quakes ≥4.5 in the last week.</li>'; return; }
-  for (const q of quakes.slice(0, 8)) {
+  if (!quakes.length) { ul.innerHTML = '<li class="muted">No quakes at 4.5+ in the last week around Malaysia.</li>'; return; }
+  const rows = [...quakes].sort((a, b) => b.magnitude - a.magnitude);
+  for (const q of rows.slice(0, 8)) {
     const li = document.createElement("li");
     li.style.cursor = "default";
     li.style.borderLeftColor = magColor(q.magnitude);
@@ -176,7 +205,7 @@ function renderQuakes(quakes) {
     name.textContent = q.stationName;
     const meta = document.createElement("div");
     meta.className = "band";
-    meta.textContent = `${timeAgo(q.measuredAt)} · depth ${q.meta?.depth ?? "?"} km`;
+    meta.textContent = "Magnitude " + q.magnitude + " · " + magWord(q.magnitude) + " · " + timeAgo(q.measuredAt);
     grow.append(name, meta);
     const val = document.createElement("div");
     val.className = "val";
@@ -185,6 +214,7 @@ function renderQuakes(quakes) {
     li.append(grow, val);
     ul.append(li);
   }
+  if (rows[0]) hworst.textContent = `Strongest recently: ${rows[0].stationName}`;
 }
 
 async function load() {
@@ -195,11 +225,11 @@ async function load() {
     render(data.current || []);
     ago.textContent = new Date().toLocaleTimeString();
   } catch (e) {
-    list.innerHTML = `<li class="muted">Could not reach udara-api (${e.message})</li>`;
+    list.innerHTML = `<li class="muted">Could not reach the API (${e.message})</li>`;
   }
 }
 
-$("refresh").addEventListener("click", load);
+$("refresh").addEventListener("click", () => { load(); loadHazards(); });
 $("dclose").addEventListener("click", closeDetail);
 renderLegend();
 load();

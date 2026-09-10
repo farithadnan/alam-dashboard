@@ -20,9 +20,9 @@ body {
 }
 
 .top {
-  max-width: 640px; margin: 0 auto; padding: 20px 20px 4px;
-  display: flex; align-items: baseline; justify-content: space-between;
+  max-width: 640px; margin: 0 auto; padding: 18px 20px 0;
 }
+.top-bar { display: flex; align-items: center; justify-content: space-between; }
 .brand { font-weight: 700; letter-spacing: 0.02em; font-size: 17px; }
 .brand .dot { color: var(--accent); }
 .ghost {
@@ -31,6 +31,20 @@ body {
   font-family: inherit; transition: border-color .15s, color .15s;
 }
 .ghost:hover { border-color: var(--accent); color: var(--fg); }
+
+/* top-bar nav (solat.my style): one section at a time */
+.topnav { display: flex; gap: 4px; margin: 12px 0 0; border-bottom: 1px solid var(--line); }
+.topnav button {
+  background: none; border: none; padding: 9px 16px;
+  color: var(--muted); font: inherit; font-size: 14.5px; cursor: pointer;
+  border-bottom: 2px solid transparent; margin-bottom: -1px;
+}
+.topnav button.on { color: var(--fg); font-weight: 650; border-bottom-color: var(--accent); }
+.topnav button:disabled { opacity: .4; cursor: not-allowed; }
+
+/* single-section views */
+.view { display: none; }
+.view.on { display: block; }
 
 main { max-width: 640px; margin: 0 auto; padding: 0 20px 60px; }
 h1 { font-size: 1.65rem; line-height: 1.15; margin: 18px 0 4px; font-weight: 750; letter-spacing: -0.01em; }
@@ -72,10 +86,6 @@ h1 { font-size: 1.65rem; line-height: 1.15; margin: 18px 0 4px; font-weight: 750
 
 .muted { color: var(--muted); }
 
-/* hazards */
-.hazards { margin-top: 30px; }
-.hazards h2 { font-size: 1.15rem; font-weight: 700; margin: 0 0 6px; }
-.hazards h3.qh { font-size: 14px; font-weight: 600; color: var(--muted); margin: 18px 0 4px; }
 .climate { font-size: 15px; }
 .climate b { font-weight: 700; }
 
