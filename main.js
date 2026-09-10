@@ -259,13 +259,82 @@ function renderClimate(climate) {
   el.append(b, document.createTextNode(" — " + text));
 }
 
+/* ---- 7-day forecast (mobile-app style) ---- */
+const WMO = {
+  "0": ["☀️", "Clear"], "1": ["🌤️", "Mostly clear"], "2": ["⛅", "Partly cloudy"], "3": ["☁️", "Overcast"],
+  "45": ["🌫️", "Fog"], "48": ["🌫️", "Fog"],
+  "51": ["🌦️", "Drizzle"], "53": ["🌦️", "Drizzle"], "55": ["🌦️", "Drizzle"],
+  "61": ["🌧️", "Rain"], "63": ["🌧️", "Rain"], "65": ["🌧️", "Rain"],
+  "80": ["🌧️", "Showers"], "81": ["🌧️", "Showers"], "82": ["🌧️", "Showers"],
+  "71": ["❄️", "Snow"], "73": ["❄️", "Snow"], "75": ["❄️", "Snow"],
+  "95": ["⛈️", "Thunderstorm"], "96": ["⛈️", "Thunderstorm"], "99": ["⛈️", "Thunderstorm"],
+};
+function wmo(code) { return WMO[String(code)] || ["🌡️", "—"]; }
+const DAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+let fCity = null;
+let lastForecast = [];
+
+function el(tag, cls, text) { const n = document.createElement(tag); n.className = cls; if (text != null) n.textContent = text; return n; }
+
+function buildCityPicker(cities) {
+  if ($("fcity").children.length) return;
+  const seg = $("fcity");
+  for (const c of cities) {
+    const b = document.createElement("button");
+    b.type = "button";
+    b.dataset.city = c;
+    b.textContent = c === "johor-bahru" ? "Johor Bahru" : c.split("-").map((w) => w[0].toUpperCase() + w.slice(1)).join(" ");
+    if (!fCity) { fCity = c; b.classList.add("on"); }
+    seg.append(b);
+  }
+  seg.addEventListener("click", (e) => {
+    const btn = e.target.closest("button[data-city]");
+    if (!btn) return;
+    fCity = btn.dataset.city;
+    seg.querySelectorAll("button").forEach((x) => x.classList.toggle("on", x === btn));
+    renderForecast(lastForecast);
+  });
+}
+
+function renderForecast(rows) {
+  lastForecast = rows;
+  const ul = $("forecast");
+  ul.innerHTML = "";
+  const mine = rows.filter((r) => r.station === fCity).sort((a, b) => a.measuredAt.localeCompare(b.measuredAt));
+  if (!mine.length) { ul.innerHTML = '<li class="muted">No forecast yet.</li>'; return; }
+  const today = new Date().toISOString().slice(0, 10);
+  for (const r of mine.slice(0, 7)) {
+    const d = new Date(r.measuredAt);
+    const dayName = r.measuredAt.slice(0, 10) === today ? "Today" : DAYS[d.getUTCDay()];
+    const [icon, label] = wmo(r.meta?.code);
+    const rain = r.meta?.precip;
+    const li = document.createElement("li");
+    li.append(
+      el("span", "fday", dayName),
+      el("span", "fcond", `${icon} ${label}`),
+      el("span", "frain", rain != null && rain > 0 ? "☔ " + Math.round(rain) + "%" : ""),
+    );
+    const temps = document.createElement("span");
+    temps.className = "ftemps";
+    temps.append(
+      el("span", "hi", Math.round(r.meta?.tmax ?? r.value) + "°"),
+      el("span", "lo", Math.round(r.meta?.tmin ?? 0) + "°"),
+    );
+    li.append(temps);
+    ul.append(li);
+  }
+}
+
 async function loadWeather() {
   try {
-    const [cur, haz] = await Promise.all([
+    const [cur, fc, haz] = await Promise.all([
       fetch(`${API_BASE}/current?source=open-meteo`).then((r) => r.json()),
+      fetch(`${API_BASE}/forecast?source=open-meteo`).then((r) => r.json()),
       fetch(`${API_BASE}/hazards`).then((r) => r.json()),
     ]);
     renderWeather(cur.current || []);
+    buildCityPicker([...new Set((cur.current || []).map((r) => r.station))]);
+    renderForecast(fc.forecast || []);
     renderClimate(haz.climate || null);
     wago.textContent = new Date().toLocaleTimeString();
   } catch (e) { $("weather").innerHTML = '<li class="muted">Weather unavailable (' + e.message + ")</li>"; }

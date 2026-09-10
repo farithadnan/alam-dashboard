@@ -94,6 +94,15 @@ h1 { font-size: 1.65rem; line-height: 1.15; margin: 18px 0 4px; font-weight: 750
 .seg button.on { background: var(--accent); color: #fff; }
 .spacer { flex: 1; }
 
+/* 7-day forecast rows (mobile-app style) */
+.forecast { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--line); }
+.forecast li { display: flex; align-items: center; gap: 10px; padding: 9px 10px; border-bottom: 1px solid var(--line); }
+.forecast .fday { width: 44px; font-weight: 650; font-size: 14px; }
+.forecast .fcond { flex: 1; font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.forecast .frain { color: var(--muted); font-size: 12.5px; width: 58px; text-align: right; white-space: nowrap; }
+.forecast .ftemps { width: 92px; text-align: right; font: 600 14px/1 var(--mono); white-space: nowrap; }
+.forecast .ftemps .lo { color: var(--muted); margin-left: 6px; }
+
 .climate { font-size: 15px; }
 .climate b { font-weight: 700; }
 
