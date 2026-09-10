@@ -14,33 +14,42 @@ function sendReport() {
 }
 </script>
 
-<section class="mx-auto max-w-[60ch] py-6">
+<section class="py-4">
   <h2 class="text-[22px] font-bold">{tr("aboutTitle")}</h2>
-  <p class="mt-2 leading-relaxed">{tr("aboutWhat")}</p>
+  <p class="mt-1 max-w-[60ch] leading-relaxed">{tr("aboutWhat")}</p>
 
-  <h3 class="mt-6 text-[16px] font-bold">{tr("featTitle")}</h3>
-  <ul class="mt-2 list-disc space-y-1 pl-5">
-    {#each feats as f (f)}
-      <li>{f}</li>
-    {/each}
-  </ul>
+  <div class="mt-4 grid grid-cols-1 gap-3 md:grid-cols-2">
+    <div class="glass rounded-2xl p-4">
+      <h3 class="mt-0 text-[15px] font-bold">{tr("featTitle")}</h3>
+      <ul class="mt-2 list-disc space-y-1 pl-5">
+        {#each feats as f (f)}
+          <li>{f}</li>
+        {/each}
+      </ul>
+    </div>
 
-  <h3 class="mt-6 text-[16px] font-bold">{tr("apprecTitle")}</h3>
-  <p class="mt-1 leading-relaxed text-muted">{tr("apprecText")}</p>
+    <div class="glass rounded-2xl p-4">
+      <h3 class="mt-0 text-[15px] font-bold">{tr("apprecTitle")}</h3>
+      <p class="mt-1 leading-relaxed text-muted">{tr("apprecText")}</p>
+    </div>
 
-  <h3 class="mt-6 text-[16px] font-bold">{tr("discTitle")}</h3>
-  <p class="mt-1 leading-relaxed text-muted">{tr("discText")}</p>
+    <div class="glass rounded-2xl p-4">
+      <h3 class="mt-0 text-[15px] font-bold">{tr("discTitle")}</h3>
+      <p class="mt-1 leading-relaxed text-muted">{tr("discText")}</p>
+    </div>
 
-  <h3 class="mt-6 text-[16px] font-bold">{tr("privTitle")}</h3>
-  <p class="mt-1 leading-relaxed text-muted">{tr("privText")}</p>
+    <div class="glass rounded-2xl p-4">
+      <h3 class="mt-0 text-[15px] font-bold">{tr("privTitle")}</h3>
+      <p class="mt-1 leading-relaxed text-muted">{tr("privText")}</p>
+    </div>
 
-  <h3 class="mt-6 text-[16px] font-bold">{tr("contactTitle")}</h3>
-  <p class="mt-1"><a class="text-accent underline" href="mailto:hello@ohmyalam.com">hello@ohmyalam.com</a></p>
-
-  <div class="mt-8 flex gap-2">
-    <button class="btn-primary" onclick={() => (reportOpen = true)}>{tr("reportBtn")}</button>
-    <a class="ghostbtn" href="https://solat.my/tentang" target="_blank" rel="noopener">solat.my · tentang</a>
+    <div class="glass rounded-2xl p-4 md:col-span-2">
+      <h3 class="mt-0 text-[15px] font-bold">{tr("contactTitle")}</h3>
+      <p class="mt-1"><a class="text-accent underline" href="mailto:hello@ohmyalam.com">hello@ohmyalam.com</a></p>
+    </div>
   </div>
+
+  <button class="btn-primary mt-6" onclick={() => (reportOpen = true)}>{tr("reportBtn")}</button>
 </section>
 
 {#if reportOpen}

@@ -1,6 +1,6 @@
 // Minimal BM/EN i18n as a shared runes store. Strings keyed; components call tr('key').
 const en = {
-  navWeather: "Weather", navAQI: "Air quality", navHazards: "Earthquakes", navAbout: "About", changeLoc: "Change location",
+  navWeather: "Weather", navAQI: "AQI", navHazards: "Earthquakes", navAbout: "About", changeLoc: "Change location",
   scopeNear: "Near me", scopeState: "State", scopeMalaysia: "Malaysia",
   state: "State", town: "Town", useLoc: "Use my location", locating: "Locating…", location: "Location",
   feels: "Feels like", humidity: "humidity", wind: "wind", uv: "UV",
@@ -58,9 +58,14 @@ const en = {
   reportEmail: "Your email (optional)",
   reportSend: "Send report",
   reportThanks: "Your email app should open with the report ready to send.",
+  apiTitle: "API",
+  apiIntro: "Alam serves a small JSON API — the same one powering this site. It is open, free, and requires no key.",
+  apiNote: "Be kind: the API is backed by cached public data and is not yet rate-limited. A stable, versioned public API with full docs is on its way.",
+  apiTry: "Try an endpoint",
+  apiMethods: { summary: "Current + forecast + hazards bundle (optionally per state)", stations: "Known monitoring stations", history: "24h/7d history for a station", hazards: "Warnings, earthquakes and climate" },
 };
 const ms = {
-  navWeather: "Cuaca", navAQI: "Kualiti udara", navHazards: "Gempa bumi", navAbout: "Tentang", changeLoc: "Tukar lokasi",
+  navWeather: "Cuaca", navAQI: "AQI", navHazards: "Gempa bumi", navAbout: "Tentang", changeLoc: "Tukar lokasi",
   scopeNear: "Berdekatan", scopeState: "Negeri", scopeMalaysia: "Malaysia",
   state: "Negeri", town: "Bandar", useLoc: "Guna lokasi saya", locating: "Mengesan…", location: "Lokasi",
   feels: "Terasa seperti", humidity: "kelembapan", wind: "angin", uv: "UV",
