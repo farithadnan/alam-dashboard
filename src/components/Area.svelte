@@ -87,12 +87,14 @@ function useLocation() {
 {#if app.updated}<p class="caption mt-1">From DOE APIMS · Open-Meteo · updated {app.updated}</p>{/if}
 
 {#if nowCard.w}
+  {@const [nowIcon] = wmo(nowCard.w.meta?.code)}
   <div class="my-2">
     <div class="text-[15px] font-semibold">{townName}</div>
-    <div class="flex items-end justify-between gap-4">
-      <div class="flex items-end gap-4">
+    <div class="flex items-end justify-between gap-3">
+      <div class="flex min-w-0 flex-wrap items-end gap-3">
+        {#if nowIcon}<span class="shrink-0 text-[40px] leading-none" aria-hidden="true">{nowIcon}</span>{/if}
         <div class="font-mono text-[46px] font-extrabold leading-none tracking-tighter">{Math.round(nowCard.w.value)}°</div>
-        <div class="pb-1">
+        <div class="min-w-0 pb-1">
           <div class="text-[13px] text-muted">Feels like {Math.round(nowCard.w.meta?.apparentTemp ?? nowCard.w.value)}°</div>
           <div class="text-[12.5px] text-muted">{nowCard.w.meta?.humidity ?? "–"}% humidity · wind {nowCard.w.meta?.wind ?? "–"} km/h · UV {nowCard.a?.meta?.uv ?? "–"}</div>
         </div>
