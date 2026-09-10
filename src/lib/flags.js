@@ -48,6 +48,17 @@ export const WMO = {
 export const wmo = (code) => WMO[String(code)] || ["🌡️", "—"];
 export const DAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
+/** Generic group-by returning [{ key, items }] preserving insertion order. */
+export const groupBy = (arr, keyFn) => {
+  const m = new Map();
+  for (const x of arr) {
+    const k = keyFn(x);
+    if (!m.has(k)) m.set(k, []);
+    m.get(k).push(x);
+  }
+  return [...m.entries()].map(([key, items]) => ({ key, items }));
+};
+
 export function timeAgo(iso) {
   const s = (Date.now() - new Date(iso).getTime()) / 1000;
   if (s < 3600) return `${Math.max(1, Math.round(s / 60))}m ago`;
@@ -99,8 +110,7 @@ export function regionOf(place) {
   return "Other";
 }
 const COMPASS = { NNW:"north-northwest", NW:"northwest", WNW:"west-northwest", N:"north", NNE:"north-northeast", NE:"northeast", ENE:"east-northeast", E:"east", ESE:"east-southeast", SE:"southeast", SSE:"south-southeast", S:"south", SSW:"south-southwest", SW:"southwest", WSW:"west-southwest", W:"west" };
-export function friendlyLoc(place) {
-  let s = place || "";
+export function friendlyLoc(place) {  let s = place || "";
   for (const [a, w] of Object.entries(COMPASS)) s = s.replace(new RegExp(`\\b${a}\\b`), w);
   return s.split(",")[0];
 }

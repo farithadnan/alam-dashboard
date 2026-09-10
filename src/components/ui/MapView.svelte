@@ -2,7 +2,7 @@
 import { onMount, onDestroy } from "svelte";
 import L from "leaflet";
 
-let { pts = [], fit = true, class: cls = "h-64 w-full rounded-xl" } = $props(); // pts: [{lat, lon, title, color, size}]
+let { pts = [], fit = true, fitMax = 10, class: cls = "h-64 w-full rounded-xl" } = $props(); // pts: [{lat, lon, title, color, size, emoji, num}]
 let el;
 let map;
 let icons = [];
@@ -32,18 +32,22 @@ function draw() {
     const d = p.size || 10;
     const col = p.color || "#c14a1f";
     const pulse = p.ripple ? `<span class="alam-pulse" style="border:2px solid ${col}"></span>` : "";
-    const icon = L.divIcon({
+    const label = p.emoji
+      ? `<span style="font-size:${Math.max(12, d * 0.9)}px;line-height:1">${p.emoji}</span>`
+      : `<span style="font-size:${Math.max(8, d * 0.55)}px;font-weight:700;color:#fff">${p.num ?? ""}</span>`;
+    const config = {
       className: "alam-pin",
-      html: `<div style="position:relative;width:${d}px;height:${d}px;border-radius:50%;background:${col};border:2px solid #fff;box-shadow:0 0 0 4px ${col}33, 0 2px 6px rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center;color:#fff;font-size:${Math.max(8, d * 0.55)}px;font-weight:700">${p.num ?? ""}${pulse}</div>`,
+      html: `<div style="position:relative;width:${d}px;height:${d}px;border-radius:50%;background:${col};border:2px solid #fff;box-shadow:0 0 0 4px ${col}33, 0 2px 6px rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center">${label}${pulse}</div>`,
       iconSize: [d, d],
       iconAnchor: [d / 2, d / 2],
-    });
+    };
+    const icon = L.divIcon(config);
     const m = L.marker([p.lat, p.lon], { icon }).addTo(map);
     if (p.title) m.bindPopup(p.title);
     icons.push(m);
   }
   if (fit && pts.length) {
-    map.fitBounds(L.latLngBounds(pts.map((p) => [p.lat, p.lon])).pad(0.25));
+    map.fitBounds(L.latLngBounds(pts.map((p) => [p.lat, p.lon])).pad(0.25), { maxZoom: fitMax });
   }
 }
 $effect(() => {

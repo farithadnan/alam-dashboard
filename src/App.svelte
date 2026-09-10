@@ -7,6 +7,7 @@ import { nearestState } from "./lib/flags.js";
 import Weather from "./components/Weather.svelte";
 import Air from "./components/Air.svelte";
 import Hazards from "./components/Hazards.svelte";
+import About from "./components/About.svelte";
 
 let view = $state("weather");
 let locOpen = $state(false);
@@ -101,12 +102,7 @@ function toggleLang() {
   {:else if view === "hazards"}
     <Hazards />
   {:else}
-    <section class="mx-auto max-w-[56ch] py-8">
-      <h2 class="text-[20px] font-bold">{tr("aboutTitle")}</h2>
-      <p class="mt-3 leading-relaxed">{tr("aboutText")}</p>
-      <p class="caption mt-4">{tr("sources")}</p>
-      <button class="btn-primary mt-6" onclick={() => (view = "weather")}>{tr("navWeather")}</button>
-    </section>
+    <About />
   {/if}
 </main>
 
