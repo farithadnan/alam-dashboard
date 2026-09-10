@@ -10,11 +10,15 @@ let icons = [];
 onMount(() => {
   if (!el) return;
   map = L.map(el, { zoomControl: true, attributionControl: true }).setView([4.1, 109.2], 5);
-  L.tileLayer("https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png", {
-    attribution: "&copy; OpenStreetMap contributors &copy; CARTO",
-    subdomains: "abcd",
-    maxZoom: 19,
-  }).addTo(map);
+  const key = import.meta.env.VITE_CARTO_KEY;
+  L.tileLayer(
+    `https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png${key ? `?key=${key}` : ""}`,
+    {
+      attribution: "&copy; OpenStreetMap contributors &copy; CARTO",
+      subdomains: "abcd",
+      maxZoom: 19,
+    },
+  ).addTo(map);
   draw();
   return () => { if (map) { map.remove(); map = null; } };
 });

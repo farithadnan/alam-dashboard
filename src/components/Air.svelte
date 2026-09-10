@@ -37,7 +37,7 @@ function atTown(o) {
 
 {#if app.loading}<p class="caption mb-2">{tr("updating")}</p>{/if}
 
-<MapView pts={mapPts} class="h-72 w-full rounded-xl lg:h-[440px]" />
+<MapView pts={mapPts} class="h-72 w-full rounded-xl lg:h-[58vh] lg:min-h-[440px]" />
 
 {#if legend.length}
   <ul class="mt-2 flex list-none flex-wrap gap-2 p-0 text-[12px]">

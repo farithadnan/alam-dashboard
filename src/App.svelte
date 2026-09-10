@@ -82,7 +82,7 @@ function toggleLang() {
       </label>
       <label class="mt-3 flex flex-col gap-1">
         <span class="caption text-[12px]">{tr("town")}</span>
-        <select bind:value={app.town}>
+        <select bind:value={app.town} disabled={app.loading}>
           {#each towns as t (t)}
             <option value={t}>{app.data?.weather?.find((r) => r.station === t && r.kind === "weather")?.stationName ?? t}</option>
           {/each}
