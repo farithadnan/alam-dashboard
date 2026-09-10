@@ -6,9 +6,6 @@ export default defineConfig({
     emptyOutDir: true,
   },
   server: {
-    proxy: {
-      // dev nicety: `vite` proxies /api to the local udara-api
-      "/api": "http://localhost:8080",
-    },
+    proxy: { "/api": "http://localhost:8080" },
   },
 });
