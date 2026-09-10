@@ -1,39 +1,32 @@
 <script>
 import { app } from "../lib/store.svelte.js";
 import { getHistory } from "../lib/api.js";
-import { numColor, cityOf, nearestState, wmo, DAYS } from "../lib/flags.js";
+import { numColor, cityOf, wmo, DAYS } from "../lib/flags.js";
 import Sparkline from "./ui/Sparkline.svelte";
 import Seg from "./ui/Seg.svelte";
 
 let hours = $state(24);
-let detail = $state(null); // {station, name, value, label, values, color}
-let showAqiHint = $state(true);
+let detail = $state(null);
+let openStations = $state(false);
 
-const states = $derived(app.data?.states ?? []);
 const stations = $derived((app.data?.stations ?? []).slice().sort((a, b) => b.value - a.value));
 const weather = $derived(app.data?.weather ?? []);
-const towns = $derived([...new Set(weather.filter((r) => r.kind === "weather").map((r) => r.station))]);
+const townName = $derived(weather.find((r) => r.station === app.town && r.kind === "weather")?.stationName ?? app.town ?? "");
 const nowCard = $derived({
   w: weather.find((r) => r.station === app.town && r.kind === "weather"),
   a: weather.find((r) => r.station === app.town && r.kind === "aqi"),
 });
 const myForecast = $derived((app.data?.forecast ?? []).filter((r) => r.station === app.town).sort((a, b) => a.measuredAt.localeCompare(b.measuredAt)));
 const worst = $derived(stations[0]);
-const climate = $derived(app.data?.hazards?.climate ?? null);
-const townName = $derived(weather.find((r) => r.station === app.town && r.kind === "weather")?.stationName ?? app.town ?? "");
-const today = new Date().toISOString().slice(0, 10);
 const heroAir = $derived(stations.find((s) => atTown(s)) ?? null);
-const RANK = { Good: 0, Moderate: 1, Unhealthy: 2, "Very Unhealthy": 3, Hazardous: 4 };
-const unhealthiest = $derived(stations.reduce((a, b) => (a && RANK[a.band?.label] >= RANK[b.band?.label] ? a : b), null));
+const today = new Date().toISOString().slice(0, 10);
 
-/** Rough match: is a monitoring station inside/at the selected town? (stations are district-level) */
 function atTown(o) {
   const t = (townName || "").toLowerCase().replace(/\s+/g, " ");
   const s = (o.stationName || o.station || "").toLowerCase().replace(/\s+/g, " ");
   if (!t || !s) return false;
   return s.includes(t) || t.includes(s) || o.station === app.town;
 }
-
 async function openDetail(o) {
   if (hours <= 24) {
     detail = { station: o.station, name: cityOf(o.stationName), value: o.value, label: o.band?.label, values: o.trend ?? [], color: numColor(o.band?.label) };
@@ -47,50 +40,15 @@ function setHours(h) {
   const o = stations.find((s) => s.station === detail?.station);
   if (o) openDetail(o);
 }
-function onGeo(pos) {
-  const near = nearestState(pos.coords.latitude, pos.coords.longitude);
-  if (near && states.includes(near.name)) app.state = near.name;
-}
-let locBusy = $state(false);
-function useLocation() {
-  if (!navigator.geolocation) return;
-  locBusy = true;
-  navigator.geolocation.getCurrentPosition(
-    (p) => { onGeo(p); locBusy = false; },
-    () => { locBusy = false; },
-    { timeout: 8000 },
-  );
-}
 </script>
 
 {#if app.loading}<p class="caption mb-2">Loading…</p>{/if}
 
-<div class="flex flex-wrap items-end gap-2">
-  <label class="flex flex-col gap-0.5">
-    <span class="caption text-[12px]">State</span>
-    <select bind:value={app.state}>
-      {#each states as name (name)}
-        <option value={name}>{name}</option>
-      {/each}
-    </select>
-  </label>
-  <label class="flex flex-col gap-0.5">
-    <span class="caption text-[12px]">Town</span>
-    <select bind:value={app.town}>
-      {#each towns as t (t)}
-        <option value={t}>{weather.find((r) => r.station === t)?.stationName ?? t}</option>
-      {/each}
-    </select>
-  </label>
-  <button class="btn-primary" onclick={useLocation}>{locBusy ? "Locating…" : "Use my location"}</button>
-</div>
-{#if app.updated}<p class="caption mt-1">From DOE APIMS · Open-Meteo · updated {app.updated}</p>{/if}
-
 {#if nowCard.w}
   {@const [nowIcon] = wmo(nowCard.w.meta?.code)}
-  <div class="my-2">
-    <div class="text-[15px] font-semibold">{townName}</div>
-    <div class="flex items-end justify-between gap-3">
+  <div class="my-1">
+    <div class="text-[15px] font-semibold">{townName}{#if app.state}<span class="text-muted">, {app.state}</span>{/if}</div>
+    <div class="mt-1 flex items-end justify-between gap-3">
       <div class="flex min-w-0 flex-wrap items-end gap-3">
         {#if nowIcon}<span class="shrink-0 text-[40px] leading-none" aria-hidden="true">{nowIcon}</span>{/if}
         <div class="font-mono text-[46px] font-extrabold leading-none tracking-tighter">{Math.round(nowCard.w.value)}°</div>
@@ -106,17 +64,12 @@ function useLocation() {
           <div class="text-[11px] font-semibold" style="color:{numColor(heroAir.band?.label)}">{heroAir.band?.label}</div>
         </div>
       {:else}
-        <div class="shrink-0 text-right text-[12px] text-muted">No monitor in {townName}<br />Nearest station is in the air list below</div>
+        <div class="shrink-0 text-right text-[12px] text-muted">No air monitor in {townName}</div>
       {/if}
     </div>
   </div>
 {/if}
-{#if unhealthiest && RANK[unhealthiest.band?.label] >= 2}
-  <div class="mb-2 flex items-center gap-2.5 rounded-xl px-3 py-2.5" style="background:color-mix(in srgb, {numColor(unhealthiest.band?.label)} 12%, transparent)">
-    <span class="font-mono text-[20px] font-bold" style="color:{numColor(unhealthiest.band?.label)}">{unhealthiest.value}</span>
-    <span class="text-[13px]"><b>{cityOf(unhealthiest.stationName)}</b> · {unhealthiest.band?.label} — {unhealthiest.band?.advice}</span>
-  </div>
-{/if}
+{#if app.updated}<p class="caption mb-1 text-[12px]">Updated {app.updated} · DOE APIMS &amp; Open-Meteo</p>{/if}
 
 <h3 class="qh">7-day forecast</h3>
 <ul class="list-none m-0 border-t border-line p-0">
@@ -134,58 +87,51 @@ function useLocation() {
   {/each}
 </ul>
 
-<h3 class="qh">Air quality · {app.state}</h3>
-{#if stations.length}
-  <p class="caption -mt-1">Air quality is measured at district monitoring stations — not every town has its own.</p>
-  {#if worst}
-    <p class="mt-2 text-[14px] text-muted">Worst station in {app.state}: <b class="text-fg">{cityOf(worst.stationName)}</b> at <b style="color:{numColor(worst.band?.label)}">{worst.value}</b> ({worst.band?.label}). {worst.band?.advice}</p>
-  {/if}
-{/if}
-
-{#if detail}
-  <div class="my-3 rounded-2xl border border-line bg-panel px-4 py-3">
-    <div class="flex items-baseline justify-between gap-2">
-      <span class="font-bold">{detail.name}</span>
-      <span class="font-mono text-[22px] font-semibold" style="color:{detail.color}">{detail.value}</span>
-      <span class="flex-1"></span>
-      <Seg options={[{ value: 24, label: "24h" }, { value: 168, label: "7d" }]} value={hours} onpick={setHours} />
-      <button class="ghostbtn" aria-label="Close trend" onclick={() => (detail = null)}>×</button>
-    </div>
-    {#if detail.values?.length >= 2}
-      <Sparkline values={detail.values} color={detail.color} class="h-[86px] w-full" />
+<button class="navbtn mt-3 w-full text-left font-bold" onclick={() => (openStations = !openStations)} aria-expanded={openStations}>
+  {openStations ? "Hide" : "View"} air stations in {app.state} ({stations.length})
+</button>
+{#if openStations}
+  {#if stations.length}
+    {#if worst}
+      <p class="caption mt-1">Worst: {cityOf(worst.stationName)} at <b style="color:{numColor(worst.band?.label)}">{worst.value}</b> ({worst.band?.label}). {worst.band?.advice}</p>
     {/if}
-    <p class="caption mt-1">{detail.label} · {hours >= 168 ? "past 7 days" : "past 24h"}</p>
-  </div>
-{/if}
-
-<ul class="list-none m-0 border-t border-line p-0">
-  {#each stations as o (o.station)}
-    <li
-      class="flex cursor-pointer items-center gap-3 border-b border-line px-2.5 py-3 pl-3.5 hover:bg-accent/5"
-      style="border-left:3px solid {numColor(o.band?.label)}"
-      tabindex="0"
-      role="button"
-      onclick={() => openDetail(o)}
-      onkeydown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); openDetail(o); } }}
-    >
-      <div class="min-w-0 flex-1">
-        <div class="flex items-center gap-1.5">
-          <span class="text-[15px] font-semibold leading-tight">{cityOf(o.stationName)}</span>
-          {#if atTown(o)}<span class="rounded bg-accent/15 px-1.5 py-0.5 text-[11px] font-bold text-fg">Your town</span>{/if}
-        </div>
-        <div class="text-[12.5px] text-muted">{o.band?.label} · {o.band?.advice}</div>
+  {/if}
+  {#if detail}
+    <div class="my-3 rounded-2xl border border-line bg-panel px-4 py-3">
+      <div class="flex items-baseline justify-between gap-2">
+        <span class="font-bold">{detail.name}</span>
+        <span class="font-mono text-[22px] font-semibold" style="color:{detail.color}">{detail.value}</span>
+        <span class="flex-1"></span>
+        <Seg options={[{ value: 24, label: "24h" }, { value: 168, label: "7d" }]} value={hours} onpick={setHours} />
+        <button class="ghostbtn" aria-label="Close trend" onclick={() => (detail = null)}>×</button>
       </div>
-      <Sparkline values={o.trend} color={numColor(o.band?.label)} ariaLabel={"Air quality trend, past 24 hours"} width={120} height={26} />
-      <span class="font-mono text-[22px] font-semibold" style="color:{numColor(o.band?.label)}">{o.value}</span>
-      <span class="text-[13px] text-muted">&rsaquo;</span>
-    </li>
-  {/each}
-</ul>
-
-{#if climate}
-  {@const phase = climate.meta?.phase || "Neutral"}
-  {@const col = phase.includes("El Niño") ? "#d3342f" : phase.includes("La Niña") ? "#2563eb" : "#8f5c00"}
-  {@const text = phase.includes("El Niño") ? "El Niño is active — the equatorial Pacific is running warmer than usual." : phase.includes("La Niña") ? "La Niña is active — the equatorial Pacific is running cooler than usual." : "Neither El Niño nor La Niña — the equatorial Pacific is near normal."}
-  <h3 class="qh">Seasonal climate</h3>
-  <p class="text-[15px]"><b style="color:{col}">{phase}</b> — {text}</p>
+      {#if detail.values?.length >= 2}
+        <Sparkline values={detail.values} color={detail.color} class="h-[86px] w-full" />
+      {/if}
+      <p class="caption mt-1">{detail.label} · {hours >= 168 ? "past 7 days" : "past 24h"}</p>
+    </div>
+  {/if}
+  <ul class="list-none m-0 border-t border-line p-0">
+    {#each stations as o (o.station)}
+      <li
+        class="flex cursor-pointer items-center gap-3 border-b border-line px-2.5 py-3 pl-3.5 hover:bg-accent/5"
+        style="border-left:3px solid {numColor(o.band?.label)}"
+        tabindex="0"
+        role="button"
+        onclick={() => openDetail(o)}
+        onkeydown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); openDetail(o); } }}
+      >
+        <div class="min-w-0 flex-1">
+          <div class="flex items-center gap-1.5">
+            <span class="text-[15px] font-semibold leading-tight">{cityOf(o.stationName)}</span>
+            {#if atTown(o)}<span class="rounded bg-accent/15 px-1.5 py-0.5 text-[11px] font-bold text-fg">Your town</span>{/if}
+          </div>
+          <div class="text-[12.5px] text-muted">{o.band?.label} · {o.band?.advice}</div>
+        </div>
+        <Sparkline values={o.trend} color={numColor(o.band?.label)} ariaLabel={"Air quality trend, past 24 hours"} width={120} height={26} />
+        <span class="font-mono text-[22px] font-semibold" style="color:{numColor(o.band?.label)}">{o.value}</span>
+        <span class="text-[13px] text-muted">&rsaquo;</span>
+      </li>
+    {/each}
+  </ul>
 {/if}

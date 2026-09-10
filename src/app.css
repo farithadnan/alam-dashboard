@@ -48,6 +48,16 @@ select { min-height: 44px; border: 1px solid var(--color-line); border-radius: 1
 .segbtn { background: none; border: none; padding: 3px 11px; font-size: 12px; color: var(--color-muted); cursor: pointer; font-family: inherit; }
 .segbtn.on { background: var(--color-accent); color: #fff; }
 .seg { display: inline-flex; border: 1px solid var(--color-line); border-radius: 999px; overflow: hidden; }
+
+/* Dark theme — overrides the @theme tokens on <html data-theme="dark"> */
+[data-theme="dark"] {
+  --color-bg: #16181b;
+  --color-fg: #eceef1;
+  --color-muted: #c3baaa;
+  --color-line: #35393f;
+  --color-panel: #1e2126;
+  --color-accent: #e86a3a;
+}
 .qh { font-size: 14px; font-weight: 650; color: var(--color-muted); margin: 20px 0 4px; }
 .caption { font-size: 13.5px; color: var(--color-muted); }
 .sparkline { width: 100%; height: 100%; display: block; }
