@@ -16,6 +16,15 @@
     <h1>Johor air quality</h1>
     <p class="sub">Live readings from <span class="src">DOE APIMS</span> · updated <span id="ago">…</span></p>
     <ul class="band-legend" id="legend"></ul>
+    <section id="detail" class="detail" hidden>
+      <div class="detail-head">
+        <span class="name" id="dname"></span>
+        <span class="val" id="dval"></span>
+        <button id="dclose" class="ghost" type="button" aria-label="Close trend">×</button>
+      </div>
+      <svg id="chart" class="chart" role="img" aria-label="24-hour AQI trend"></svg>
+      <p class="meta" id="dmeta"></p>
+    </section>
     <ul id="stations" class="stations"><li class="muted">Loading…</li></ul>
     <p class="health" id="worst"></p>
   </main>
