@@ -1,6 +1,7 @@
 // Minimal BM/EN i18n as a shared runes store. Strings keyed; components call tr('key').
 const en = {
   navWeather: "Weather", navAQI: "AQI", navHazards: "Earthquakes", navAbout: "About", changeLoc: "Change location",
+  navHome: "Home", advisories: "Advisories", newsTitle: "Weather & hazard news", explore: "Explore", noNews: "No recent stories.", warningsInForce: "{n} warnings in force", quakesWeek: "{n} quakes this week",
   scopeNear: "Near me", scopeState: "State", scopeMalaysia: "Malaysia",
   state: "State", town: "Town", useLoc: "Use my location", locating: "Locating…", location: "Location",
   feels: "Feels like", humidity: "humidity", wind: "wind", uv: "UV",
@@ -67,6 +68,7 @@ const en = {
 };
 const ms = {
   navWeather: "Cuaca", navAQI: "AQI", navHazards: "Gempa bumi", navAbout: "Tentang", changeLoc: "Tukar lokasi",
+  navHome: "Utama", advisories: "Nasihat", newsTitle: "Berita cuaca & bahaya", explore: "Terokai", noNews: "Tiada berita terkini.", warningsInForce: "{n} amaran aktif", quakesWeek: "{n} gempa minggu ini",
   scopeNear: "Berdekatan", scopeState: "Negeri", scopeMalaysia: "Malaysia",
   state: "Negeri", town: "Bandar", useLoc: "Guna lokasi saya", locating: "Mengesan…", location: "Lokasi",
   feels: "Terasa seperti", humidity: "kelembapan", wind: "angin", uv: "UV",

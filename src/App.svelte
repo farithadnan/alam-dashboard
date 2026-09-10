@@ -5,13 +5,14 @@ import { theme, toggleTheme, applyTheme } from "./lib/theme.svelte.js";
 import { lang, setLang, tr } from "./lib/i18n.svelte.js";
 import { nearestState } from "./lib/flags.js";
 import Icon from "./components/ui/Icon.svelte";
+import Home from "./components/Home.svelte";
 import Weather from "./components/Weather.svelte";
 import Air from "./components/Air.svelte";
 import Hazards from "./components/Hazards.svelte";
 import About from "./components/About.svelte";
 import Api from "./components/Api.svelte";
 
-let view = $state("weather");
+let view = $state("home");
 let locOpen = $state(false);
 let locBusy = $state(false);
 
@@ -20,6 +21,7 @@ const towns = $derived((app.data?.allTowns ?? []).filter((t) => t.state === app.
 const townName = $derived(app.data?.weather?.find((r) => r.station === app.town && r.kind === "weather")?.stationName ?? app.data?.allTowns?.find((t) => t.station === app.town)?.name ?? app.town ?? "");
 
 const NAV = [
+  { view: "home", icon: "home", key: "navHome" },
   { view: "weather", icon: "weather", key: "navWeather" },
   { view: "air", icon: "air", key: "navAQI" },
   { view: "hazards", icon: "quake", key: "navHazards" },
@@ -67,12 +69,14 @@ function toggleLang() {
     </nav>
 
     <div class="ml-auto flex items-center gap-1.5">
-      {#if view !== "hazards"}
+      {#if view !== "hazards" && view !== "home"}
         <div class="seg hidden sm:flex">
           <button class:on={app.scope === "near"} class="segbtn" onclick={() => (app.scope = "near")}>{tr("scopeNear")}</button>
           <button class:on={app.scope === "state"} class="segbtn" onclick={() => (app.scope = "state")}>{tr("scopeState")}</button>
           <button class:on={app.scope === "malaysia"} class="segbtn" onclick={() => (app.scope = "malaysia")}>{tr("scopeMalaysia")}</button>
         </div>
+      {/if}
+      {#if view !== "hazards"}
         <button class="iconbtn" onclick={() => (locOpen = true)} aria-haspopup="dialog">📍 {townName || tr("changeLoc")}</button>
       {/if}
       <button class="iconbtn" onclick={toggleLang} aria-label="Language">{lang.code === "en" ? "BM" : "EN"}</button>
@@ -112,7 +116,9 @@ function toggleLang() {
 {/if}
 
 <main class="mx-auto w-full max-w-[1280px] px-4 pt-3 pb-24 sm:pb-10">
-  {#if view === "weather"}
+  {#if view === "home"}
+    <Home onNavigate={(v) => (view = v)} />
+  {:else if view === "weather"}
     <Weather />
   {:else if view === "air"}
     <Air />

@@ -12,5 +12,8 @@ let { name = "", size = 18, class: cls = "" } = $props();
     <path d="M3 16h8" />
   {:else if name === "quake"}
     <path d="M2 12h4l2-7 4 14 2-7h8" />
+  {:else if name === "home"}
+    <path d="M3 10.5 12 3l9 7.5" />
+    <path d="M5 9.5V20h14V9.5" />
   {/if}
 </svg>
