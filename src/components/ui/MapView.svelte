@@ -25,9 +25,11 @@ function draw() {
   icons = [];
   for (const p of pts) {
     const d = p.size || 10;
+    const col = p.color || "#c14a1f";
+    const pulse = p.ripple ? `<span class="alam-pulse" style="border:2px solid ${col}"></span>` : "";
     const icon = L.divIcon({
       className: "alam-pin",
-      html: `<div style="width:${d}px;height:${d}px;border-radius:50%;background:${p.color || "#c14a1f"};border:2px solid #fff;box-shadow:0 1px 3px rgba(0,0,0,.45);font-size:${Math.max(8, d * 0.55)}px;font-weight:700;color:#fff;display:flex;align-items:center;justify-content:center">${p.num ?? ""}</div>`,
+      html: `<div style="position:relative;width:${d}px;height:${d}px;border-radius:50%;background:${col};border:2px solid #fff;box-shadow:0 0 0 4px ${col}33, 0 2px 6px rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center;color:#fff;font-size:${Math.max(8, d * 0.55)}px;font-weight:700">${p.num ?? ""}${pulse}</div>`,
       iconSize: [d, d],
       iconAnchor: [d / 2, d / 2],
     });

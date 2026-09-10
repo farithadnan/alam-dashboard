@@ -21,6 +21,7 @@ const quakePts = $derived(
       title: `${friendlyLoc(q.stationName) || q.stationName} — M${Number(q.magnitude).toFixed(1)} ${magWordL(q.magnitude)}`,
       color: magText(magWord(q.magnitude)),
       size: Math.max(7, Math.min(20, (q.magnitude - 4) * 7)),
+      ripple: true,
     })),
 );
 let openW = $state({});

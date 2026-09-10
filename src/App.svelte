@@ -4,12 +4,13 @@ import { app, load } from "./lib/store.svelte.js";
 import { theme, toggleTheme, applyTheme } from "./lib/theme.svelte.js";
 import { lang, setLang, tr } from "./lib/i18n.svelte.js";
 import { nearestState } from "./lib/flags.js";
-import Area from "./components/Area.svelte";
+import Weather from "./components/Weather.svelte";
+import Air from "./components/Air.svelte";
 import Hazards from "./components/Hazards.svelte";
 
-let view = $state("area");
+let view = $state("weather");
+let locOpen = $state(false);
 let locBusy = $state(false);
-let aboutOpen = $state(false);
 
 const states = $derived(app.data?.states ?? []);
 const towns = $derived([...new Set((app.data?.weather ?? []).filter((r) => r.kind === "weather").map((r) => r.station))]);
@@ -32,6 +33,7 @@ function useLocation() {
       const near = nearestState(p.coords.latitude, p.coords.longitude);
       if (near && states.includes(near.name)) app.state = near.name;
       locBusy = false;
+      locOpen = false;
     },
     () => { locBusy = false; },
     { timeout: 8000 },
@@ -42,61 +44,72 @@ function toggleLang() {
 }
 </script>
 
-<header class="mx-auto w-full max-w-[1024px] px-5 pt-[16px]">
-  <div class="flex flex-wrap items-center justify-between gap-2">
-    <span class="text-[17px] font-bold tracking-wide">Alam<span class="text-accent">.</span></span>
-    <div class="flex items-center gap-2">
-      {#if app.loading}<span class="caption text-[12px]">{tr("updating")}</span>{/if}
-      <button class="ghostbtn" onclick={toggleLang} title="Language">{lang.code === "en" ? "BM" : "EN"}</button>
+<header class="glass sticky top-0 z-40 border-b border-line">
+  <div class="mx-auto flex w-full max-w-[1024px] flex-wrap items-center gap-x-4 gap-y-2 px-5 py-2.5">
+    <button class="text-[17px] font-bold tracking-wide" onclick={() => (view = "weather")} aria-label="Home">Alam<span class="text-accent">.</span></button>
+
+    <nav class="order-3 flex w-full gap-1 sm:order-2 sm:w-auto">
+      <button class:on={view === "weather"} class="navbtn" onclick={() => (view = "weather")}>{tr("navWeather")}</button>
+      <button class:on={view === "air"} class="navbtn" onclick={() => (view = "air")}>{tr("navAQI")}</button>
+      <button class:on={view === "hazards"} class="navbtn" onclick={() => (view = "hazards")}>{tr("navHazards")}</button>
+    </nav>
+
+    <div class="order-2 ml-auto flex items-center gap-2 sm:order-3">
+      <div class="relative">
+        <button class="ghostbtn" onclick={() => (locOpen = !locOpen)} aria-expanded={locOpen}>📍 {townName || tr("changeLoc")}{#if app.state}, {app.state}{/if} ▾</button>
+        {#if locOpen}
+          <div class="glass absolute right-0 z-50 mt-2 w-64 rounded-xl border border-line p-3 shadow-lg">
+            <div class="flex items-center justify-between">
+              <span class="caption">{tr("changeLoc")}</span>
+              <button class="ghostbtn" onclick={() => (locOpen = false)} aria-label="Close">×</button>
+            </div>
+            <label class="mt-2 flex flex-col gap-1">
+              <span class="caption text-[12px]">{tr("state")}</span>
+              <select bind:value={app.state}>
+                {#each states as name (name)}
+                  <option value={name}>{name}</option>
+                {/each}
+              </select>
+            </label>
+            <label class="mt-2 flex flex-col gap-1">
+              <span class="caption text-[12px]">{tr("town")}</span>
+              <select bind:value={app.town}>
+                {#each towns as t (t)}
+                  <option value={t}>{app.data?.weather?.find((r) => r.station === t && r.kind === "weather")?.stationName ?? t}</option>
+                {/each}
+              </select>
+            </label>
+            <button class="btn-primary mt-2 w-full" onclick={useLocation}>{locBusy ? tr("locating") : tr("useLoc")}</button>
+          </div>
+        {/if}
+      </div>
+      <button class="ghostbtn" onclick={toggleLang} title="Language" aria-label="Language">{lang.code === "en" ? "BM" : "EN"}</button>
       <button class="ghostbtn" onclick={toggleTheme} title="Dark mode" aria-label="Toggle dark mode">{theme.dark ? "☀" : "☾"}</button>
     </div>
   </div>
-
-  <div class="mt-3 flex flex-wrap items-end gap-2">
-    <label class="flex flex-col gap-0.5">
-      <span class="caption text-[12px]">{tr("state")}</span>
-      <select bind:value={app.state}>
-        {#each states as name (name)}
-          <option value={name}>{name}</option>
-        {/each}
-      </select>
-    </label>
-    <label class="flex flex-col gap-0.5">
-      <span class="caption text-[12px]">{tr("town")}</span>
-      <select bind:value={app.town}>
-        {#each towns as t (t)}
-          <option value={t}>{app.data?.weather?.find((r) => r.station === t && r.kind === "weather")?.stationName ?? t}</option>
-        {/each}
-      </select>
-    </label>
-    <button class="btn-primary" onclick={useLocation}>{locBusy ? tr("locating") : tr("useLoc")}</button>
-  </div>
-
-  {#if townName && app.state}
-    <p class="caption mt-1 uppercase tracking-wide text-[12px]">{tr("location")}: {townName}, {app.state}</p>
-  {/if}
 </header>
 
-<nav class="mx-auto mt-3 w-full max-w-[1024px] flex gap-1 border-b border-line px-5">
-  <button class:on={view === "area"} class="navbtn" onclick={() => (view = "area")}>{tr("navAir")}</button>
-  <button class:on={view === "hazards"} class="navbtn" onclick={() => (view = "hazards")}>{tr("navHazards")}</button>
-</nav>
-
-<main class="mx-auto w-full max-w-[1024px] px-5 pt-1 pb-10">
-  {#if view === "area"}
-    <Area />
-  {:else}
+<main class="mx-auto w-full max-w-[1024px] px-5 pt-3 pb-10">
+  {#if view === "weather"}
+    <Weather />
+  {:else if view === "air"}
+    <Air />
+  {:else if view === "hazards"}
     <Hazards />
+  {:else}
+    <section class="mx-auto max-w-[56ch] py-8">
+      <h2 class="text-[20px] font-bold">{tr("aboutTitle")}</h2>
+      <p class="mt-3 leading-relaxed">{tr("aboutText")}</p>
+      <p class="caption mt-4">{tr("sources")}</p>
+      <button class="btn-primary mt-6" onclick={() => (view = "weather")}>{tr("navWeather")}</button>
+    </section>
   {/if}
 </main>
 
-<footer class="mx-auto w-full max-w-[1024px] border-t border-line px-5 py-5 text-[12.5px] text-muted">
-  <div class="flex flex-wrap items-center gap-x-4 gap-y-1">
-    <button class="ghostbtn" onclick={() => (aboutOpen = !aboutOpen)} aria-expanded={aboutOpen}>{tr("about")}</button>
+<footer class="mx-auto w-full max-w-[1024px] border-t border-line px-5 py-6 text-center text-[12.5px] text-muted">
+  <div class="flex items-center justify-center gap-x-4 gap-y-1 flex-wrap">
+    <button class="ghostbtn" onclick={() => (view = "about")}>{tr("navAbout")}</button>
     <span>{tr("sources")}</span>
   </div>
-  {#if aboutOpen}
-    <p class="mt-2 max-w-[52ch]">{tr("aboutText")}</p>
-  {/if}
   <p class="mt-2">{tr("copyright")}</p>
 </footer>
