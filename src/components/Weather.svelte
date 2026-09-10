@@ -110,7 +110,7 @@ const hm = (t) => (t ? String(t).slice(11, 16) : "—");
     <p class="caption -mt-1">Average {Math.round(avg)}° · high {Math.round(hi)}° · low {Math.round(lo)}° · {towns.length} towns</p>
   {/if}
   {#if weatherPts.length}
-    <MapView pts={weatherPts} class="h-72 w-full rounded-xl lg:h-[56vh]" fitMax={app.scope === "state" ? 9 : 8} outline={{ type: "malaysia" }} />
+    <MapView pts={weatherPts} class="h-72 w-full rounded-xl lg:h-[56vh]" fitMax={app.scope === "state" ? 9 : 8} />
   {/if}
   {#each scopeGroups as g (g.key)}
     <Section title={g.key}>

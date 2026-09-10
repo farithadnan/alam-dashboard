@@ -11,9 +11,11 @@ const quakePts = $derived(
     .filter((q) => q.meta?.lat && q.meta?.lon)
     .map((q) => {
       const col = magText(magWord(q.magnitude));
+      const depth = q.meta?.depth != null ? `Depth ${Math.round(q.meta.depth)} km` : "";
+      const meta = [depth, regionOf(q.stationName)].filter(Boolean).join(" · ");
       return {
         lat: q.meta.lat, lon: q.meta.lon, color: col, num: Number(q.magnitude).toFixed(1), size: 26, ripple: true,
-        html: `<div style="font:600 15px system-ui;color:#242628">${friendlyLoc(q.stationName) || q.stationName}</div><div style="font:800 26px system-ui;line-height:1.1;color:${col}">M${Number(q.magnitude).toFixed(1)}</div><div style="font:600 12px system-ui;color:${col}">${magWordL(q.magnitude)}</div><div style="font:12px system-ui;color:#6b6258">Depth ${q.meta.depth ?? "—"} km · ${regionOf(q.stationName)}</div>`,
+        html: `<div style="font:600 15px system-ui;color:#242628">${friendlyLoc(q.stationName) || q.stationName}</div><div style="font:800 26px system-ui;line-height:1.1;color:${col}">M${Number(q.magnitude).toFixed(1)}</div><div style="font:600 12px system-ui;color:${col}">${magWordL(q.magnitude)}</div><div style="font:12px system-ui;color:#6b6258">${meta}</div>`,
       };
     }),
 );
@@ -26,7 +28,7 @@ let open = $state(null);
 <p class="caption -mt-1">{tr("quakeCap")}</p>
 
 {#if quakePts.length}
-  <MapView pts={quakePts} class="h-72 w-full rounded-xl lg:h-[52vh] lg:min-h-[400px]" fitMax={8} outline={{ type: "sea" }} />
+  <MapView pts={quakePts} class="h-72 w-full rounded-xl lg:h-[52vh] lg:min-h-[400px]" fitMax={8} />
 {/if}
 
 {#each groups as g (g.key)}
@@ -45,7 +47,8 @@ let open = $state(null);
           {#if open === q.station}
             <div class="px-3 pb-3 text-[13px] text-muted">
               <p class="m-0">Magnitude {q.magnitude?.toFixed(1)} · {magWordL(q.magnitude)}</p>
-              <p class="m-0">Depth {q.meta?.depth ? `${q.meta.depth} km` : "—"} · {regionOf(q.stationName)}</p>
+              {#if q.meta?.depth != null}<p class="m-0">Depth {Math.round(q.meta.depth)} km · {regionOf(q.stationName)}</p>
+              {:else}<p class="m-0">{regionOf(q.stationName)}</p>{/if}
               {#if q.meta?.url}<p class="m-0"><a class="text-accent underline" href={q.meta.url} target="_blank" rel="noopener">USGS event page ↗</a></p>{/if}
             </div>
           {/if}

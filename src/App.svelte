@@ -27,12 +27,6 @@ const NAV = [
   { view: "air", icon: "air", key: "navAQI" },
   { view: "hazards", icon: "quake", key: "navHazards" },
 ];
-const SOCIALS = [
-  { label: "X", href: "https://x.com/ohmyalam" },
-  { label: "Threads", href: "https://www.threads.net/@ohmyalam" },
-  { label: "TikTok", href: "https://www.tiktok.com/@ohmyalam" },
-  { label: "Telegram", href: "https://t.me/ohmyalam" },
-];
 
 $effect(() => {
   void app.scope;
@@ -77,11 +71,11 @@ function toggleLang() {
 
     <div class="ml-auto flex items-center gap-1.5">
       {#if view === "weather" || view === "air"}
-        <select class="h-8 py-0 text-[13px]" bind:value={app.scope} aria-label="Scope">
-          <option value="near">{tr("scopeNear")}</option>
-          <option value="state">{tr("scopeState")}</option>
-          <option value="malaysia">{tr("scopeMalaysia")}</option>
-        </select>
+        <div class="seg" role="group" aria-label="Scope">
+          <button class:on={app.scope === "near"} class="segbtn" onclick={() => (app.scope = "near")}>{tr("scopeNear")}</button>
+          <button class:on={app.scope === "state"} class="segbtn" onclick={() => (app.scope = "state")}>{tr("scopeState")}</button>
+          <button class:on={app.scope === "malaysia"} class="segbtn" onclick={() => (app.scope = "malaysia")}>{tr("scopeMalaysia")}</button>
+        </div>
       {/if}
       {#if view !== "hazards"}
         <button class="iconbtn" onclick={() => (locOpen = true)} aria-haspopup="dialog">📍 <span class="hidden sm:inline">{townName || tr("changeLoc")}</span></button>
@@ -162,11 +156,6 @@ function toggleLang() {
     <button class="hover:text-fg" onclick={() => (view = "api")}>API</button>
     <span>·</span>
     <span>© 2026 Alam</span>
-  </div>
-  <div class="mt-2 flex items-center justify-center gap-3">
-    {#each SOCIALS as s (s.label)}
-      <a class="hover:text-fg" href={s.href} target="_blank" rel="noopener">{s.label}</a>
-    {/each}
   </div>
 </footer>
 

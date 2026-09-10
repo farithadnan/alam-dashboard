@@ -2,13 +2,10 @@
 import { onMount, onDestroy } from "svelte";
 import L from "leaflet";
 
-let { pts = [], fit = true, fitMax = 10, outline = null, focus = null, class: cls = "h-64 w-full rounded-xl" } = $props();
+let { pts = [], fit = true, fitMax = 10, focus = null, class: cls = "h-64 w-full rounded-xl" } = $props();
 let el;
 let map;
 let icons = [];
-let maskLayer = null;
-
-const MYS_URL = "https://raw.githubusercontent.com/johan/world.geo.json/master/countries/MYS.geo.json";
 
 /** Bigger icons when zoomed out, smaller when zoomed in — capped so they don't overlap. */
 function zoomFactor(z) {
@@ -30,36 +27,9 @@ onMount(() => {
   map.on("zoomend", drawIcons);
   drawIcons();
   fitView();
-  applyOutline();
   return () => { if (map) { map.remove(); map = null; } };
 });
 onDestroy(() => { if (map) { map.remove(); map = null; } });
-
-function outerRings(gj) {
-  const rings = [];
-  const push = (poly) => { if (poly?.[0]) rings.push(poly[0].map(([lng, lat]) => [lat, lng])); };
-  const feat = gj.type === "FeatureCollection" ? gj.features[0] : gj.type === "Feature" ? gj : { geometry: gj };
-  const g = feat.geometry ?? feat;
-  if (g.type === "Polygon") push(g.coordinates);
-  else if (g.type === "MultiPolygon") g.coordinates.forEach(push);
-  return rings;
-}
-
-async function applyOutline() {
-  if (!outline || !map) return;
-  let rings = [];
-  try {
-    if (outline.type === "sea") rings = [[[-10, 90], [20, 90], [20, 140], [-10, 140]]];
-    else if (outline.type === "malaysia") {
-      const gj = await fetch(MYS_URL).then((r) => r.json());
-      rings = outerRings(gj);
-    }
-  } catch {
-    rings = [[[0.8, 99.5], [7.4, 99.5], [7.4, 119.5], [0.8, 119.5]]];
-  }
-  if (!rings.length) return;
-  maskLayer = L.polygon(rings, { color: "var(--color-accent, #c14a1f)", weight: 2, fill: false, interactive: false }).addTo(map);
-}
 
 function drawIcons() {
   if (!map) return;
@@ -93,9 +63,7 @@ function fitView() {
 
 $effect(() => {
   if (!map) return;
-  void pts; void outline;
-  if (maskLayer) { map.removeLayer(maskLayer); maskLayer = null; }
-  applyOutline();
+  void pts;
   drawIcons();
   fitView();
 });

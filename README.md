@@ -1,7 +1,7 @@
 # alam-dashboard
 
 A clean, mobile-first, list-based view of air quality & environmental hazards for
-Johor (Malaysia), styled after `solat.my`. Reads the `udara-api` service.
+Johor (Malaysia). Reads the `udara-api` service.
 
 ## Stack
 

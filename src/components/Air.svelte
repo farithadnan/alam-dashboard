@@ -49,7 +49,7 @@ function toggleRow(o) {
 }
 </script>
 
-<MapView pts={mapPts} class="h-72 w-full rounded-xl lg:h-[58vh] lg:min-h-[440px]" fitMax={app.scope === "near" ? 12 : app.scope === "state" ? 9 : 8} outline={{ type: "malaysia" }} focus={mapFocus} />
+<MapView pts={mapPts} class="h-72 w-full rounded-xl lg:h-[58vh] lg:min-h-[440px]" fitMax={app.scope === "near" ? 12 : app.scope === "state" ? 9 : 8} focus={mapFocus} />
 {#if legend.length}
   <ul class="mt-2 flex list-none flex-wrap gap-2 p-0 text-[12px]">
     {#each legend as [label, color] (label)}
