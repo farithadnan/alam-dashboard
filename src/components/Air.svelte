@@ -19,7 +19,7 @@ const allPts = $derived(
     .map((s) => {
       const col = numColor(s.band?.label);
       return {
-        lat: s.coords.lat, lon: s.coords.lon, color: col, num: s.value, size: 34,
+        lat: s.coords.lat, lon: s.coords.lon, color: col, num: s.value, size: 26,
         html: `<div style="font:600 15px system-ui;color:#242628">${cityOf(s.stationName)}</div><div style="font:800 28px system-ui;line-height:1.1;color:${col}">${s.value}</div><div style="font:600 13px system-ui;color:${col}">${bandLabel(s.band?.label)}</div><div style="font:12px system-ui;color:#6b6258">${bandAdvice(s.band?.label) || s.band?.advice}</div>`,
       };
     }),
@@ -49,7 +49,7 @@ function toggleRow(o) {
 }
 </script>
 
-<MapView pts={mapPts} class="h-72 w-full rounded-xl lg:h-[58vh] lg:min-h-[440px]" fitMax={app.scope === "near" ? 12 : app.scope === "state" ? 9 : 8} mask={{ type: "malaysia" }} focus={mapFocus} />
+<MapView pts={mapPts} class="h-72 w-full rounded-xl lg:h-[58vh] lg:min-h-[440px]" fitMax={app.scope === "near" ? 12 : app.scope === "state" ? 9 : 8} outline={{ type: "malaysia" }} focus={mapFocus} />
 {#if legend.length}
   <ul class="mt-2 flex list-none flex-wrap gap-2 p-0 text-[12px]">
     {#each legend as [label, color] (label)}

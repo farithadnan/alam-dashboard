@@ -14,6 +14,7 @@ import Api from "./components/Api.svelte";
 
 let view = $state("home");
 let locOpen = $state(false);
+let settingsOpen = $state(false);
 let locBusy = $state(false);
 
 const states = $derived(app.data?.states ?? []);
@@ -26,6 +27,12 @@ const NAV = [
   { view: "air", icon: "air", key: "navAQI" },
   { view: "hazards", icon: "quake", key: "navHazards" },
 ];
+const SOCIALS = [
+  { label: "X", href: "https://x.com/ohmyalam" },
+  { label: "Threads", href: "https://www.threads.net/@ohmyalam" },
+  { label: "TikTok", href: "https://www.tiktok.com/@ohmyalam" },
+  { label: "Telegram", href: "https://t.me/ohmyalam" },
+];
 
 $effect(() => {
   void app.scope;
@@ -34,7 +41,7 @@ $effect(() => {
 onMount(() => {
   load();
   applyTheme();
-  const t = setInterval(() => load(), 60000);
+  const t = setInterval(() => { if (!document.hidden) load(); }, 300000); // 5 min, paused when tab hidden
   return () => clearInterval(t);
 });
 function useLocation() {
@@ -58,7 +65,7 @@ function toggleLang() {
 
 <header class="sticky top-0 z-40 border-b border-line bg-bg/80 backdrop-blur">
   <div class="mx-auto flex w-full max-w-[1280px] items-center gap-1.5 px-4 py-1.5">
-    <button class="mr-1 text-[16px] font-bold tracking-wide" onclick={() => (view = "weather")} aria-label="Home">Alam<span class="text-accent">.</span></button>
+    <button class="mr-1 text-[16px] font-bold tracking-wide" onclick={() => (view = "home")} aria-label="Home">Alam<span class="text-accent">.</span></button>
 
     <nav class="hidden items-center gap-0.5 sm:flex">
       {#each NAV as n (n.view)}
@@ -69,20 +76,37 @@ function toggleLang() {
     </nav>
 
     <div class="ml-auto flex items-center gap-1.5">
-      {#if view !== "hazards" && view !== "home"}
-        <div class="seg hidden sm:flex">
-          <button class:on={app.scope === "near"} class="segbtn" onclick={() => (app.scope = "near")}>{tr("scopeNear")}</button>
-          <button class:on={app.scope === "state"} class="segbtn" onclick={() => (app.scope = "state")}>{tr("scopeState")}</button>
-          <button class:on={app.scope === "malaysia"} class="segbtn" onclick={() => (app.scope = "malaysia")}>{tr("scopeMalaysia")}</button>
-        </div>
+      {#if view === "weather" || view === "air"}
+        <select class="h-8 py-0 text-[13px]" bind:value={app.scope} aria-label="Scope">
+          <option value="near">{tr("scopeNear")}</option>
+          <option value="state">{tr("scopeState")}</option>
+          <option value="malaysia">{tr("scopeMalaysia")}</option>
+        </select>
       {/if}
       {#if view !== "hazards"}
-        <button class="iconbtn" onclick={() => (locOpen = true)} aria-haspopup="dialog">📍 {townName || tr("changeLoc")}</button>
+        <button class="iconbtn" onclick={() => (locOpen = true)} aria-haspopup="dialog">📍 <span class="hidden sm:inline">{townName || tr("changeLoc")}</span></button>
       {/if}
-      <button class="iconbtn" onclick={toggleLang} aria-label="Language">{lang.code === "en" ? "BM" : "EN"}</button>
-      <button class="iconbtn" onclick={toggleTheme} aria-label="Toggle dark mode">{theme.dark ? "☀" : "☾"}</button>
+      <button class="iconbtn hidden sm:inline-flex" onclick={toggleLang} aria-label="Language">{lang.code === "en" ? "BM" : "EN"}</button>
+      <button class="iconbtn hidden sm:inline-flex" onclick={toggleTheme} aria-label="Toggle dark mode">{theme.dark ? "☀" : "☾"}</button>
+      <button class="iconbtn relative sm:hidden" onclick={() => (settingsOpen = !settingsOpen)} aria-label="Settings" aria-expanded={settingsOpen}>⚙</button>
     </div>
   </div>
+
+  {#if settingsOpen}
+    <div class="absolute right-4 top-[54px] z-50 w-52 rounded-xl border border-line bg-panel p-3 shadow-2xl sm:hidden">
+      <div class="caption text-[12px]">{tr("state") === "State" ? "Language" : "Bahasa"}</div>
+      <div class="seg mt-1">
+        <button class:on={lang.code === "en"} class="segbtn" onclick={() => setLang("en")}>EN</button>
+        <button class:on={lang.code === "ms"} class="segbtn" onclick={() => setLang("ms")}>BM</button>
+      </div>
+      <div class="caption mt-3 text-[12px]">Theme</div>
+      <div class="seg mt-1">
+        <button class:on={!theme.dark} class="segbtn" onclick={() => { if (theme.dark) toggleTheme(); }}>☀</button>
+        <button class:on={theme.dark} class="segbtn" onclick={() => { if (!theme.dark) toggleTheme(); }}>☾</button>
+      </div>
+    </div>
+  {/if}
+
   {#if app.error}
     <div class="border-t border-line bg-panel px-4 py-1 text-center text-[12px] text-muted">
       {app.data ? "Showing last known data — live update failed." : "Data temporarily unavailable — please try again."}
@@ -138,6 +162,11 @@ function toggleLang() {
     <button class="hover:text-fg" onclick={() => (view = "api")}>API</button>
     <span>·</span>
     <span>© 2026 Alam</span>
+  </div>
+  <div class="mt-2 flex items-center justify-center gap-3">
+    {#each SOCIALS as s (s.label)}
+      <a class="hover:text-fg" href={s.href} target="_blank" rel="noopener">{s.label}</a>
+    {/each}
   </div>
 </footer>
 

@@ -57,7 +57,12 @@ function atTown(o) {
 <Warnings />
 {#if climate}
   {@const phase = climate.meta?.phase || "Neutral"}
-  <p class="caption mt-1">{phase.includes("El Niño") ? tr("climateEl") : phase.includes("La Niña") ? tr("climateLa") : tr("climateNeutral")}</p>
+  {@const v = climate.meta?.value}
+  {@const season = climate.meta?.season}
+  <p class="caption mt-1">
+    {phase.includes("El Niño") ? tr("climateEl") : phase.includes("La Niña") ? tr("climateLa") : tr("climateNeutral")}{#if v != null} · {v > 0 ? "+" : ""}{v}°C{#if season} ({season}){/if}{/if}
+  </p>
+  <p class="caption">{phase.includes("El Niño") ? tr("climateElEffect") : phase.includes("La Niña") ? tr("climateLaEffect") : tr("climateNeutralEffect")}</p>
 {/if}
 
 <h3 class="qh">{tr("newsTitle")}</h3>

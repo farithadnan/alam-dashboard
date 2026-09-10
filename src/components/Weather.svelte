@@ -4,6 +4,7 @@ import { wmo, groupBy, moonPhase } from "../lib/flags.js";
 import { tr, wmoLabel } from "../lib/i18n.svelte.js";
 import MapView from "./ui/MapView.svelte";
 import Section from "./ui/Section.svelte";
+import Carousel from "./ui/Carousel.svelte";
 
 const weather = $derived(app.data?.weather ?? []);
 const towns = $derived(weather.filter((r) => r.kind === "weather"));
@@ -21,7 +22,7 @@ const weatherPts = $derived(
       const [icon, label] = wmo(String(r.meta?.code));
       const col = tempColor(r.value);
       return {
-        lat: r.coords.lat, lon: r.coords.lon, emoji: icon, color: col, size: 34,
+        lat: r.coords.lat, lon: r.coords.lon, emoji: icon, color: col, size: 28,
         html: `<div style="font:600 15px system-ui;color:#242628">${r.stationName}</div><div style="font:800 28px system-ui;line-height:1.1;color:${col}">${Math.round(r.value)}°</div><div style="font:13px system-ui;color:#6b6258">${icon} ${wmoLabel(label)}</div>`,
       };
     }),
@@ -58,21 +59,17 @@ const hm = (t) => (t ? String(t).slice(11, 16) : "—");
   {/if}
 
   {#if hourly.length}
-    <div class="relative mt-3">
-      <button class="absolute left-0 top-1/2 z-10 grid size-7 -translate-y-1/2 place-items-center rounded-full border border-line bg-panel/90 text-[15px] shadow" onclick={() => scrollH(-1)} aria-label="Later hours">‹</button>
-      <div bind:this={hourEl} class="no-scrollbar flex gap-1.5 overflow-x-auto scroll-smooth px-8 pb-1">
-        {#each hourly as h, i (h.measuredAt)}
-          {@const [icon] = wmo(String(h.meta?.code))}
-          <div class="glass flex min-w-[58px] shrink-0 flex-col items-center rounded-lg px-2 py-1.5">
-            <span class="text-[11px] text-muted">{i === 0 ? tr("today") : hourLabel(h.measuredAt)}</span>
-            <span class="text-[18px] leading-none" aria-hidden="true">{icon}</span>
-            <span class="font-mono text-[13px] font-semibold">{Math.round(h.value)}°</span>
-            {#if h.meta?.precip > 0}<span class="text-[10px] text-muted">☔ {Math.round(h.meta.precip)}%</span>{/if}
-          </div>
-        {/each}
-      </div>
-      <button class="absolute right-0 top-1/2 z-10 grid size-7 -translate-y-1/2 place-items-center rounded-full border border-line bg-panel/90 text-[15px] shadow" onclick={() => scrollH(1)} aria-label="Later hours">›</button>
-    </div>
+    <Carousel class="mt-3">
+      {#each hourly as h, i (h.measuredAt)}
+        {@const [icon] = wmo(String(h.meta?.code))}
+        <div class="glass flex w-[22%] shrink-0 flex-col items-center rounded-xl px-2 py-3 sm:w-[18%]">
+          <span class="text-[12px] text-muted">{i === 0 ? tr("today") : hourLabel(h.measuredAt)}</span>
+          <span class="text-[24px] leading-none" aria-hidden="true">{icon}</span>
+          <span class="font-mono text-[15px] font-semibold">{Math.round(h.value)}°</span>
+          {#if h.meta?.precip > 0}<span class="text-[11px] text-muted">☔ {Math.round(h.meta.precip)}%</span>{/if}
+        </div>
+      {/each}
+    </Carousel>
   {/if}
 
   {#if now}
@@ -93,19 +90,19 @@ const hm = (t) => (t ? String(t).slice(11, 16) : "—");
   {/if}
 
   <h3 class="qh">{tr("forecast")}</h3>
-  <div class="grid grid-cols-1 gap-2 sm:grid-cols-3 lg:grid-cols-5">
+  <Carousel>
     {#each forecast as r (r.station + r.measuredAt)}
       {@const [icon, label] = wmo(String(r.meta?.code))}
       {@const isToday = r.measuredAt.slice(0, 10) === new Date().toISOString().slice(0, 10)}
-      <div class="glass flex items-center gap-3 rounded-xl px-3 py-2.5 sm:flex-col sm:items-center sm:gap-1 sm:py-3">
-        <span class="w-11 shrink-0 text-[14px] font-semibold sm:w-auto sm:text-center">{isToday ? tr("today") : ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"][new Date(r.measuredAt).getUTCDay()]}</span>
-        <span class="text-[22px] leading-none" aria-hidden="true">{icon}</span>
-        <span class="min-w-0 flex-1 truncate text-[13px] text-muted sm:flex-none sm:text-center">{wmoLabel(label)}</span>
-        <span class="font-mono text-[14px] font-semibold">{Math.round(r.meta?.tmax ?? r.value)}° <span class="ml-1 text-muted">{Math.round(r.meta?.tmin ?? 0)}°</span>
-        {#if r.meta?.precip > 0}<span class="text-[12px] text-muted">☔ {Math.round(r.meta.precip)}%</span>{/if}
+      <div class="glass flex w-[30%] shrink-0 flex-col items-center gap-1 rounded-xl px-2 py-3 sm:w-[17%]">
+        <span class="text-[13px] font-semibold">{isToday ? tr("today") : ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"][new Date(r.measuredAt).getUTCDay()]}</span>
+        <span class="text-[26px] leading-none" aria-hidden="true">{icon}</span>
+        <span class="text-[12px] text-muted">{wmoLabel(label)}</span>
+        <span class="font-mono text-[15px] font-semibold">{Math.round(r.meta?.tmax ?? r.value)}° <span class="ml-1 text-muted">{Math.round(r.meta?.tmin ?? 0)}°</span></span>
+        {#if r.meta?.precip > 0}<span class="text-[11px] text-muted">☔ {Math.round(r.meta.precip)}%</span>{/if}
       </div>
     {/each}
-  </div>
+  </Carousel>
 {:else}
   {@const scopeLabel = app.scope === "malaysia" ? "Malaysia" : app.state}
   <h3 class="qh">{tr("navWeather")} · {scopeLabel}</h3>
@@ -113,7 +110,7 @@ const hm = (t) => (t ? String(t).slice(11, 16) : "—");
     <p class="caption -mt-1">Average {Math.round(avg)}° · high {Math.round(hi)}° · low {Math.round(lo)}° · {towns.length} towns</p>
   {/if}
   {#if weatherPts.length}
-    <MapView pts={weatherPts} class="h-72 w-full rounded-xl lg:h-[56vh]" fitMax={app.scope === "state" ? 9 : 8} mask={{ type: "malaysia" }} />
+    <MapView pts={weatherPts} class="h-72 w-full rounded-xl lg:h-[56vh]" fitMax={app.scope === "state" ? 9 : 8} outline={{ type: "malaysia" }} />
   {/if}
   {#each scopeGroups as g (g.key)}
     <Section title={g.key}>

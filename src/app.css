@@ -65,7 +65,7 @@ select { min-height: 44px; border: 1px solid var(--color-line); border-radius: 1
   --color-accent: #e86a3a;
 }
 
-/* Glassy surfaces (solat.my style) */
+/* Glassy surfaces */
 .glass {
   background: rgba(255, 255, 255, 0.6);
   backdrop-filter: blur(12px);

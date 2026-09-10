@@ -2,7 +2,7 @@
 import { onMount, onDestroy } from "svelte";
 import L from "leaflet";
 
-let { pts = [], fit = true, fitMax = 10, mask = null, focus = null, class: cls = "h-64 w-full rounded-xl" } = $props();
+let { pts = [], fit = true, fitMax = 10, outline = null, focus = null, class: cls = "h-64 w-full rounded-xl" } = $props();
 let el;
 let map;
 let icons = [];
@@ -10,9 +10,9 @@ let maskLayer = null;
 
 const MYS_URL = "https://raw.githubusercontent.com/johan/world.geo.json/master/countries/MYS.geo.json";
 
-/** Bigger icons when zoomed out, smaller when zoomed in. */
+/** Bigger icons when zoomed out, smaller when zoomed in — capped so they don't overlap. */
 function zoomFactor(z) {
-  return Math.max(0.7, Math.min(2.4, 1 + (8 - z) * 0.2));
+  return Math.max(0.8, Math.min(1.6, 1 + (8 - z) * 0.12));
 }
 
 onMount(() => {
@@ -30,7 +30,7 @@ onMount(() => {
   map.on("zoomend", drawIcons);
   drawIcons();
   fitView();
-  applyMask();
+  applyOutline();
   return () => { if (map) { map.remove(); map = null; } };
 });
 onDestroy(() => { if (map) { map.remove(); map = null; } });
@@ -45,12 +45,12 @@ function outerRings(gj) {
   return rings;
 }
 
-async function applyMask() {
-  if (!mask || !map) return;
+async function applyOutline() {
+  if (!outline || !map) return;
   let rings = [];
   try {
-    if (mask.type === "sea") rings = [[[-10, 90], [20, 90], [20, 140], [-10, 140]]];
-    else if (mask.type === "malaysia") {
+    if (outline.type === "sea") rings = [[[-10, 90], [20, 90], [20, 140], [-10, 140]]];
+    else if (outline.type === "malaysia") {
       const gj = await fetch(MYS_URL).then((r) => r.json());
       rings = outerRings(gj);
     }
@@ -58,8 +58,7 @@ async function applyMask() {
     rings = [[[0.8, 99.5], [7.4, 99.5], [7.4, 119.5], [0.8, 119.5]]];
   }
   if (!rings.length) return;
-  const world = [[-85, -180], [-85, 180], [85, 180], [85, -180]];
-  maskLayer = L.polygon([world, ...rings], { fillColor: "#0b0b0b", fillOpacity: 0.42, color: "none", interactive: false }).addTo(map);
+  maskLayer = L.polygon(rings, { color: "var(--color-accent, #c14a1f)", weight: 2, fill: false, interactive: false }).addTo(map);
 }
 
 function drawIcons() {
@@ -94,9 +93,9 @@ function fitView() {
 
 $effect(() => {
   if (!map) return;
-  void pts; void mask;
+  void pts; void outline;
   if (maskLayer) { map.removeLayer(maskLayer); maskLayer = null; }
-  applyMask();
+  applyOutline();
   drawIcons();
   fitView();
 });

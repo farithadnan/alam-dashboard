@@ -12,7 +12,7 @@ const quakePts = $derived(
     .map((q) => {
       const col = magText(magWord(q.magnitude));
       return {
-        lat: q.meta.lat, lon: q.meta.lon, color: col, num: Number(q.magnitude).toFixed(1), size: 30, ripple: true,
+        lat: q.meta.lat, lon: q.meta.lon, color: col, num: Number(q.magnitude).toFixed(1), size: 26, ripple: true,
         html: `<div style="font:600 15px system-ui;color:#242628">${friendlyLoc(q.stationName) || q.stationName}</div><div style="font:800 26px system-ui;line-height:1.1;color:${col}">M${Number(q.magnitude).toFixed(1)}</div><div style="font:600 12px system-ui;color:${col}">${magWordL(q.magnitude)}</div><div style="font:12px system-ui;color:#6b6258">Depth ${q.meta.depth ?? "—"} km · ${regionOf(q.stationName)}</div>`,
       };
     }),
@@ -26,7 +26,7 @@ let open = $state(null);
 <p class="caption -mt-1">{tr("quakeCap")}</p>
 
 {#if quakePts.length}
-  <MapView pts={quakePts} class="h-72 w-full rounded-xl lg:h-[52vh] lg:min-h-[400px]" fitMax={8} mask={{ type: "sea" }} />
+  <MapView pts={quakePts} class="h-72 w-full rounded-xl lg:h-[52vh] lg:min-h-[400px]" fitMax={8} outline={{ type: "sea" }} />
 {/if}
 
 {#each groups as g (g.key)}
