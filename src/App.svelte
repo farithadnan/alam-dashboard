@@ -4,6 +4,7 @@ import { app, load } from "./lib/store.svelte.js";
 import { theme, toggleTheme, applyTheme } from "./lib/theme.svelte.js";
 import { lang, setLang, tr } from "./lib/i18n.svelte.js";
 import { nearestState } from "./lib/flags.js";
+import Icon from "./components/ui/Icon.svelte";
 import Weather from "./components/Weather.svelte";
 import Air from "./components/Air.svelte";
 import Hazards from "./components/Hazards.svelte";
@@ -15,13 +16,13 @@ let locOpen = $state(false);
 let locBusy = $state(false);
 
 const states = $derived(app.data?.states ?? []);
-const towns = $derived([...new Set((app.data?.weather ?? []).filter((r) => r.kind === "weather").map((r) => r.station))]);
-const townName = $derived(app.data?.weather?.find((r) => r.station === app.town && r.kind === "weather")?.stationName ?? app.town ?? "");
+const towns = $derived((app.data?.allTowns ?? []).filter((t) => t.state === app.state));
+const townName = $derived(app.data?.weather?.find((r) => r.station === app.town && r.kind === "weather")?.stationName ?? app.data?.allTowns?.find((t) => t.station === app.town)?.name ?? app.town ?? "");
 
 const NAV = [
-  { view: "weather", icon: "⛅", key: "navWeather" },
-  { view: "air", icon: "🍃", key: "navAQI" },
-  { view: "hazards", icon: "🌏", key: "navHazards" },
+  { view: "weather", icon: "weather", key: "navWeather" },
+  { view: "air", icon: "air", key: "navAQI" },
+  { view: "hazards", icon: "quake", key: "navHazards" },
 ];
 
 $effect(() => {
@@ -57,9 +58,11 @@ function toggleLang() {
   <div class="mx-auto flex w-full max-w-[1280px] items-center gap-1.5 px-4 py-1.5">
     <button class="mr-1 text-[16px] font-bold tracking-wide" onclick={() => (view = "weather")} aria-label="Home">Alam<span class="text-accent">.</span></button>
 
-    <nav class="hidden gap-0.5 sm:flex">
+    <nav class="hidden items-center gap-0.5 sm:flex">
       {#each NAV as n (n.view)}
-        <button class:on={view === n.view} class="navbtn" onclick={() => (view = n.view)}><span class="mr-1" aria-hidden="true">{n.icon}</span>{tr(n.key)}</button>
+        <button class:on={view === n.view} class="navbtn inline-flex items-center gap-1.5" onclick={() => (view = n.view)}>
+          <Icon name={n.icon} size={16} />{tr(n.key)}
+        </button>
       {/each}
     </nav>
 
@@ -76,6 +79,11 @@ function toggleLang() {
       <button class="iconbtn" onclick={toggleTheme} aria-label="Toggle dark mode">{theme.dark ? "☀" : "☾"}</button>
     </div>
   </div>
+  {#if app.error}
+    <div class="border-t border-line bg-panel px-4 py-1 text-center text-[12px] text-muted">
+      {app.data ? "Showing last known data — live update failed." : "Data temporarily unavailable — please try again."}
+    </div>
+  {/if}
 </header>
 
 {#if locOpen}
@@ -93,8 +101,8 @@ function toggleLang() {
       <label class="mt-3 flex flex-col gap-1">
         <span class="caption text-[12px]">{tr("town")}</span>
         <select id="town-select" bind:value={app.town} onchange={() => (locOpen = false)}>
-          {#each towns as t (t)}
-            <option value={t}>{app.data?.weather?.find((r) => r.station === t && r.kind === "weather")?.stationName ?? t}</option>
+          {#each towns as t (t.station)}
+            <option value={t.station}>{t.name}</option>
           {/each}
         </select>
       </label>
@@ -131,12 +139,12 @@ function toggleLang() {
   <div class="flex">
     {#each NAV as n (n.view)}
       <button
-        class="flex flex-1 flex-col items-center gap-0.5 pb-2 pt-1 text-[15px]"
+        class="flex flex-1 flex-col items-center gap-0.5 pb-2 pt-1"
         class:on={view === n.view}
         onclick={() => (view = n.view)}
         aria-current={view === n.view ? "page" : undefined}
       >
-        <span aria-hidden="true">{n.icon}</span>
+        <Icon name={n.icon} size={20} />
         <span class:text-fg={view === n.view} class="text-[11px] text-muted">{tr(n.key)}</span>
       </button>
     {/each}

@@ -9,26 +9,24 @@ const quakes = $derived(app.data?.hazards?.earthquakes ?? []);
 const quakePts = $derived(
   quakes
     .filter((q) => q.meta?.lat && q.meta?.lon)
-    .map((q) => ({
-      lat: q.meta.lat, lon: q.meta.lon,
-      title: `${friendlyLoc(q.stationName) || q.stationName} — M${Number(q.magnitude).toFixed(1)} ${magWordL(q.magnitude)}`,
-      color: magText(magWord(q.magnitude)),
-      size: Math.max(12, Math.min(24, 12 + (q.magnitude - 4) * 5)),
-      num: Number(q.magnitude).toFixed(1),
-      ripple: true,
-    })),
+    .map((q) => {
+      const col = magText(magWord(q.magnitude));
+      return {
+        lat: q.meta.lat, lon: q.meta.lon, color: col, num: Number(q.magnitude).toFixed(1), size: 30, ripple: true,
+        html: `<div style="font:600 15px system-ui;color:#242628">${friendlyLoc(q.stationName) || q.stationName}</div><div style="font:800 26px system-ui;line-height:1.1;color:${col}">M${Number(q.magnitude).toFixed(1)}</div><div style="font:600 12px system-ui;color:${col}">${magWordL(q.magnitude)}</div><div style="font:12px system-ui;color:#6b6258">Depth ${q.meta.depth ?? "—"} km · ${regionOf(q.stationName)}</div>`,
+      };
+    }),
 );
 const groups = $derived(groupBy(quakes.slice().sort((a, b) => b.magnitude - a.magnitude), (q) => regionOf(q.stationName)));
 let open = $state(null);
 </script>
 
-{#if app.loading}<p class="caption mb-2">{tr("updating")}</p>{/if}
 
 <h3 class="qh">{tr("quakeTitle")}</h3>
 <p class="caption -mt-1">{tr("quakeCap")}</p>
 
 {#if quakePts.length}
-  <MapView pts={quakePts} class="h-72 w-full rounded-xl lg:h-[52vh] lg:min-h-[400px]" fitMax={8} />
+  <MapView pts={quakePts} class="h-72 w-full rounded-xl lg:h-[52vh] lg:min-h-[400px]" fitMax={8} mask={{ type: "sea" }} />
 {/if}
 
 {#each groups as g (g.key)}

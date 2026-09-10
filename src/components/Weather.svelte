@@ -1,6 +1,6 @@
 <script>
 import { app } from "../lib/store.svelte.js";
-import { wmo, groupBy } from "../lib/flags.js";
+import { wmo, groupBy, moonPhase } from "../lib/flags.js";
 import { tr, wmoLabel } from "../lib/i18n.svelte.js";
 import MapView from "./ui/MapView.svelte";
 import Section from "./ui/Section.svelte";
@@ -10,28 +10,37 @@ const towns = $derived(weather.filter((r) => r.kind === "weather"));
 const townName = $derived(weather.find((r) => r.station === app.town && r.kind === "weather")?.stationName ?? app.town ?? "");
 const now = $derived(weather.find((r) => r.station === app.town && r.kind === "weather"));
 const air = $derived(weather.find((r) => r.station === app.town && r.kind === "aqi"));
-const forecast = $derived((app.data?.forecast ?? []).filter((r) => r.station === app.town).sort((a, b) => a.measuredAt.localeCompare(b.measuredAt)).slice(0, 7));
+const forecast = $derived((app.data?.forecast ?? []).filter((r) => r.station === app.town).sort((a, b) => a.measuredAt.localeCompare(b.measuredAt)).slice(0, 10));
 const hourly = $derived((app.data?.hourly ?? []).filter((r) => r.station === app.town).sort((a, b) => a.measuredAt.localeCompare(b.measuredAt)));
 
 const tempColor = (v) => (v >= 32 ? "#d3342f" : v >= 29 ? "#e05d2b" : v >= 26 ? "#b3491a" : v >= 22 ? "#2f7d46" : "#2563eb");
 const weatherPts = $derived(
   towns
     .filter((r) => r.coords?.lat)
-    .map((r) => ({ lat: r.coords.lat, lon: r.coords.lon, title: `${r.stationName}: ${Math.round(r.value)}° (${wmoLabel(wmo(String(r.meta?.code))[1])})`, emoji: wmo(String(r.meta?.code))[0], color: tempColor(r.value), size: 26 })),
+    .map((r) => {
+      const [icon, label] = wmo(String(r.meta?.code));
+      const col = tempColor(r.value);
+      return {
+        lat: r.coords.lat, lon: r.coords.lon, emoji: icon, color: col, size: 34,
+        html: `<div style="font:600 15px system-ui;color:#242628">${r.stationName}</div><div style="font:800 28px system-ui;line-height:1.1;color:${col}">${Math.round(r.value)}°</div><div style="font:13px system-ui;color:#6b6258">${icon} ${wmoLabel(label)}</div>`,
+      };
+    }),
 );
 const scopeGroups = $derived(groupBy(towns.slice().sort((a, b) => a.meta?.state?.localeCompare(b.meta?.state) || 0), (r) => r.meta?.state ?? ""));
-
 const avg = $derived(towns.length ? towns.reduce((s, r) => s + r.value, 0) / towns.length : null);
 const hi = $derived(towns.length ? Math.max(...towns.map((r) => r.value)) : null);
 const lo = $derived(towns.length ? Math.min(...towns.map((r) => r.value)) : null);
+const moon = moonPhase();
+
+let hourEl;
+const scrollH = (d) => hourEl?.scrollBy({ left: d * 280, behavior: "smooth" });
 
 function hourLabel(t) {
   const h = parseInt((t || "").slice(11, 13) || "0", 10) || 0;
-  return h < 12 ? `${h || 12} am` : h === 12 ? "12 pm" : `${h - 12} pm`;
+  return h < 12 ? `${h || 12}am` : h === 12 ? "12pm" : `${h - 12}pm`;
 }
+const hm = (t) => (t ? String(t).slice(11, 16) : "—");
 </script>
-
-{#if app.loading}<p class="caption mb-2">{tr("updating")}</p>{/if}
 
 {#if app.scope === "near"}
   {#if now}
@@ -43,28 +52,48 @@ function hourLabel(t) {
         <div class="font-mono text-[60px] font-extrabold leading-none tracking-tighter">{Math.round(now.value)}°</div>
         <div class="pb-1.5">
           <div class="text-[14px] text-muted">{tr("feels")} {Math.round(now.meta?.apparentTemp ?? now.value)}° · {wmoLabel(label)}</div>
-          <div class="text-[13px] text-muted">{now.meta?.humidity ?? "–"}% {tr("humidity")} · {tr("wind")} {now.meta?.wind ?? "–"} km/h · {tr("uv")} {air?.meta?.uv ?? "–"}</div>
         </div>
       </div>
     </div>
   {/if}
 
   {#if hourly.length}
-    <div class="mt-3 flex flex-wrap gap-1.5">
-      {#each hourly as h, i (h.measuredAt)}
-        {@const [icon] = wmo(String(h.meta?.code))}
-        <div class="glass flex min-w-[56px] flex-col items-center rounded-lg px-2 py-1.5">
-          <span class="text-[11px] text-muted">{i === 0 ? tr("today") : hourLabel(h.measuredAt)}</span>
-          <span class="text-[18px] leading-none" aria-hidden="true">{icon}</span>
-          <span class="font-mono text-[13px] font-semibold">{Math.round(h.value)}°</span>
-          {#if h.meta?.precip > 0}<span class="text-[10px] text-muted">☔ {Math.round(h.meta.precip)}%</span>{/if}
-        </div>
-      {/each}
+    <div class="relative mt-3">
+      <button class="absolute left-0 top-1/2 z-10 grid size-7 -translate-y-1/2 place-items-center rounded-full border border-line bg-panel/90 text-[15px] shadow" onclick={() => scrollH(-1)} aria-label="Later hours">‹</button>
+      <div bind:this={hourEl} class="no-scrollbar flex gap-1.5 overflow-x-auto scroll-smooth px-8 pb-1">
+        {#each hourly as h, i (h.measuredAt)}
+          {@const [icon] = wmo(String(h.meta?.code))}
+          <div class="glass flex min-w-[58px] shrink-0 flex-col items-center rounded-lg px-2 py-1.5">
+            <span class="text-[11px] text-muted">{i === 0 ? tr("today") : hourLabel(h.measuredAt)}</span>
+            <span class="text-[18px] leading-none" aria-hidden="true">{icon}</span>
+            <span class="font-mono text-[13px] font-semibold">{Math.round(h.value)}°</span>
+            {#if h.meta?.precip > 0}<span class="text-[10px] text-muted">☔ {Math.round(h.meta.precip)}%</span>{/if}
+          </div>
+        {/each}
+      </div>
+      <button class="absolute right-0 top-1/2 z-10 grid size-7 -translate-y-1/2 place-items-center rounded-full border border-line bg-panel/90 text-[15px] shadow" onclick={() => scrollH(1)} aria-label="Later hours">›</button>
+    </div>
+  {/if}
+
+  {#if now}
+    <h3 class="qh">{tr("todayDetail")}</h3>
+    <div class="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-4">
+      <div class="glass rounded-xl px-3 py-2"><div class="caption text-[11px]">{tr("wind")}</div><div class="text-[15px] font-semibold">{now.meta?.wind ?? "–"} km/h</div><div class="caption text-[11px]">{tr("gust")} {now.meta?.gust ?? "–"}</div></div>
+      <div class="glass rounded-xl px-3 py-2"><div class="caption text-[11px]">{tr("humidity")}</div><div class="text-[15px] font-semibold">{now.meta?.humidity ?? "–"}%</div></div>
+      <div class="glass rounded-xl px-3 py-2"><div class="caption text-[11px]">{tr("dewPoint")}</div><div class="text-[15px] font-semibold">{now.meta?.dewPoint != null ? `${Math.round(now.meta.dewPoint)}°` : "–"}</div></div>
+      <div class="glass rounded-xl px-3 py-2"><div class="caption text-[11px]">{tr("pressure")}</div><div class="text-[15px] font-semibold">{now.meta?.pressure != null ? `${Math.round(now.meta.pressure)} hPa` : "–"}</div></div>
+      <div class="glass rounded-xl px-3 py-2"><div class="caption text-[11px]">{tr("visibility")}</div><div class="text-[15px] font-semibold">{now.meta?.visibility != null ? `${(now.meta.visibility / 1000).toFixed(1)} km` : "–"}</div></div>
+      <div class="glass rounded-xl px-3 py-2"><div class="caption text-[11px]">{tr("uv")}</div><div class="text-[15px] font-semibold">{air?.meta?.uv ?? "–"}</div></div>
+      <div class="glass rounded-xl px-3 py-2"><div class="caption text-[11px]">PM2.5</div><div class="text-[15px] font-semibold">{air?.meta?.pm2_5 ?? "–"}</div></div>
+      <div class="glass rounded-xl px-3 py-2"><div class="caption text-[11px]">PM10</div><div class="text-[15px] font-semibold">{air?.meta?.pm10 ?? "–"}</div></div>
+      <div class="glass rounded-xl px-3 py-2"><div class="caption text-[11px]">{tr("sunrise")}</div><div class="text-[15px] font-semibold">{hm(now.meta?.sunrise)}</div></div>
+      <div class="glass rounded-xl px-3 py-2"><div class="caption text-[11px]">{tr("sunset")}</div><div class="text-[15px] font-semibold">{hm(now.meta?.sunset)}</div></div>
+      <div class="glass flex items-center gap-2 rounded-xl px-3 py-2"><span class="text-[20px]">{moon.emoji}</span><div><div class="caption text-[11px]">{tr("moon")}</div><div class="text-[14px] font-semibold">{moon.name}</div></div></div>
     </div>
   {/if}
 
   <h3 class="qh">{tr("forecast")}</h3>
-  <div class="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-4">
+  <div class="grid grid-cols-1 gap-2 sm:grid-cols-3 lg:grid-cols-5">
     {#each forecast as r (r.station + r.measuredAt)}
       {@const [icon, label] = wmo(String(r.meta?.code))}
       {@const isToday = r.measuredAt.slice(0, 10) === new Date().toISOString().slice(0, 10)}
@@ -84,7 +113,7 @@ function hourLabel(t) {
     <p class="caption -mt-1">Average {Math.round(avg)}° · high {Math.round(hi)}° · low {Math.round(lo)}° · {towns.length} towns</p>
   {/if}
   {#if weatherPts.length}
-    <MapView pts={weatherPts} class="h-72 w-full rounded-xl lg:h-[56vh]" fitMax={app.scope === "state" ? 9 : 8} />
+    <MapView pts={weatherPts} class="h-72 w-full rounded-xl lg:h-[56vh]" fitMax={app.scope === "state" ? 9 : 8} mask={{ type: "malaysia" }} />
   {/if}
   {#each scopeGroups as g (g.key)}
     <Section title={g.key}>

@@ -2,10 +2,18 @@
 import { onMount, onDestroy } from "svelte";
 import L from "leaflet";
 
-let { pts = [], fit = true, fitMax = 10, class: cls = "h-64 w-full rounded-xl" } = $props(); // pts: [{lat, lon, title, color, size, emoji, num}]
+let { pts = [], fit = true, fitMax = 10, mask = null, focus = null, class: cls = "h-64 w-full rounded-xl" } = $props();
 let el;
 let map;
 let icons = [];
+let maskLayer = null;
+
+const MYS_URL = "https://raw.githubusercontent.com/johan/world.geo.json/master/countries/MYS.geo.json";
+
+/** Bigger icons when zoomed out, smaller when zoomed in. */
+function zoomFactor(z) {
+  return Math.max(0.7, Math.min(2.4, 1 + (8 - z) * 0.2));
+}
 
 onMount(() => {
   if (!el) return;
@@ -19,40 +27,87 @@ onMount(() => {
       maxZoom: 20,
     },
   ).addTo(map);
-  draw();
+  map.on("zoomend", drawIcons);
+  drawIcons();
+  fitView();
+  applyMask();
   return () => { if (map) { map.remove(); map = null; } };
 });
 onDestroy(() => { if (map) { map.remove(); map = null; } });
 
-function draw() {
-  if (!map || !pts.length) return;
-  for (const i of icons) if (map) map.removeLayer(i);
+function outerRings(gj) {
+  const rings = [];
+  const push = (poly) => { if (poly?.[0]) rings.push(poly[0].map(([lng, lat]) => [lat, lng])); };
+  const feat = gj.type === "FeatureCollection" ? gj.features[0] : gj.type === "Feature" ? gj : { geometry: gj };
+  const g = feat.geometry ?? feat;
+  if (g.type === "Polygon") push(g.coordinates);
+  else if (g.type === "MultiPolygon") g.coordinates.forEach(push);
+  return rings;
+}
+
+async function applyMask() {
+  if (!mask || !map) return;
+  let rings = [];
+  try {
+    if (mask.type === "sea") rings = [[[-10, 90], [20, 90], [20, 140], [-10, 140]]];
+    else if (mask.type === "malaysia") {
+      const gj = await fetch(MYS_URL).then((r) => r.json());
+      rings = outerRings(gj);
+    }
+  } catch {
+    rings = [[[0.8, 99.5], [7.4, 99.5], [7.4, 119.5], [0.8, 119.5]]];
+  }
+  if (!rings.length) return;
+  const world = [[-85, -180], [-85, 180], [85, 180], [85, -180]];
+  maskLayer = L.polygon([world, ...rings], { fillColor: "#0b0b0b", fillOpacity: 0.42, color: "none", interactive: false }).addTo(map);
+}
+
+function drawIcons() {
+  if (!map) return;
+  for (const i of icons) map.removeLayer(i);
   icons = [];
+  const zf = zoomFactor(map.getZoom());
   for (const p of pts) {
-    const d = p.size || 10;
+    const d = Math.round((p.size || 12) * zf);
     const col = p.color || "#c14a1f";
     const pulse = p.ripple ? `<span class="alam-pulse" style="border:2px solid ${col}"></span>` : "";
     const label = p.emoji
-      ? `<span style="font-size:${Math.max(12, d * 0.9)}px;line-height:1">${p.emoji}</span>`
-      : `<span style="font-size:${Math.max(8, d * 0.55)}px;font-weight:700;color:#fff">${p.num ?? ""}</span>`;
-    const config = {
+      ? `<span style="font-size:${Math.max(12, d * 0.85)}px;line-height:1">${p.emoji}</span>`
+      : `<span style="font-size:${Math.max(9, d * 0.5)}px;font-weight:700;color:#fff">${p.num ?? ""}</span>`;
+    const icon = L.divIcon({
       className: "alam-pin",
-      html: `<div style="position:relative;width:${d}px;height:${d}px;border-radius:50%;background:${col};border:2px solid #fff;box-shadow:0 0 0 4px ${col}33, 0 2px 6px rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center">${label}${pulse}</div>`,
+      html: `<div style="position:relative;width:${d}px;height:${d}px;border-radius:50%;background:${col};border:2px solid #fff;box-shadow:0 0 0 ${Math.round(d * 0.18)}px ${col}33, 0 2px 6px rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center">${label}${pulse}</div>`,
       iconSize: [d, d],
       iconAnchor: [d / 2, d / 2],
-    };
-    const icon = L.divIcon(config);
+    });
     const m = L.marker([p.lat, p.lon], { icon }).addTo(map);
-    if (p.title) m.bindPopup(p.title);
+    if (p.html || p.title) m.bindPopup(p.html || p.title, { maxWidth: 260 });
     icons.push(m);
   }
-  if (fit && pts.length) {
-    map.fitBounds(L.latLngBounds(pts.map((p) => [p.lat, p.lon])).pad(0.25), { maxZoom: fitMax });
-  }
 }
+
+function fitView() {
+  if (!map) return;
+  if (focus) { map.setView([focus.lat, focus.lon], focus.zoom ?? 11); return; }
+  if (fit && pts.length) map.fitBounds(L.latLngBounds(pts.map((p) => [p.lat, p.lon])).pad(0.25), { maxZoom: fitMax });
+}
+
 $effect(() => {
-  if (map) draw();
+  if (!map) return;
+  void pts; void mask;
+  if (maskLayer) { map.removeLayer(maskLayer); maskLayer = null; }
+  applyMask();
+  drawIcons();
+  fitView();
 });
 </script>
 
-<div bind:this={el} class={cls} style="z-index:0" aria-label="Map"></div>
+<div class="relative">
+  <div bind:this={el} class={cls} style="z-index:0" aria-label="Map"></div>
+  <button
+    class="absolute right-2 top-2 z-[400] grid size-8 place-items-center rounded-lg border border-line bg-panel/90 text-[15px] shadow"
+    onclick={() => { if (map && pts.length) map.fitBounds(L.latLngBounds(pts.map((p) => [p.lat, p.lon])).pad(0.25), { maxZoom: fitMax }); }}
+    aria-label="Reset view"
+    title="Reset view"
+  >⤢</button>
+</div>

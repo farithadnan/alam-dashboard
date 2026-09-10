@@ -4,6 +4,7 @@ const en = {
   scopeNear: "Near me", scopeState: "State", scopeMalaysia: "Malaysia",
   state: "State", town: "Town", useLoc: "Use my location", locating: "Locating…", location: "Location",
   feels: "Feels like", humidity: "humidity", wind: "wind", uv: "UV",
+  gust: "Gusts", pressure: "Pressure", visibility: "Visibility", dewPoint: "Dew point", sunrise: "Sunrise", sunset: "Sunset", moon: "Moon", todayDetail: "Today's details", stormChance: "Thunderstorm chance",
   noMonitor: "No air monitor in", updated: "Updated", updatedFrom: "Updated {t} · DOE APIMS & Open-Meteo", nearby: "Nearest station:",
   forecast: "7-day forecast", today: "Today",
   viewAir: "View", hideAir: "Hide", airStations: "air stations in {s} ({n})", worst: "Worst",
@@ -56,7 +57,7 @@ const en = {
   reportDesc: "Describe the problem",
   reportDescPh: "What did you see, and where?",
   reportEmail: "Your email (optional)",
-  reportSend: "Send report",
+  reportSend: "Send",
   reportThanks: "Your email app should open with the report ready to send.",
   apiTitle: "API",
   apiIntro: "Alam serves a small JSON API — the same one powering this site. It is open, free, and requires no key.",
@@ -69,6 +70,7 @@ const ms = {
   scopeNear: "Berdekatan", scopeState: "Negeri", scopeMalaysia: "Malaysia",
   state: "Negeri", town: "Bandar", useLoc: "Guna lokasi saya", locating: "Mengesan…", location: "Lokasi",
   feels: "Terasa seperti", humidity: "kelembapan", wind: "angin", uv: "UV",
+  gust: "Tiupan", pressure: "Tekanan", visibility: "Penglihatan", dewPoint: "Titik embun", sunrise: "Matahari terbit", sunset: "Matahari terbenam", moon: "Bulan", todayDetail: "Butiran hari ini", stormChance: "Kemungkinan ribut petir",
   noMonitor: "Tiada monitor udara di", updated: "Dikemas kini", updatedFrom: "Dikemas kini {t} · DOE APIMS & Open-Meteo", nearby: "Stesen terdekat:",
   forecast: "Ramalan 7 hari", today: "Hari ini",
   viewAir: "Lihat", hideAir: "Sembunyi", airStations: "stesen udara di {s} ({n})", worst: "Paling teruk",
@@ -122,7 +124,7 @@ const ms = {
   reportDesc: "Terangkan masalah",
   reportDescPh: "Apa yang anda lihat, dan di mana?",
   reportEmail: "E-mel anda (pilihan)",
-  reportSend: "Hantar laporan",
+  reportSend: "Hantar",
   reportThanks: "Aplikasi e-mel anda sepatutnya dibuka dengan laporan sedia untuk dihantar.",
 };
 

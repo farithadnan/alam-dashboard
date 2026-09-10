@@ -59,8 +59,7 @@ export const groupBy = (arr, keyFn) => {
   return [...m.entries()].map(([key, items]) => ({ key, items }));
 };
 
-export function timeAgo(iso) {
-  const s = (Date.now() - new Date(iso).getTime()) / 1000;
+export function timeAgo(iso) {  const s = (Date.now() - new Date(iso).getTime()) / 1000;
   if (s < 3600) return `${Math.max(1, Math.round(s / 60))}m ago`;
   if (s < 86400) return `${Math.round(s / 3600)}h ago`;
   return `${Math.round(s / 86400)}d ago`;
@@ -110,7 +109,20 @@ export function regionOf(place) {
   return "Other";
 }
 const COMPASS = { NNW:"north-northwest", NW:"northwest", WNW:"west-northwest", N:"north", NNE:"north-northeast", NE:"northeast", ENE:"east-northeast", E:"east", ESE:"east-southeast", SE:"southeast", SSE:"south-southeast", S:"south", SSW:"south-southwest", SW:"southwest", WSW:"west-southwest", W:"west" };
-export function friendlyLoc(place) {  let s = place || "";
+export function friendlyLoc(place) {
+  let s = place || "";
   for (const [a, w] of Object.entries(COMPASS)) s = s.replace(new RegExp(`\\b${a}\\b`), w);
   return s.split(",")[0];
+}
+
+/** Approximate moon phase from date (simple synodic-month calc). */
+export function moonPhase(date = new Date()) {
+  const synodic = 29.530588853;
+  const ref = Date.UTC(2000, 0, 6, 18, 14);
+  const days = (date.getTime() - ref) / 86400000;
+  const age = ((days % synodic) + synodic) % synodic;
+  const i = Math.round((age / synodic) * 8) % 8;
+  const names = ["New moon", "Waxing crescent", "First quarter", "Waxing gibbous", "Full moon", "Waning gibbous", "Last quarter", "Waning crescent"];
+  const emojis = ["🌑", "🌒", "🌓", "🌔", "🌕", "🌖", "🌗", "🌘"];
+  return { name: names[i], emoji: emojis[i], age: Math.round(age) };
 }

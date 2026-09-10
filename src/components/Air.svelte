@@ -16,9 +16,16 @@ const heroAir = $derived(stations.find((s) => atTown(s)) ?? stations[0] ?? null)
 const allPts = $derived(
   stations
     .filter((s) => s.coords?.lat && s.coords?.lon)
-    .map((s) => ({ lat: s.coords.lat, lon: s.coords.lon, title: `${cityOf(s.stationName)} — ${s.value} · ${bandLabel(s.band?.label)} (${bandAdvice(s.band?.label) || s.band?.advice})`, color: numColor(s.band?.label), size: Math.max(12, Math.min(20, 12 + s.value / 40)), num: s.value })),
+    .map((s) => {
+      const col = numColor(s.band?.label);
+      return {
+        lat: s.coords.lat, lon: s.coords.lon, color: col, num: s.value, size: 34,
+        html: `<div style="font:600 15px system-ui;color:#242628">${cityOf(s.stationName)}</div><div style="font:800 28px system-ui;line-height:1.1;color:${col}">${s.value}</div><div style="font:600 13px system-ui;color:${col}">${bandLabel(s.band?.label)}</div><div style="font:12px system-ui;color:#6b6258">${bandAdvice(s.band?.label) || s.band?.advice}</div>`,
+      };
+    }),
 );
-const mapPts = $derived(app.scope === "near" ? allPts : allPts);
+const mapPts = $derived(allPts);
+const mapFocus = $derived(open ? (() => { const s = stations.find((x) => x.station === open); return s?.coords ? { lat: s.coords.lat, lon: s.coords.lon, zoom: 11 } : null; })() : null);
 const legend = $derived([...new Map(stations.map((s) => [s.band?.label, numColor(s.band?.label)])).entries()]);
 const groups = $derived(groupBy(stations, (s) => s.meta?.state ?? ""));
 
@@ -42,10 +49,7 @@ function toggleRow(o) {
 }
 </script>
 
-{#if app.loading}<p class="caption mb-2">{tr("updating")}</p>{/if}
-
-<MapView pts={mapPts} class="h-72 w-full rounded-xl lg:h-[58vh] lg:min-h-[440px]" fitMax={app.scope === "near" ? 12 : app.scope === "state" ? 9 : 8} />
-
+<MapView pts={mapPts} class="h-72 w-full rounded-xl lg:h-[58vh] lg:min-h-[440px]" fitMax={app.scope === "near" ? 12 : app.scope === "state" ? 9 : 8} mask={{ type: "malaysia" }} focus={mapFocus} />
 {#if legend.length}
   <ul class="mt-2 flex list-none flex-wrap gap-2 p-0 text-[12px]">
     {#each legend as [label, color] (label)}
