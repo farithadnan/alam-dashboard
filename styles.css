@@ -82,6 +82,8 @@ h1 { font-size: 1.65rem; line-height: 1.15; margin: 18px 0 4px; font-weight: 750
 .stations .name { font-size: 15px; font-weight: 650; }
 .stations .band { font-size: 12.5px; color: var(--muted); margin-top: 1px; }
 .stations .val { font: 650 22px/1 var(--mono); text-align: right; }
+.spark { width: 140px; height: 26px; flex: 0 0 auto; display: flex; align-items: center; }
+.spark svg { display: block; }
 .stations .caret { color: var(--muted); font-size: 13px; }
 
 .muted { color: var(--muted); }

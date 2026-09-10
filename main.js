@@ -80,15 +80,45 @@ function render(current) {
     val.className = "val";
     val.textContent = String(r.value);
     val.style.color = numColor(r.band.label);
+    const spark = document.createElement("span");
+    spark.className = "spark";
+    const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+    svg.setAttribute("width", "140");
+    svg.setAttribute("height", "26");
+    spark.append(svg);
     const caret = document.createElement("span");
     caret.className = "caret";
     caret.textContent = "›";
-    li.append(grow, val, caret);
+    li.append(grow, spark, val, caret);
     li.addEventListener("click", () => selectStation(r));
     list.append(li);
   }
   const top = rows[0];
   if (top) worst.innerHTML = `Worst now: <b>${labelOf(top)}</b> at <b style="color:${numColor(top.band.label)}">${top.value}</b> (${top.band.label}). ${top.band.advice}`;
+  const sparks = list.querySelectorAll("li .spark svg");
+  Promise.all(rows.map((r) => loadHistory(r.station, 24)))
+    .then((all) => all.forEach((h, i) => drawSpark(sparks[i], h, numColor(rows[i].band.label))));
+}
+
+function drawSpark(svg, rows, color) {
+  if (!svg || rows.length < 2) return;
+  const W = 140, H = 26, PAD = 2;
+  const vals = rows.map((r) => r.value);
+  const last = vals[vals.length - 1];
+  let mn = Math.min(...vals), mx = Math.max(...vals);
+  if (mx - mn < 20) { mn -= 10; mx += 10; }
+  const span = mx - mn || 1;
+  const pts = rows.map((r, i) => {
+    const x = PAD + (i / (rows.length - 1)) * (W - 2 * PAD);
+    return [x, H - PAD - ((r.value - mn) / span) * (H - 2 * PAD)];
+  });
+  let d = "";
+  pts.forEach((p, i) => { d += (i ? " L" : "M") + p[0].toFixed(1) + "," + p[1].toFixed(1); });
+  svg.innerHTML = [
+    `<path d="${d} L ${pts[pts.length - 1][0].toFixed(1)},${H - PAD} L ${pts[0][0].toFixed(1)},${H - PAD} Z" fill="${color}" opacity="0.12"/>`,
+    `<path d="${d}" fill="none" stroke="${color}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>`,
+    `<title>24h AQI trend · now ${last}</title>`,
+  ].join("");
 }
 function labelOf(r) { return (r.stationName || r.station).split(",")[0]; }
 
