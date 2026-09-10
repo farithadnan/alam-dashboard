@@ -1,26 +1,41 @@
 <script>
 import { onMount } from "svelte";
 import { getCurrent, getForecast, getHazards, clock } from "../lib/api.js";
-import { wmo, DAYS } from "../lib/flags.js";
+import { wmo, DAYS, STATES } from "../lib/flags.js";
 import Seg from "./ui/Seg.svelte";
 
 let { refresh = 0 } = $props();
 
-let nowRows = $state([]); // open-meteo current (weather + aqi)
+let nowRows = $state([]);
 let forecast = $state([]);
 let climate = $state(null);
-let city = $state(null);
+let state = $state(null);
+let loc = $state(null);
 let updated = $state("");
 let err = $state("");
 
-const cities = $derived([...new Set(nowRows.filter((r) => r.kind === "weather").map((r) => r.station))]);
-const cityOpts = $derived(cities.map((c) => ({ value: c, label: c === "johor-bahru" ? "Johor Bahru" : c.replace(/-/g, " ") })));
+const availableStates = $derived([...new Set(nowRows.filter((r) => r.kind === "weather").map((r) => r.meta?.state))]);
+const orderedStates = $derived(STATES.map((s) => s.name).filter((n) => availableStates.includes(n)));
+const localities = $derived([...new Set(nowRows.filter((r) => r.kind === "weather" && r.meta?.state === state).map((r) => r.station))]);
+let locOptions = $state([]);
+function rebuildLocOptions() {
+  const arr = [];
+  for (const slug of localities) {
+    const r = nowRows.find((x) => x.station === slug);
+    arr.push({ value: slug, label: (r && r.stationName) || slug });
+  }
+  locOptions = arr;
+}
 const nowCard = $derived({
-  w: nowRows.find((r) => r.station === city && r.kind === "weather"),
-  a: nowRows.find((r) => r.station === city && r.kind === "aqi"),
+  w: nowRows.find((r) => r.station === loc && r.kind === "weather"),
+  a: nowRows.find((r) => r.station === loc && r.kind === "aqi"),
 });
-const myForecast = $derived(forecast.filter((r) => r.station === city).sort((a, b) => a.measuredAt.localeCompare(b.measuredAt)));
+const myForecast = $derived(forecast.filter((r) => r.station === loc).sort((a, b) => a.measuredAt.localeCompare(b.measuredAt)));
 const today = new Date().toISOString().slice(0, 10);
+
+function pickLoc() {
+  if (!loc || !localities.includes(loc)) { loc = localities[0]; }
+}
 
 async function load() {
   try {
@@ -28,11 +43,17 @@ async function load() {
     nowRows = cur.current || [];
     forecast = fc.forecast || [];
     climate = haz.climate || null;
-    if (!city) city = nowRows.find((r) => r.kind === "weather")?.station;
+    if (!state || !availableStates.includes(state)) state = orderedStates[0] ?? null;
+    pickLoc();
+    rebuildLocOptions();
     updated = clock();
   } catch (e) {
     err = e.message;
   }
+}
+function onStateChange() {
+  if (!localities.includes(loc)) { loc = localities[0]; }
+  rebuildLocOptions();
 }
 
 $effect(() => {
@@ -43,9 +64,17 @@ onMount(() => load());
 
 {#if err}<p class="caption mb-2">Weather unavailable ({err})</p>{/if}
 
-{#if cityOpts.length}
-  <Seg options={cityOpts} value={city} onpick={(c) => (city = c)} />
-{/if}
+<h3 class="qh -mb-1">Weather</h3>
+<div class="flex flex-wrap items-center gap-2">
+  <select class="rounded-lg border border-line bg-panel px-3 py-1.5 text-[14px]" onchange={onStateChange} bind:value={state}>
+    {#each orderedStates as name (name)}
+      <option value={name}>{name}</option>
+    {/each}
+  </select>
+  {#if locOptions.length}
+    <Seg options={locOptions} value={loc} onpick={(l) => (loc = l)} />
+  {/if}
+</div>
 
 {#if nowCard.w}
   <div class="my-2">
