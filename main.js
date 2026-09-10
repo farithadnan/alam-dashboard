@@ -127,6 +127,66 @@ function drawChart(rows) {
   $("dmeta").textContent = `${rows[rows.length - 1].value} now (${rows[0].value} ${rows.length - 1}h ago, peak ${mx})`;
 }
 
+function timeAgo(iso) {
+  const s = (Date.now() - new Date(iso).getTime()) / 1000;
+  if (s < 3600) return `${Math.max(1, Math.round(s / 60))}m ago`;
+  if (s < 86400) return `${Math.round(s / 3600)}h ago`;
+  return `${Math.round(s / 86400)}d ago`;
+}
+function magColor(m) {
+  if (m >= 6) return "#d3342f";
+  if (m >= 5) return "#e05d2b";
+  return "#8a8277";
+}
+
+async function loadHazards() {
+  try {
+    const res = await fetch(`${API_BASE}/hazards`);
+    if (!res.ok) throw new Error("HTTP " + res.status);
+    const d = await res.json();
+    renderClimate(d.climate);
+    renderQuakes(d.earthquakes || []);
+  } catch (e) {
+    $("climate").textContent = "Hazards unavailable (" + e.message + ")";
+  }
+}
+
+function renderClimate(climate) {
+  const el = $("climate");
+  if (!climate) { el.textContent = "No climate phase yet."; return; }
+  el.innerHTML = "";
+  const b = document.createElement("b");
+  b.textContent = climate.meta?.phase || "—";
+  b.style.color = (climate.meta?.phase || "").includes("El Niño") ? "#d3342f" : (climate.meta?.phase || "").includes("La Niña") ? "#2563eb" : "#8a8277";
+  el.append(b, document.createTextNode(` · anomaly ${climate.value >= 0 ? "+" : ""}${climate.value}°C · ${climate.meta?.season ?? ""} ${climate.meta?.year ?? ""}`));
+}
+
+function renderQuakes(quakes) {
+  const ul = $("quakes");
+  ul.innerHTML = "";
+  if (!quakes.length) { ul.innerHTML = '<li class="muted">No quakes ≥4.5 in the last week.</li>'; return; }
+  for (const q of quakes.slice(0, 8)) {
+    const li = document.createElement("li");
+    li.style.cursor = "default";
+    li.style.borderLeftColor = magColor(q.magnitude);
+    const grow = document.createElement("div");
+    grow.className = "grow";
+    const name = document.createElement("div");
+    name.className = "name";
+    name.textContent = q.stationName;
+    const meta = document.createElement("div");
+    meta.className = "band";
+    meta.textContent = `${timeAgo(q.measuredAt)} · depth ${q.meta?.depth ?? "?"} km`;
+    grow.append(name, meta);
+    const val = document.createElement("div");
+    val.className = "val";
+    val.textContent = "M" + q.magnitude;
+    val.style.color = magColor(q.magnitude);
+    li.append(grow, val);
+    ul.append(li);
+  }
+}
+
 async function load() {
   try {
     const res = await fetch(`${API_BASE}/current?source=doe-eqms`);
@@ -143,4 +203,6 @@ $("refresh").addEventListener("click", load);
 $("dclose").addEventListener("click", closeDetail);
 renderLegend();
 load();
+loadHazards();
 setInterval(load, 60_000);
+setInterval(loadHazards, 5 * 60_000);
