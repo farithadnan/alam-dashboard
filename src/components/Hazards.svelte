@@ -15,7 +15,12 @@ function short(t) {
   if (!t) return "";
   const c = t.replace(/\s+/g, " ").trim();
   if (c.length <= 110) return c;
-  return c.slice(0, 107) + "…";
+  let cut = c.slice(0, 110);
+  const ws = cut.lastIndexOf(" ") > 40 ? cut.lastIndexOf(" ") : 110;
+  const dot = cut.lastIndexOf(". ") > 60 ? cut.lastIndexOf(". ") + 1 : -1;
+  const br = cut.lastIndexOf("• ") > 30 ? cut.lastIndexOf("• ") : -1;
+  const at = Math.max(br, dot, ws);
+  return c.slice(0, at + 1) + "…";
 }
 function toggle(w) {
   openW[w.station + w.measuredAt] = !openW[w.station + w.measuredAt];
@@ -40,11 +45,11 @@ function toggle(w) {
             {#if w.meta?.textEn}
               <p class="mt-0.5 text-[12.5px] text-muted">{openW[w.station + w.measuredAt] ? w.meta.textEn : short(w.meta.textEn)}</p>
               {#if short(w.meta.textEn) !== w.meta.textEn}
-                <button class="ghostbtn mt-1 text-[12px]" onclick={() => toggle(w)}>Details</button>
+                <button class="ghostbtn mt-1 text-[12px]" onclick={() => toggle(w)}>{openW[w.station + w.measuredAt] ? "Show less" : "View full warning"}</button>
               {/if}
             {/if}
           </div>
-          <span class="shrink-0 text-[12px] font-semibold" style="color:{severityColor(w.severity)}">{severityWord(w.severity)}</span>
+          <span class="shrink-0 whitespace-nowrap rounded-full px-2 py-1 text-[11px] font-bold" style="color:{severityColor(w.severity)};background:color-mix(in srgb, {severityColor(w.severity)} 14%, transparent)">{severityWord(w.severity)}</span>
         </div>
       </li>
     {/each}
