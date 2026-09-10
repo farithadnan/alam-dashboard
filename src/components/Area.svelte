@@ -8,6 +8,7 @@ import Seg from "./ui/Seg.svelte";
 
 let hours = $state(24);
 let detail = $state(null); // {station, name, value, label, values, color}
+let showAqiHint = $state(true);
 
 const states = $derived(app.data?.states ?? []);
 const stations = $derived((app.data?.stations ?? []).slice().sort((a, b) => b.value - a.value));
@@ -20,7 +21,16 @@ const nowCard = $derived({
 const myForecast = $derived((app.data?.forecast ?? []).filter((r) => r.station === app.town).sort((a, b) => a.measuredAt.localeCompare(b.measuredAt)));
 const worst = $derived(stations[0]);
 const climate = $derived(app.data?.hazards?.climate ?? null);
+const townName = $derived(weather.find((r) => r.station === app.town && r.kind === "weather")?.stationName ?? app.town ?? "");
 const today = new Date().toISOString().slice(0, 10);
+
+/** Rough match: is a monitoring station inside/at the selected town? (stations are district-level) */
+function atTown(o) {
+  const t = (townName || "").toLowerCase().replace(/\s+/g, " ");
+  const s = (o.stationName || o.station || "").toLowerCase().replace(/\s+/g, " ");
+  if (!t || !s) return false;
+  return s.includes(t) || t.includes(s) || o.station === app.town;
+}
 
 async function openDetail(o) {
   if (hours <= 24) {
@@ -47,12 +57,12 @@ onMount(() => {
 {#if app.loading}<p class="caption mb-2">Loading…</p>{/if}
 
 <div class="flex flex-wrap items-center gap-2">
-  <select class="rounded-lg border border-line bg-panel px-3 py-1.5 text-[14px]" bind:value={app.state}>
+  <select class="rounded-lg border border-line bg-panel px-3 py-1.5 text-[14px]" bind:value={app.state} aria-label="State">
     {#each states as name (name)}
       <option value={name}>{name}</option>
     {/each}
   </select>
-  <select class="rounded-lg border border-line bg-panel px-3 py-1.5 text-[14px]" bind:value={app.town}>
+  <select class="rounded-lg border border-line bg-panel px-3 py-1.5 text-[14px]" bind:value={app.town} aria-label="Town">
     {#each towns as t (t)}
       <option value={t}>{weather.find((r) => r.station === t)?.stationName ?? t}</option>
     {/each}
@@ -60,12 +70,9 @@ onMount(() => {
 </div>
 {#if app.updated}<p class="caption mt-1">From DOE APIMS · Open-Meteo · updated {app.updated}</p>{/if}
 
-{#if worst}
-  <p class="mt-3 text-[14px] text-muted">Air now: <b class="text-fg">{cityOf(worst.stationName)}</b> worst at <b style="color:{numColor(worst.band?.label)}">{worst.value}</b> ({worst.band?.label}). {worst.band?.advice}</p>
-{/if}
-
 {#if nowCard.w}
   <div class="my-2">
+    <div class="text-[15px] font-semibold">{townName}</div>
     <div class="flex items-end gap-4">
       <div class="font-mono text-[46px] font-extrabold leading-none tracking-tighter">{Math.round(nowCard.w.value)}°</div>
       <div class="pb-1">
@@ -76,8 +83,32 @@ onMount(() => {
   </div>
 {/if}
 
+<h3 class="qh">7-day forecast</h3>
+<ul class="list-none m-0 border-t border-line p-0">
+  {#each myForecast.slice(0, 7) as r (r.station + r.measuredAt)}
+    {@const [icon, label] = wmo(r.meta?.code)}
+    {@const isToday = r.measuredAt.slice(0, 10) === today}
+    <li class="flex items-center gap-2.5 border-b border-line px-2.5 py-2.5">
+      <span class="w-11 shrink-0 text-[14px] font-semibold">{isToday ? "Today" : DAYS[new Date(r.measuredAt).getUTCDay()]}</span>
+      <span class="min-w-0 flex-1 truncate text-[14px]">{icon} {label}</span>
+      {#if r.meta?.precip > 0}<span class="w-[58px] shrink-0 text-right text-[12.5px] text-muted">☔ {Math.round(r.meta.precip)}%</span>{:else}<span class="w-[58px] shrink-0"></span>{/if}
+      <span class="w-[92px] shrink-0 text-right font-mono text-[14px] font-semibold">
+        {Math.round(r.meta?.tmax ?? r.value)}° <span class="ml-1.5 text-muted">{Math.round(r.meta?.tmin ?? 0)}°</span>
+      </span>
+    </li>
+  {/each}
+</ul>
+
+<h3 class="qh">Air quality · {app.state}</h3>
+{#if stations.length}
+  <p class="caption -mt-1">Readings are per monitoring station (district level). Some towns share one; {townName} may not have its own.</p>
+  {#if worst}
+    <p class="mt-2 text-[14px] text-muted">Worst now: <b class="text-fg">{cityOf(worst.stationName)}</b> at <b style="color:{numColor(worst.band?.label)}">{worst.value}</b> ({worst.band?.label}). {worst.band?.advice}</p>
+  {/if}
+{/if}
+
 {#if detail}
-  <div class="mb-4 rounded-2xl border border-line bg-panel px-4 py-3">
+  <div class="my-3 rounded-2xl border border-line bg-panel px-4 py-3">
     <div class="flex items-baseline justify-between gap-2">
       <span class="font-bold">{detail.name}</span>
       <span class="font-mono text-[22px] font-semibold" style="color:{detail.color}">{detail.value}</span>
@@ -103,28 +134,15 @@ onMount(() => {
       onkeydown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); openDetail(o); } }}
     >
       <div class="min-w-0 flex-1">
-        <div class="text-[15px] font-semibold leading-tight">{cityOf(o.stationName)}</div>
+        <div class="flex items-center gap-1.5">
+          <span class="text-[15px] font-semibold leading-tight">{cityOf(o.stationName)}</span>
+          {#if atTown(o)}<span class="rounded bg-accent/15 px-1.5 py-0.5 text-[11px] font-bold text-fg">Your town</span>{/if}
+        </div>
         <div class="text-[12.5px] text-muted">{o.band?.label} · {o.band?.advice}</div>
       </div>
       <Sparkline values={o.trend} color={numColor(o.band?.label)} width={120} height={26} />
       <span class="font-mono text-[22px] font-semibold" style="color:{numColor(o.band?.label)}">{o.value}</span>
       <span class="text-[13px] text-muted">&rsaquo;</span>
-    </li>
-  {/each}
-</ul>
-
-<h3 class="qh">7-day forecast</h3>
-<ul class="list-none m-0 border-t border-line p-0">
-  {#each myForecast.slice(0, 7) as r (r.station + r.measuredAt)}
-    {@const [icon, label] = wmo(r.meta?.code)}
-    {@const isToday = r.measuredAt.slice(0, 10) === today}
-    <li class="flex items-center gap-2.5 border-b border-line px-2.5 py-2">
-      <span class="w-11 shrink-0 text-[14px] font-semibold">{isToday ? "Today" : DAYS[new Date(r.measuredAt).getUTCDay()]}</span>
-      <span class="min-w-0 flex-1 truncate text-[14px]">{icon} {label}</span>
-      {#if r.meta?.precip > 0}<span class="w-[58px] shrink-0 text-right text-[12.5px] text-muted">☔ {Math.round(r.meta.precip)}%</span>{:else}<span class="w-[58px] shrink-0"></span>{/if}
-      <span class="w-[92px] shrink-0 text-right font-mono text-[14px] font-semibold">
-        {Math.round(r.meta?.tmax ?? r.value)}° <span class="ml-1.5 text-muted">{Math.round(r.meta?.tmin ?? 0)}°</span>
-      </span>
     </li>
   {/each}
 </ul>

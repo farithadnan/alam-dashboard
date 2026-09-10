@@ -10,6 +10,16 @@ const warnings = $derived(
 );
 const quakes = $derived(app.data?.hazards?.earthquakes ?? []);
 const regions = $derived([...new Set(quakes.map((q) => regionOf(q.stationName)))]);
+let openW = $state({});
+function short(t) {
+  if (!t) return "";
+  const c = t.replace(/\s+/g, " ").trim();
+  if (c.length <= 110) return c;
+  return c.slice(0, 107) + "…";
+}
+function toggle(w) {
+  openW[w.station + w.measuredAt] = !openW[w.station + w.measuredAt];
+}
 </script>
 
 {#if warnings.length || quakes.length}<p class="caption">From <b class="text-fg">MET Malaysia &amp; USGS</b>{#if app.updated} · updated {app.updated}{/if}</p>{/if}
@@ -28,7 +38,10 @@ const regions = $derived([...new Set(quakes.map((q) => regionOf(q.stationName)))
               <div class="text-[12px] text-muted">Valid until {new Date(w.meta.validTo).toLocaleDateString("en-MY", { weekday: "short", day: "numeric", month: "short" })}</div>
             {/if}
             {#if w.meta?.textEn}
-              <p class="mt-0.5 line-clamp-2 text-[12.5px] text-muted">{w.meta.textEn}</p>
+              <p class="mt-0.5 text-[12.5px] text-muted">{openW[w.station + w.measuredAt] ? w.meta.textEn : short(w.meta.textEn)}</p>
+              {#if short(w.meta.textEn) !== w.meta.textEn}
+                <button class="ghostbtn mt-1 text-[12px]" onclick={() => toggle(w)}>Details</button>
+              {/if}
             {/if}
           </div>
           <span class="shrink-0 text-[12px] font-semibold" style="color:{severityColor(w.severity)}">{severityWord(w.severity)}</span>
