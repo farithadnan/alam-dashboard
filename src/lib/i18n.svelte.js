@@ -69,7 +69,7 @@ const en = {
   reportThanks: "Your email app should open with the report ready to send.",
   apiTitle: "API",
   apiIntro: "Alam serves a small JSON API — the same one powering this site. It is open, free, and requires no key.",
-  apiNote: "Be kind: the API is backed by cached public data and is not yet rate-limited. A stable, versioned public API with full docs is on its way.",
+  apiNote: "Be kind: the API is backed by cached public data. Versioned at /v1 (an alias of /api), rate-limited to 120 requests/min per IP — please cache responses.",
   apiTry: "Try an endpoint",
   apiMethods: { summary: "Current + forecast + hazards bundle (optionally per state)", stations: "Known monitoring stations", history: "24h/7d history for a station", hazards: "Warnings, earthquakes and climate" },
 };

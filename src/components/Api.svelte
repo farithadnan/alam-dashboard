@@ -3,12 +3,15 @@ import { j } from "../lib/api.js";
 import { tr } from "../lib/i18n.svelte.js";
 
 const ENDPOINTS = [
+  { m: "GET", p: "/api", d: "Self-describing index: name, version, endpoints, rate limit." },
   { m: "GET", p: "/api/summary?state=Johor", d: "Current weather, AQI, forecast, hourly, warnings and earthquakes (optionally filtered per state)." },
   { m: "GET", p: "/api/stations", d: "List of known monitoring stations." },
-  { m: "GET", p: "/api/history?source=doe-eqms&station=<slug>&since=<iso>", d: "Observation history for a station." },
+  { m: "GET", p: "/api/current?source=doe-eqms", d: "Latest observation per station for a source." },
+  { m: "GET", p: "/api/history?source=doe-eqms&station=<slug>&hours=24", d: "Observation history for a station." },
   { m: "GET", p: "/api/forecast?source=open-meteo", d: "Daily forecast rows." },
   { m: "GET", p: "/api/hazards", d: "Weather warnings, recent earthquakes and climate phase." },
-  { m: "GET", p: "/health", d: "Liveness check." },
+  { m: "GET", p: "/api/news", d: "Latest Malaysia weather/hazard news items." },
+  { m: "GET", p: "/health", d: "Liveness check (not rate-limited)." },
 ];
 let result = $state(null);
 let err = $state("");
@@ -24,6 +27,7 @@ async function tryIt() {
   <h2 class="text-[22px] font-bold">{tr("apiTitle")}</h2>
   <p class="mt-2 leading-relaxed">{tr("apiIntro")}</p>
   <p class="caption mt-2">{tr("apiNote")}</p>
+  <p class="caption mt-1">{tr("apiLimit")}</p>
 
   <ul class="mt-5 list-none space-y-3 p-0">
     {#each ENDPOINTS as e (e.p)}
