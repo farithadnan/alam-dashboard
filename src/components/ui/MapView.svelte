@@ -2,7 +2,7 @@
 import { onMount, onDestroy } from "svelte";
 import L from "leaflet";
 
-let { pts = [], fit = true } = $props(); // pts: [{lat, lon, title, color, size}]
+let { pts = [], fit = true, class: cls = "h-64 w-full rounded-xl" } = $props(); // pts: [{lat, lon, title, color, size}]
 let el;
 let map;
 let icons = [];
@@ -10,9 +10,10 @@ let icons = [];
 onMount(() => {
   if (!el) return;
   map = L.map(el, { zoomControl: true, attributionControl: true }).setView([4.1, 109.2], 5);
-  L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-    attribution: "&copy; OpenStreetMap contributors",
-    maxZoom: 18,
+  L.tileLayer("https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png", {
+    attribution: "&copy; OpenStreetMap contributors &copy; CARTO",
+    subdomains: "abcd",
+    maxZoom: 19,
   }).addTo(map);
   draw();
   return () => { if (map) { map.remove(); map = null; } };
@@ -46,4 +47,4 @@ $effect(() => {
 });
 </script>
 
-<div bind:this={el} class="h-64 w-full rounded-xl" style="z-index:0" aria-label="Map"></div>
+<div bind:this={el} class={cls} style="z-index:0" aria-label="Map"></div>

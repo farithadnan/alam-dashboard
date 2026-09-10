@@ -56,8 +56,6 @@ function setHours(h) {
   </div>
 {/if}
 
-{#if app.updated}<p class="caption mb-1 text-[12px]">{trFmt("updatedFrom", { t: app.updated })}</p>{/if}
-
 <div class="lg:grid lg:grid-cols-[1fr_320px] lg:gap-6 lg:items-start">
   <div class="min-w-0">
     <h3 class="qh">{tr("stationsMap")}</h3>

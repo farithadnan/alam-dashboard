@@ -44,52 +44,50 @@ function toggleLang() {
 }
 </script>
 
-<header class="glass sticky top-0 z-40 border-b border-line">
-  <div class="mx-auto flex w-full max-w-[1024px] flex-wrap items-center gap-x-4 gap-y-2 px-5 py-2.5">
-    <button class="text-[17px] font-bold tracking-wide" onclick={() => (view = "weather")} aria-label="Home">Alam<span class="text-accent">.</span></button>
+<header class="sticky top-0 z-40 border-b border-line bg-bg/80 backdrop-blur">
+  <div class="mx-auto flex w-full max-w-[1280px] items-center gap-1.5 px-4 py-1.5">
+    <button class="mr-1 text-[16px] font-bold tracking-wide" onclick={() => (view = "weather")} aria-label="Home">Alam<span class="text-accent">.</span></button>
 
-    <nav class="order-3 flex w-full gap-1 sm:order-2 sm:w-auto">
+    <nav class="flex gap-0.5">
       <button class:on={view === "weather"} class="navbtn" onclick={() => (view = "weather")}>{tr("navWeather")}</button>
       <button class:on={view === "air"} class="navbtn" onclick={() => (view = "air")}>{tr("navAQI")}</button>
       <button class:on={view === "hazards"} class="navbtn" onclick={() => (view = "hazards")}>{tr("navHazards")}</button>
     </nav>
 
-    <div class="order-2 ml-auto flex items-center gap-2 sm:order-3">
-      <div class="relative">
-        <button class="ghostbtn" onclick={() => (locOpen = !locOpen)} aria-expanded={locOpen}>📍 {townName || tr("changeLoc")}{#if app.state}, {app.state}{/if} ▾</button>
-        {#if locOpen}
-          <div class="glass absolute right-0 z-50 mt-2 w-64 rounded-xl border border-line p-3 shadow-lg">
-            <div class="flex items-center justify-between">
-              <span class="caption">{tr("changeLoc")}</span>
-              <button class="ghostbtn" onclick={() => (locOpen = false)} aria-label="Close">×</button>
-            </div>
-            <label class="mt-2 flex flex-col gap-1">
-              <span class="caption text-[12px]">{tr("state")}</span>
-              <select bind:value={app.state}>
-                {#each states as name (name)}
-                  <option value={name}>{name}</option>
-                {/each}
-              </select>
-            </label>
-            <label class="mt-2 flex flex-col gap-1">
-              <span class="caption text-[12px]">{tr("town")}</span>
-              <select bind:value={app.town}>
-                {#each towns as t (t)}
-                  <option value={t}>{app.data?.weather?.find((r) => r.station === t && r.kind === "weather")?.stationName ?? t}</option>
-                {/each}
-              </select>
-            </label>
-            <button class="btn-primary mt-2 w-full" onclick={useLocation}>{locBusy ? tr("locating") : tr("useLoc")}</button>
-          </div>
-        {/if}
-      </div>
-      <button class="ghostbtn" onclick={toggleLang} title="Language" aria-label="Language">{lang.code === "en" ? "BM" : "EN"}</button>
-      <button class="ghostbtn" onclick={toggleTheme} title="Dark mode" aria-label="Toggle dark mode">{theme.dark ? "☀" : "☾"}</button>
+    <div class="ml-auto flex items-center gap-1.5">
+      <button class="iconbtn" onclick={() => (locOpen = true)} aria-haspopup="dialog">📍 {townName || tr("changeLoc")}</button>
+      <button class="iconbtn" onclick={toggleLang} aria-label="Language">{lang.code === "en" ? "BM" : "EN"}</button>
+      <button class="iconbtn" onclick={toggleTheme} aria-label="Toggle dark mode">{theme.dark ? "☀" : "☾"}</button>
     </div>
   </div>
 </header>
 
-<main class="mx-auto w-full max-w-[1024px] px-5 pt-3 pb-10">
+{#if locOpen}
+  <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4" onclick={() => (locOpen = false)} role="dialog" aria-modal="true">
+    <div class="w-full max-w-sm rounded-2xl border border-line bg-panel p-5 shadow-2xl" onclick={(e) => e.stopPropagation()}>
+      <h2 class="mt-0 mb-3 text-[16px] font-bold">{tr("changeLoc")}</h2>
+      <label class="flex flex-col gap-1">
+        <span class="caption text-[12px]">{tr("state")}</span>
+        <select bind:value={app.state}>
+          {#each states as name (name)}
+            <option value={name}>{name}</option>
+          {/each}
+        </select>
+      </label>
+      <label class="mt-3 flex flex-col gap-1">
+        <span class="caption text-[12px]">{tr("town")}</span>
+        <select bind:value={app.town}>
+          {#each towns as t (t)}
+            <option value={t}>{app.data?.weather?.find((r) => r.station === t && r.kind === "weather")?.stationName ?? t}</option>
+          {/each}
+        </select>
+      </label>
+      <button class="btn-primary mt-4 w-full" onclick={useLocation}>{locBusy ? tr("locating") : tr("useLoc")}</button>
+    </div>
+  </div>
+{/if}
+
+<main class="mx-auto w-full max-w-[1280px] px-4 pt-3 pb-10">
   {#if view === "weather"}
     <Weather />
   {:else if view === "air"}
@@ -106,10 +104,12 @@ function toggleLang() {
   {/if}
 </main>
 
-<footer class="mx-auto w-full max-w-[1024px] border-t border-line px-5 py-6 text-center text-[12.5px] text-muted">
-  <div class="flex items-center justify-center gap-x-4 gap-y-1 flex-wrap">
-    <button class="ghostbtn" onclick={() => (view = "about")}>{tr("navAbout")}</button>
-    <span>{tr("sources")}</span>
+<footer class="border-t border-line px-4 py-4 text-center text-[12.5px] text-muted">
+  <div class="flex items-center justify-center gap-2.5">
+    <button class="hover:text-fg" onclick={() => (view = "about")}>{tr("navAbout")}</button>
+    <span>·</span>
+    <span>API</span>
+    <span>·</span>
+    <span>© 2026 Alam</span>
   </div>
-  <p class="mt-2">{tr("copyright")}</p>
 </footer>

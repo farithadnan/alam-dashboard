@@ -1,13 +1,15 @@
 <script>
 import { app } from "../lib/store.svelte.js";
 import { wmo, DAYS } from "../lib/flags.js";
-import { tr, trFmt, wmoLabel } from "../lib/i18n.svelte.js";
+import { tr, wmoLabel } from "../lib/i18n.svelte.js";
+import Warnings from "./Warnings.svelte";
 
 const weather = $derived(app.data?.weather ?? []);
 const townName = $derived(weather.find((r) => r.station === app.town && r.kind === "weather")?.stationName ?? app.town ?? "");
 const now = $derived(weather.find((r) => r.station === app.town && r.kind === "weather"));
 const air = $derived(weather.find((r) => r.station === app.town && r.kind === "aqi"));
 const forecast = $derived((app.data?.forecast ?? []).filter((r) => r.station === app.town).sort((a, b) => a.measuredAt.localeCompare(b.measuredAt)).slice(0, 7));
+const climate = $derived(app.data?.hazards?.climate ?? null);
 const today = new Date().toISOString().slice(0, 10);
 </script>
 
@@ -27,7 +29,6 @@ const today = new Date().toISOString().slice(0, 10);
     </div>
   </div>
 {/if}
-{#if app.updated}<p class="caption mb-1 text-[12px]">{trFmt("updatedFrom", { t: app.updated })}</p>{/if}
 
 <h3 class="qh">{tr("forecast")}</h3>
 <div class="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-4">
@@ -43,3 +44,17 @@ const today = new Date().toISOString().slice(0, 10);
     </div>
   {/each}
 </div>
+
+<Warnings />
+
+{#if climate}
+  {@const phase = climate.meta?.phase || "Neutral"}
+  <h3 class="qh">{tr("climateHead")}</h3>
+  {#if phase.includes("El Niño")}
+    <p class="caption -mt-1">{tr("climateEl")}</p>
+  {:else if phase.includes("La Niña")}
+    <p class="caption -mt-1">{tr("climateLa")}</p>
+  {:else}
+    <p class="caption -mt-1">{tr("climateNeutral")}</p>
+  {/if}
+{/if}
