@@ -1,39 +1,18 @@
 <script>
-import { onMount } from "svelte";
-import { getHazards, clock } from "../lib/api.js";
+import { app } from "../lib/store.svelte.js";
 import { timeAgo, magWord, magText, MAG_BORDER, regionOf, friendlyLoc, severityWord, severityColor } from "../lib/flags.js";
 
-let { refresh = 0 } = $props();
-
-let warnings = $state([]);
-let quakes = $state([]);
-let updated = $state("");
-let err = $state("");
-
+const warnings = $derived(
+  (app.data?.hazards?.warnings ?? []).filter((w) => {
+    const vt = w.meta?.validTo;
+    return !vt || new Date(vt) >= new Date(Date.now() - 3600e3);
+  }),
+);
+const quakes = $derived(app.data?.hazards?.earthquakes ?? []);
 const regions = $derived([...new Set(quakes.map((q) => regionOf(q.stationName)))]);
-
-async function load() {
-  try {
-    const d = await getHazards();
-    warnings = (d.warnings || []).filter((w) => {
-      const vt = w.meta?.validTo;
-      return !vt || new Date(vt) >= new Date(Date.now() - 3600e3);
-    });
-    quakes = d.earthquakes || [];
-    updated = clock();
-  } catch (e) {
-    err = e.message;
-  }
-}
-
-$effect(() => {
-  if (refresh) load();
-});
-onMount(() => load());
 </script>
 
-{#if err}<p class="caption mb-2">Hazards unavailable ({err})</p>{/if}
-{#if warnings.length || quakes.length}<p class="caption">From <b class="text-fg">MET Malaysia &amp; USGS</b> · updated {updated}</p>{/if}
+{#if warnings.length || quakes.length}<p class="caption">From <b class="text-fg">MET Malaysia &amp; USGS</b>{#if app.updated} · updated {app.updated}{/if}</p>{/if}
 
 {#if warnings.length}
   <h3 class="qh">Weather warnings · Malaysia</h3>
@@ -47,6 +26,9 @@ onMount(() => load());
             <div class="text-[12.5px] text-muted">{w.title} · {timeAgo(w.measuredAt)}</div>
             {#if w.meta?.validTo}
               <div class="text-[12px] text-muted">Valid until {new Date(w.meta.validTo).toLocaleDateString("en-MY", { weekday: "short", day: "numeric", month: "short" })}</div>
+            {/if}
+            {#if w.meta?.textEn}
+              <p class="mt-0.5 line-clamp-2 text-[12.5px] text-muted">{w.meta.textEn}</p>
             {/if}
           </div>
           <span class="shrink-0 text-[12px] font-semibold" style="color:{severityColor(w.severity)}">{severityWord(w.severity)}</span>
