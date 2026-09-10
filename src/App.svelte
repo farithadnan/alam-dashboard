@@ -17,6 +17,7 @@ const towns = $derived([...new Set((app.data?.weather ?? []).filter((r) => r.kin
 const townName = $derived(app.data?.weather?.find((r) => r.station === app.town && r.kind === "weather")?.stationName ?? app.town ?? "");
 
 $effect(() => {
+  void app.scope; // reload when scope changes too
   if (app.state) load();
 });
 onMount(() => {
@@ -55,6 +56,11 @@ function toggleLang() {
     </nav>
 
     <div class="ml-auto flex items-center gap-1.5">
+      <div class="seg">
+        <button class:on={app.scope === "near"} class="segbtn" onclick={() => (app.scope = "near")}>{tr("scopeNear")}</button>
+        <button class:on={app.scope === "state"} class="segbtn" onclick={() => (app.scope = "state")}>{tr("scopeState")}</button>
+        <button class:on={app.scope === "malaysia"} class="segbtn" onclick={() => (app.scope = "malaysia")}>{tr("scopeMalaysia")}</button>
+      </div>
       <button class="iconbtn" onclick={() => (locOpen = true)} aria-haspopup="dialog">📍 {townName || tr("changeLoc")}</button>
       <button class="iconbtn" onclick={toggleLang} aria-label="Language">{lang.code === "en" ? "BM" : "EN"}</button>
       <button class="iconbtn" onclick={toggleTheme} aria-label="Toggle dark mode">{theme.dark ? "☀" : "☾"}</button>
