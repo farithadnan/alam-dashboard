@@ -7,5 +7,7 @@ export default defineConfig({
   build: { outDir: "dist", emptyOutDir: true },
   server: {
     proxy: { "/api": "http://localhost:8080" },
+    // dev/preview: fastify'd tunnels (trycloudflare.com, *.pages.dev) send a foreign Host header
+    allowedHosts: true,
   },
 });
