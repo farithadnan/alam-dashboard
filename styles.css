@@ -3,10 +3,10 @@
 :root {
   --bg: #fbf8f3;
   --fg: #242628;
-  --muted: #8a8277;
-  --line: #ece5db;
+  --muted: #6b6258;   /* 5.64:1 on bg — was 3.58, failed WCAG AA small */
+  --line: #e6ddcf;
   --panel: #fffdfa;
-  --accent: #e05d2b;
+  --accent: #c14a1f;  /* 4.65:1 text / 4.92:1 white — was 3.44/3.64, failed */
   --mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
 }
 
@@ -93,6 +93,11 @@ h1 { font-size: 1.65rem; line-height: 1.15; margin: 18px 0 4px; font-weight: 750
 .seg button { background: none; border: none; padding: 3px 11px; font-size: 12px; color: var(--muted); cursor: pointer; font-family: inherit; }
 .seg button.on { background: var(--accent); color: #fff; }
 .spacer { flex: 1; }
+
+/* weather "now" card — one selected location */
+.now { padding: 8px 2px 2px; }
+.now-temp { font: 750 46px/1 var(--mono); letter-spacing: -0.02em; }
+.now .band { margin-top: 5px; font-size: 14px; }
 
 /* 7-day forecast rows (mobile-app style) */
 .forecast { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--line); }

@@ -12,6 +12,14 @@ function bandColor(v) { let c = BANDS[0].color; for (const b of BANDS) if (v >= 
 function magColor(m) { return m >= 6 ? "#d3342f" : m >= 5 ? "#e05d2b" : "#8a8277"; }
 function magWord(m) { return m >= 6 ? "Strong" : m >= 5 ? "Moderate" : "Light"; }
 
+/* WCAG-compliant text colours for numbers/words (vivid band colours stay for dots/borders only) */
+const NUM = { "Good": "#2e7d32", "Moderate": "#8f5c00", "Unhealthy": "#b3491a", "Very Unhealthy": "#a51612", "Hazardous": "#6a1b9a" };
+function numColor(label) { return NUM[label] || label; }
+const MAG_TEXT = { "Light": "#6b6258", "Moderate": "#b3491a", "Strong": "#a51612" };
+function magText(word) { return MAG_TEXT[word] || word; }
+
+let nowAll = [];
+
 const $ = (id) => document.getElementById(id);
 const list = $("stations");
 const legend = $("legend");
@@ -71,7 +79,7 @@ function render(current) {
     const val = document.createElement("div");
     val.className = "val";
     val.textContent = String(r.value);
-    val.style.color = r.band.color;
+    val.style.color = numColor(r.band.label);
     const caret = document.createElement("span");
     caret.className = "caret";
     caret.textContent = "›";
@@ -80,7 +88,7 @@ function render(current) {
     list.append(li);
   }
   const top = rows[0];
-  if (top) worst.innerHTML = `Worst now: <b>${labelOf(top)}</b> at <b style="color:${top.band.color}">${top.value}</b> (${top.band.label}). ${top.band.advice}`;
+  if (top) worst.innerHTML = `Worst now: <b>${labelOf(top)}</b> at <b style="color:${numColor(top.band.label)}">${top.value}</b> (${top.band.label}). ${top.band.advice}`;
 }
 function labelOf(r) { return (r.stationName || r.station).split(",")[0]; }
 
@@ -196,7 +204,7 @@ function renderQuakes(quakes) {
       const word = document.createElement("span");
       word.className = "rword";
       word.textContent = magWord(q.magnitude);
-      word.style.color = magColor(q.magnitude);
+      word.style.color = magText(magWord(q.magnitude));
       li.append(grow, word);
       ul.append(li);
     }
@@ -214,32 +222,15 @@ async function loadHazards() {
 }
 
 /* ---- weather + climate ---- */
-function renderWeather(rows) {
-  const ul = $("weather");
-  ul.innerHTML = "";
-  if (!rows.length) { ul.innerHTML = '<li class="muted">No weather data yet.</li>'; return; }
-  const byCity = new Map();
-  for (const r of rows) byCity.set(r.station, { ...(byCity.get(r.station) || {}), [r.kind]: r });
-  for (const o of byCity.values()) {
-    const w = o.weather, a = o.aqi;
-    if (!w) continue;
-    const li = document.createElement("li");
-    li.style.cursor = "default";
-    const grow = document.createElement("div");
-    grow.className = "grow";
-    const name = document.createElement("div");
-    name.className = "name";
-    name.textContent = (w.stationName || w.station).split(",")[0];
-    const meta = document.createElement("div");
-    meta.className = "band";
-    meta.textContent = `${w.meta?.humidity ?? "–"}% humidity · wind ${w.meta?.wind ?? "–"} km/h · UV ${a?.meta?.uv ?? "–"}`;
-    grow.append(name, meta);
-    const val = document.createElement("div");
-    val.className = "val";
-    val.textContent = Math.round(w.value) + "°C";
-    li.append(grow, val);
-    ul.append(li);
-  }
+function renderNow() {
+  const card = $("nowcard");
+  card.innerHTML = "";
+  const w = nowAll.find((x) => x.station === fCity && x.kind === "weather");
+  const a = nowAll.find((x) => x.station === fCity && x.kind === "aqi");
+  if (!w) { card.textContent = "No current weather yet."; return; }
+  const big = el("div", "now-temp", Math.round(w.value) + "°");
+  const meta = el("div", "band", `${w.meta?.humidity ?? "–"}% humidity · wind ${w.meta?.wind ?? "–"} km/h · UV ${a?.meta?.uv ?? "–"}`);
+  card.append(big, meta);
 }
 
 function renderClimate(climate) {
@@ -292,6 +283,7 @@ function buildCityPicker(cities) {
     if (!btn) return;
     fCity = btn.dataset.city;
     seg.querySelectorAll("button").forEach((x) => x.classList.toggle("on", x === btn));
+    renderNow();
     renderForecast(lastForecast);
   });
 }
@@ -332,8 +324,9 @@ async function loadWeather() {
       fetch(`${API_BASE}/forecast?source=open-meteo`).then((r) => r.json()),
       fetch(`${API_BASE}/hazards`).then((r) => r.json()),
     ]);
-    renderWeather(cur.current || []);
-    buildCityPicker([...new Set((cur.current || []).map((r) => r.station))]);
+    nowAll = cur.current || [];
+    buildCityPicker([...new Set(nowAll.map((r) => r.station))]);
+    renderNow();
     renderForecast(fc.forecast || []);
     renderClimate(haz.climate || null);
     wago.textContent = new Date().toLocaleTimeString();
