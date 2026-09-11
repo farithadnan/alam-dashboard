@@ -30,6 +30,7 @@ const NAV = [
 
 $effect(() => {
   void app.scope;
+  void app.town;
   if (app.state) load();
 });
 onMount(() => {

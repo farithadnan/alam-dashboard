@@ -7,6 +7,7 @@ import { shareCard } from "../lib/sharecard.js";
 import Carousel from "./ui/Carousel.svelte";
 import MapView from "./ui/MapView.svelte";
 import TrendChart from "./ui/TrendChart.svelte";
+import Spinner from "./ui/Spinner.svelte";
 
 /** Full detail for ONE town — reused by "near me" and by tapping a card anywhere. */
 let { station = "", onClose = null } = $props();
@@ -21,7 +22,17 @@ const stations = $derived(app.data?.stations ?? []);
 const townAir = $derived(stations.find((s) => s.station === station) ?? null);
 const forecast = $derived((app.data?.forecast ?? []).filter((r) => r.station === station).sort((a, b) => a.measuredAt.localeCompare(b.measuredAt)).slice(0, 10));
 const hourly = $derived((app.data?.hourly ?? []).filter((r) => r.station === station).sort((a, b) => a.measuredAt.localeCompare(b.measuredAt)));
-const airSeries = $derived((townAir?.history ?? []).map((r) => ({ t: r.t, v: r.v })));
+let airSeries = $state([]);
+let airLoading = $state(false);
+$effect(() => {
+  const st = townAir?.station;
+  if (!st) { airSeries = []; return; }
+  airLoading = true;
+  getHistory("doe-eqms", st, 24)
+    .then((res) => (airSeries = (res.history ?? []).map((r) => ({ t: r.measuredAt, v: r.value }))))
+    .catch(() => (airSeries = []))
+    .finally(() => (airLoading = false));
+});
 const moon = moonPhase();
 
 const mapPts = $derived(
@@ -126,7 +137,11 @@ async function doShare() {
         <span class="text-[13px] font-semibold" style="color:{numColor(townAir.band?.label)}">{bandLabel(townAir.band?.label)}</span>
         <span class="text-[12px] text-muted">{tr("past24")}</span>
       </div>
-      <TrendChart series={airSeries} color={numColor(townAir.band?.label)} ariaLabel="Air quality trend" />
+      {#if airLoading}
+        <div class="flex h-[170px] items-center justify-center"><Spinner size={22} label={tr("loading")} /></div>
+      {:else}
+        <TrendChart series={airSeries} color={numColor(townAir.band?.label)} ariaLabel="Air quality trend" />
+      {/if}
     </div>
   {/if}
 

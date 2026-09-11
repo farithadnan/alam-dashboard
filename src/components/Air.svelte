@@ -4,6 +4,7 @@ import { getHistory } from "../lib/api.js";
 import { numColor, cityOf, groupBy } from "../lib/flags.js";
 import { tr, trFmt, bandLabel, bandAdvice } from "../lib/i18n.svelte.js";
 import TrendChart from "./ui/TrendChart.svelte";
+import Spinner from "./ui/Spinner.svelte";
 import MapView from "./ui/MapView.svelte";
 import Section from "./ui/Section.svelte";
 
@@ -35,16 +36,25 @@ const groups = $derived(groupBy(stations, (s) => s.meta?.state ?? ""));
 
 let range = $state(24);
 let open = $state(null);
-let weekSeries = $state([]); // fetched only when 7d is chosen
 let nearInfo = $state("");
 
 /** The station currently being charted: the expanded row, or the "near me" hero. */
 const target = $derived(open ? (stations.find((s) => s.station === open) ?? null) : app.scope === "near" ? heroAir : null);
-/** 24h comes straight from the bundle (always available), so the chart renders on first paint. */
-const series = $derived.by(() => {
-  if (!target) return [];
-  if (range === 24) return (target.history ?? []).map((r) => ({ t: r.t, v: r.v }));
-  return weekSeries;
+// The series is fetched per station/range (no longer shipped in the bundle), so a
+// spinner shows while it loads and stale responses are discarded.
+let series = $state([]);
+let seriesLoading = $state(false);
+let reqId = 0;
+$effect(() => {
+  const st = target?.station;
+  const h = range;
+  if (!st) { series = []; return; }
+  const id = ++reqId;
+  seriesLoading = true;
+  getHistory("doe-eqms", st, h)
+    .then((res) => { if (id === reqId) series = (res.history ?? []).map((r) => ({ t: r.measuredAt, v: r.value })); })
+    .catch(() => { if (id === reqId) series = []; })
+    .finally(() => { if (id === reqId) seriesLoading = false; });
 });
 
 const stats = $derived.by(() => {
@@ -53,12 +63,8 @@ const stats = $derived.by(() => {
   return { min: Math.min(...vs), max: Math.max(...vs), avg: Math.round(vs.reduce((a, b) => a + b, 0) / vs.length) };
 });
 
-async function setRange(h) {
+function setRange(h) {
   range = h;
-  if (h === 168 && target) {
-    const res = await getHistory("doe-eqms", target.station, 168);
-    weekSeries = (res.history ?? []).map((r) => ({ t: r.measuredAt, v: r.value }));
-  }
 }
 
 function atTown(o) {
@@ -182,7 +188,9 @@ function nearestStation() {
       <button class:on={range === 168} class="segbtn" onclick={() => setRange(168)}>7d</button>
     </div>
     <p class="caption mt-1 text-[12px]">{range === 24 ? tr("past24") : tr("past7d")}</p>
-    {#if series.length >= 2}
+    {#if seriesLoading}
+      <div class="flex h-[170px] items-center justify-center"><Spinner size={22} label={tr("loading")} /></div>
+    {:else if series.length >= 2}
       <TrendChart series={series} color={numColor(heroAir.band?.label)} ariaLabel="Air quality trend" mode={range === 168 ? "days" : "hours"} />
       {#if stats}<p class="caption mt-1 text-[12px]">{"min " + stats.min + " · avg " + stats.avg + " · max " + stats.max}</p>{/if}
     {/if}
@@ -216,7 +224,9 @@ function nearestStation() {
                   <button class:on={range === 168} class="segbtn" onclick={() => setRange(168)}>7d</button>
                 </div>
                 <p class="caption mt-1 text-[12px]">{range === 24 ? tr("past24") : tr("past7d")}</p>
-                {#if series.length >= 2}
+                {#if seriesLoading}
+                  <div class="flex h-[170px] items-center justify-center"><Spinner size={22} label={tr("loading")} /></div>
+                {:else if series.length >= 2}
                   <TrendChart series={series} color={numColor(o.band?.label)} ariaLabel="Air quality trend" mode={range === 168 ? "days" : "hours"} />
                   {#if stats}<p class="caption mt-1 text-[12px]">{"min " + stats.min + " · avg " + stats.avg + " · max " + stats.max}</p>{/if}
                 {/if}

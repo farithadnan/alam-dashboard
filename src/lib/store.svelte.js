@@ -8,8 +8,13 @@ const CACHE_KEY = "alam-cache";
 export async function load() {
   app.loading = true;
   try {
-    const q = app.scope === "malaysia" || !app.state ? "" : `?state=${encodeURIComponent(app.state)}`;
-    const bundle = await j(`./api/summary${q}`);
+    // State narrows stations/weather; town narrows the heavier hourly + forecast
+    // series to the one place the UI is actually showing.
+    const params = new URLSearchParams();
+    if (app.state && app.scope !== "malaysia") params.set("state", app.state);
+    if (app.town) params.set("town", app.town);
+    const qs = params.toString();
+    const bundle = await j(`./api/summary${qs ? `?${qs}` : ""}`);
     if (!app.state && bundle.states?.length) app.state = bundle.states[0];
     const towns = [...new Set((bundle.weather || []).filter((r) => r.kind === "weather").map((r) => r.station))];
     if (!app.town || !towns.includes(app.town)) app.town = towns[0] ?? app.town;
