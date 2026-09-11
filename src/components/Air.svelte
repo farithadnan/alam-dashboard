@@ -2,10 +2,13 @@
 import { app } from "../lib/store.svelte.js";
 import { getHistory } from "../lib/api.js";
 import { numColor, cityOf, groupBy } from "../lib/flags.js";
-import { tr, bandLabel, bandAdvice } from "../lib/i18n.svelte.js";
-import Sparkline from "./ui/Sparkline.svelte";
+import { tr, trFmt, bandLabel, bandAdvice } from "../lib/i18n.svelte.js";
+import TrendChart from "./ui/TrendChart.svelte";
+import HourlyGrid from "./ui/HourlyGrid.svelte";
 import MapView from "./ui/MapView.svelte";
 import Section from "./ui/Section.svelte";
+
+const BAND_ORDER = ["Good", "Moderate", "Unhealthy", "Very Unhealthy", "Hazardous"];
 
 const stations = $derived((app.data?.stations ?? []).slice().sort((a, b) => b.value - a.value));
 const weather = $derived(app.data?.weather ?? []);
@@ -13,6 +16,9 @@ const townName = $derived(weather.find((r) => r.station === app.town && r.kind =
 const airTown = $derived(weather.find((r) => r.station === app.town && r.kind === "aqi"));
 const heroAir = $derived(stations.find((s) => atTown(s)) ?? stations[0] ?? null);
 
+const counts = $derived(
+  BAND_ORDER.map((label) => ({ label, n: stations.filter((s) => s.band?.label === label).length })).filter((c) => c.n > 0),
+);
 const allPts = $derived(
   stations
     .filter((s) => s.coords?.lat && s.coords?.lon)
@@ -24,14 +30,14 @@ const allPts = $derived(
       };
     }),
 );
-const mapPts = $derived(allPts);
 const mapFocus = $derived(open ? (() => { const s = stations.find((x) => x.station === open); return s?.coords ? { lat: s.coords.lat, lon: s.coords.lon, zoom: 11 } : null; })() : null);
 const legend = $derived([...new Map(stations.map((s) => [s.band?.label, numColor(s.band?.label)])).entries()]);
 const groups = $derived(groupBy(stations, (s) => s.meta?.state ?? ""));
 
 let range = $state(24);
 let open = $state(null);
-let detailValues = $state([]);
+let detail = $state([]); // {t,v} series for the expanded station
+let nearInfo = $state("");
 
 function atTown(o) {
   const t = (townName || "").toLowerCase().replace(/\s+/g, " ");
@@ -39,23 +45,82 @@ function atTown(o) {
   if (!t || !s) return false;
   return s.includes(t) || t.includes(s) || o.station === app.town;
 }
+
+function haversine(a, b) {
+  const R = 6371, rad = (d) => (d * Math.PI) / 180;
+  const dLat = rad(b.lat - a.lat), dLon = rad(b.lon - a.lon);
+  const h = Math.sin(dLat / 2) ** 2 + Math.cos(rad(a.lat)) * Math.cos(rad(b.lat)) * Math.sin(dLon / 2) ** 2;
+  return 2 * R * Math.asin(Math.sqrt(h));
+}
+
 async function loadTrend(o, h) {
   range = h;
-  detailValues = h <= 24 ? (o.trend ?? []) : (await getHistory("doe-eqms", o.station, 168)).history.map((x) => x.value);
+  if (h <= 24) {
+    detail = (o.history ?? []).map((r) => ({ t: r.t, v: r.v }));
+    if (!detail.length) detail = (o.trend ?? []).map((v, i) => ({ t: "", v, i }));
+  } else {
+    const res = await getHistory("doe-eqms", o.station, 168);
+    detail = (res.history ?? []).map((r) => ({ t: r.measuredAt, v: r.value }));
+  }
 }
 function toggleRow(o) {
   open = open === o.station ? null : o.station;
   if (open === o.station) loadTrend(o, range);
 }
+
+/** Find the monitoring station closest to the user and open it. */
+function nearestStation() {
+  if (!navigator.geolocation) return;
+  nearInfo = tr("locating");
+  navigator.geolocation.getCurrentPosition(
+    (pos) => {
+      const me = { lat: pos.coords.latitude, lon: pos.coords.longitude };
+      let best = null, bd = Infinity;
+      for (const s of stations) {
+        if (!s.coords?.lat) continue;
+        const d = haversine(me, s.coords);
+        if (d < bd) { bd = d; best = s; }
+      }
+      if (best) {
+        open = best.station;
+        loadTrend(best, 24);
+        nearInfo = `${cityOf(best.stationName)} · ${bd.toFixed(1)} km`;
+      } else nearInfo = "";
+    },
+    () => { nearInfo = ""; },
+    { timeout: 8000 },
+  );
+}
 </script>
 
-<MapView pts={mapPts} class="h-72 w-full rounded-xl lg:h-[58vh] lg:min-h-[440px]" fitMax={app.scope === "near" ? 12 : app.scope === "state" ? 9 : 8} focus={mapFocus} />
+<MapView pts={allPts} class="h-72 w-full rounded-xl lg:h-[58vh] lg:min-h-[440px]" fitMax={app.scope === "near" ? 12 : app.scope === "state" ? 9 : 8} focus={mapFocus} />
 {#if legend.length}
   <ul class="mt-2 flex list-none flex-wrap gap-2 p-0 text-[12px]">
     {#each legend as [label, color] (label)}
       <li class="flex items-center gap-1"><span class="inline-block size-3 rounded-full" style="background:{color}"></span> {bandLabel(label)}</li>
     {/each}
   </ul>
+{/if}
+
+{#if counts.length}
+  <h3 class="qh">{tr("catTitle")}</h3>
+  <ul class="mt-1 grid list-none grid-cols-2 gap-2 p-0 sm:grid-cols-3">
+    {#each counts as c (c.label)}
+      <li class="glass flex items-center justify-between rounded-xl px-3 py-2">
+        <span class="flex items-center gap-2 text-[13px]">
+          <span class="inline-block size-3 rounded-full" style="background:{numColor(c.label)}"></span>{bandLabel(c.label)}
+        </span>
+        <span class="font-mono text-[18px] font-bold" style="color:{numColor(c.label)}">{c.n}</span>
+      </li>
+    {/each}
+  </ul>
+{/if}
+
+{#if app.scope === "near"}
+  <div class="mt-3 flex items-center gap-2">
+    <button class="ghostbtn" onclick={nearestStation}>{tr("nearest")}</button>
+    {#if nearInfo}<span class="font-mono text-[12.5px] text-muted">{nearInfo}</span>{/if}
+  </div>
 {/if}
 
 {#if app.scope === "near" && heroAir}
@@ -77,11 +142,17 @@ function toggleRow(o) {
       <button class:on={range === 24} class="segbtn" onclick={() => loadTrend(heroAir, 24)}>24h</button>
       <button class:on={range === 168} class="segbtn" onclick={() => loadTrend(heroAir, 168)}>7d</button>
     </div>
+    {#if detail.length >= 2}
+      <TrendChart values={detail.map((d) => d.v)} times={detail.map((d) => d.t)} color={numColor(heroAir.band?.label)} ariaLabel="Air quality trend" />
+    {/if}
   </div>
-  <Sparkline values={detailValues.length >= 2 ? detailValues : heroAir.trend} color={numColor(heroAir.band?.label)} class="mt-2 h-[96px] w-full" ariaLabel="Air quality trend" width={600} height={96} />
+  {#if range === 24}
+    <h3 class="qh">{tr("hourlyReadings")}</h3>
+    <HourlyGrid history={heroAir.history ?? []} color={numColor(heroAir.band?.label)} />
+  {/if}
 {:else}
   {#each groups as g (g.key)}
-    <Section title={g.key}>
+    <Section title={g.key} startOpen={groups.length === 1}>
       <ul class="list-none m-0 p-0">
         {#each g.items as o (o.station)}
           <li class="border-b border-line" style="border-left:3px solid {numColor(o.band?.label)}">
@@ -90,7 +161,6 @@ function toggleRow(o) {
                 <div class="text-[15px] font-semibold leading-tight">{cityOf(o.stationName)}</div>
                 <div class="text-[12.5px] text-muted">{bandLabel(o.band?.label)}</div>
               </div>
-              <Sparkline values={o.trend} color={numColor(o.band?.label)} ariaLabel={"Air quality trend"} width={110} height={24} />
               <span class="font-mono text-[20px] font-semibold" style="color:{numColor(o.band?.label)}">{o.value}</span>
               <span class="font-mono text-muted">{open === o.station ? "−" : "+"}</span>
             </button>
@@ -101,8 +171,12 @@ function toggleRow(o) {
                   <button class:on={range === 24} class="segbtn" onclick={() => loadTrend(o, 24)}>24h</button>
                   <button class:on={range === 168} class="segbtn" onclick={() => loadTrend(o, 168)}>7d</button>
                 </div>
-                {#if detailValues.length >= 2}
-                  <Sparkline values={detailValues} color={numColor(o.band?.label)} class="mt-2 h-[80px] w-full" ariaLabel="Air quality trend" width={600} height={80} />
+                {#if detail.length >= 2}
+                  <TrendChart values={detail.map((d) => d.v)} times={detail.map((d) => d.t)} color={numColor(o.band?.label)} ariaLabel="Air quality trend" />
+                {/if}
+                {#if range === 24}
+                  <div class="caption mt-3 text-[12px]">{tr("hourlyReadings")}</div>
+                  <HourlyGrid history={o.history ?? []} color={numColor(o.band?.label)} />
                 {/if}
               </div>
             {/if}
