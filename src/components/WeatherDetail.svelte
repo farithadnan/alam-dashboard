@@ -120,6 +120,13 @@ async function doShare() {
         </div>
       {/each}
     </Carousel>
+  {:else if app.loading}
+    <p class="caption mt-2 text-[12px]">{tr("loading")}</p>
+    <div class="flex gap-2 overflow-hidden">
+      {#each Array(6) as _, i (i)}
+        <Skeleton h={76} w="76px" class="!shrink-0 !rounded-xl" />
+      {/each}
+    </div>
   {/if}
 
   <h3 class="qh">{tr("todayDetail")}</h3>
@@ -152,6 +159,13 @@ async function doShare() {
   {/if}
 
   <h3 class="qh">{tr("forecast")}</h3>
+  {#if app.loading && !forecast.length}
+    <div class="flex gap-2 overflow-hidden">
+      {#each Array(7) as _, i (i)}
+        <Skeleton h={112} w="104px" class="!shrink-0 !rounded-xl" />
+      {/each}
+    </div>
+  {:else}
   <Carousel>
     {#each forecast as r (r.station + r.measuredAt)}
       {@const [icon, label] = wmo(String(r.meta?.code))}
@@ -165,6 +179,7 @@ async function doShare() {
       </div>
     {/each}
   </Carousel>
+  {/if}
 
   {#if officialLoading}
     <h3 class="qh">{tr("officialTitle")}</h3>
@@ -192,6 +207,24 @@ async function doShare() {
     <h3 class="qh">{tr("stationsMap")}</h3>
     <MapView pts={mapPts} fit={!focus} focus={focus} onPick={(id) => (app.picked = id)} class="h-64 w-full rounded-xl lg:h-[40vh]" />
   {/if}
+{:else if app.loading}
+  <div class="mt-2 space-y-3">
+    <Skeleton h={16} w="40%" />
+    <Skeleton h={72} w="55%" />
+    <div class="flex gap-2 overflow-hidden">
+      {#each Array(6) as _, i (i)}
+        <Skeleton h={76} w="76px" class="!shrink-0 !rounded-xl" />
+      {/each}
+    </div>
+    <Skeleton h={14} w="30%" />
+    <Skeleton h={64} class="!rounded-xl" />
+    <Skeleton h={14} w="22%" />
+    <div class="flex gap-2 overflow-hidden">
+      {#each Array(5) as _, i (i)}
+        <Skeleton h={112} w="104px" class="!shrink-0 !rounded-xl" />
+      {/each}
+    </div>
+  </div>
 {:else}
   <p class="caption mt-2">{tr("noData")}</p>
 {/if}
