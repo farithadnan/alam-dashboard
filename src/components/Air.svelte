@@ -167,6 +167,13 @@ function nearestStation() {
             {#if open === o.station}
               <div class="px-3 pb-3">
                 <p class="text-[13px] text-muted">{bandAdvice(o.band?.label) || o.band?.advice}</p>
+                <div class="mt-2 grid grid-cols-[auto_1fr] gap-x-4 gap-y-1 text-[12.5px] text-muted">
+                  {#if o.meta?.place}<div>{tr("stationLbl")}</div><div class="text-fg">{o.meta.place}</div>{/if}
+                  {#if o.meta?.category}<div>{tr("categoryLbl")}</div><div class="text-fg">{o.meta.category}</div>{/if}
+                  {#if o.meta?.region}<div>{tr("region")}</div><div class="text-fg">{o.meta.region}</div>{/if}
+                  {#if o.meta?.param}<div>{tr("parameter")}</div><div class="text-fg">{o.meta.param}</div>{/if}
+                  {#if o.meta?.pm10 != null}<div>PM10</div><div class="font-mono text-fg">{o.meta.pm10}</div>{/if}
+                </div>
                 <div class="mt-2 flex gap-2">
                   <button class:on={range === 24} class="segbtn" onclick={() => loadTrend(o, 24)}>24h</button>
                   <button class:on={range === 168} class="segbtn" onclick={() => loadTrend(o, 168)}>7d</button>
