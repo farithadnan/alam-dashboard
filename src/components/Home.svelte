@@ -4,6 +4,7 @@ import { wmo, numColor, atTown, timeAgo } from "../lib/flags.js";
 import { tr, trFmt, bandLabel, bandAdvice, wmoLabel } from "../lib/i18n.svelte.js";
 import { shareCard } from "../lib/sharecard.js";
 import SearchInput from "./ui/SearchInput.svelte";
+import Skeleton from "./ui/Skeleton.svelte";
 import Warnings from "./Warnings.svelte";
 
 let { onNavigate = () => {} } = $props();
@@ -66,6 +67,15 @@ async function share() {
       {:else if air}
         <div class="shrink-0 text-right"><div class="caption text-[11px]">US AQI</div><div class="font-mono text-[20px] font-semibold">{air.value}</div></div>
       {/if}
+    </div>
+  </div>
+{:else if app.loading}
+  <!-- Settlement loading: never show the previous town's numbers as if they were current. -->
+  <div class="glass mt-1 space-y-3 rounded-2xl p-4">
+    <Skeleton h={16} w="42%" />
+    <div class="flex items-end justify-between gap-3">
+      <Skeleton h={40} w="45%" />
+      <Skeleton h={54} w="86px" class="!rounded-xl" />
     </div>
   </div>
 {/if}
