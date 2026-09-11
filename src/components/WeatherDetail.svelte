@@ -228,5 +228,7 @@ async function doShare() {
     </div>
   </div>
 {:else}
-  <p class="caption mt-2">{tr("noData")}</p>
+  <div class="flex min-h-[45vh] items-center justify-center">
+    <p class="caption">{tr("noData")}</p>
+  </div>
 {/if}
