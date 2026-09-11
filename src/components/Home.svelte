@@ -3,6 +3,8 @@ import { app } from "../lib/store.svelte.js";
 import { wmo, numColor, atTown, timeAgo } from "../lib/flags.js";
 import { tr, trFmt, bandLabel, bandAdvice, wmoLabel } from "../lib/i18n.svelte.js";
 import { shareCard } from "../lib/sharecard.js";
+import { getHaze } from "../lib/api.js";
+import { createLoader } from "../lib/async.js";
 import SearchInput from "./ui/SearchInput.svelte";
 import Skeleton from "./ui/Skeleton.svelte";
 import Warnings from "./Warnings.svelte";
@@ -20,6 +22,24 @@ const quakes = $derived(app.data?.hazards?.earthquakes ?? []);
 const climate = $derived(app.data?.hazards?.climate ?? null);
 const news = $derived(app.data?.news ?? []);
 let newsQ = $state("");
+
+// Haze outlook for the saved location: model PM2.5 peak per day (its own endpoint).
+let haze = $state([]);
+let hazeLoading = $state(false);
+const loadHaze = createLoader();
+$effect(() => {
+  const town = app.town;
+  if (!town) { haze = []; return; }
+  hazeLoading = true;
+  loadHaze(() => getHaze(town), {
+    onValue: (r) => (haze = r.haze ?? []),
+    onError: () => (haze = []),
+    onSettled: () => (hazeLoading = false),
+  });
+});
+const DOW = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+const dayLabel = (d) =>
+  d === new Date().toISOString().slice(0, 10) ? tr("today") : DOW[new Date(`${d}T00:00:00`).getDay()];
 const newsFiltered = $derived(
   news.filter((n) => {
     const q = newsQ.trim().toLowerCase();
@@ -96,6 +116,22 @@ async function share() {
     {phase.includes("El Niño") ? tr("climateEl") : phase.includes("La Niña") ? tr("climateLa") : tr("climateNeutral")}{#if v != null} · {v > 0 ? "+" : ""}{v}°C{#if season} ({season}){/if}{/if}
   </p>
   <p class="caption">{phase.includes("El Niño") ? tr("climateElEffect") : phase.includes("La Niña") ? tr("climateLaEffect") : tr("climateNeutralEffect")}</p>
+{/if}
+
+{#if hazeLoading && !haze.length}
+  <h3 class="qh">{tr("hazeTitle")}</h3>
+  <Skeleton h={54} />
+{:else if haze.length}
+  <h3 class="qh">{tr("hazeTitle")} <span class="text-muted">µg/m³</span></h3>
+  <ul class="list-none m-0 border-t border-line p-0">
+    {#each haze.slice(0, 4) as d (d.date)}
+      <li class="flex items-center gap-3 border-b border-line px-2.5 py-2 text-[13.5px]">
+        <span class="w-10 shrink-0 text-muted">{dayLabel(d.date)}</span>
+        <span class="min-w-0 flex-1 text-muted">{d.aboveGuideline ? tr("hazeAbove") : tr("hazeBelow")}</span>
+        <span class="shrink-0 font-mono text-[13px] font-semibold">{Math.round(d.pm25Max)}</span>
+      </li>
+    {/each}
+  </ul>
 {/if}
 
 <h3 class="qh">{tr("newsTitle")}</h3>

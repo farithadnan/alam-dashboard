@@ -18,4 +18,6 @@ export const getOfficial = (state, town) => {
   return j(`${B}/official${q.size ? `?${q}` : ""}`);
 };
 
+export const getHaze = (town) => j(`${B}/haze${town ? `?town=${encodeURIComponent(town)}` : ""}`);
+
 export const clock = () => new Date().toLocaleTimeString();
