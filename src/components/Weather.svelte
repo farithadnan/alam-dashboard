@@ -1,5 +1,6 @@
 <script>
 import { app } from "../lib/store.svelte.js";
+import { getHistory, getOfficial } from "../lib/api.js";
 import { wmo, groupBy, moonPhase, numColor } from "../lib/flags.js";
 import { tr, wmoLabel, bandLabel, bandAdvice } from "../lib/i18n.svelte.js";
 import { shareCard } from "../lib/sharecard.js";
@@ -44,6 +45,25 @@ function hourLabel(t) {
 const hm = (t) => (t ? String(t).slice(11, 16) : "—");
 const stations = $derived(app.data?.stations ?? []);
 const townAir = $derived(stations.find((s) => s.station === app.town) ?? null);
+
+// MET's official district forecast (fetched separately to keep the main bundle small).
+let official = $state([]);
+$effect(() => {
+  const st = app.state;
+  if (!st) return;
+  getOfficial(st)
+    .then((r) => (official = r.official ?? []))
+    .catch(() => (official = []));
+});
+const district = $derived(
+  !official.length
+    ? null
+    : official.find((o) => o.district.toLowerCase() === (townName || "").toLowerCase()) ??
+      official.find((o) => (townName || "").toLowerCase().includes(o.district.toLowerCase())) ??
+      official[0],
+);
+const districtDays = $derived(district ? official.filter((o) => o.district === district.district) : []);
+const dayName = (d) => ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"][new Date(d + "T00:00:00").getDay()];
 
 async function doShare() {
   const [icon, label] = now?.meta?.code != null ? wmo(String(now.meta.code)) : [null, null];
@@ -121,6 +141,20 @@ async function doShare() {
       </div>
     {/each}
   </Carousel>
+
+  {#if district}
+    <h3 class="qh">{tr("officialTitle")}</h3>
+    <p class="caption -mt-1">{tr("officialNote")} · {district.district}</p>
+    <ul class="list-none m-0 border-t border-line p-0">
+      {#each districtDays.slice(0, 7) as d (d.date)}
+        <li class="flex items-center gap-3 border-b border-line px-2.5 py-2 text-[13.5px]">
+          <span class="w-10 shrink-0 text-muted">{dayName(d.date)}</span>
+          <span class="min-w-0 flex-1">{d.summary}{#if d.when}<span class="text-muted"> · {d.when}</span>{/if}</span>
+          <span class="shrink-0 font-mono text-[13px]">{d.tmin}°–{d.tmax}°</span>
+        </li>
+      {/each}
+    </ul>
+  {/if}
 {:else}
   {@const scopeLabel = app.scope === "malaysia" ? "Malaysia" : app.state}
   <h3 class="qh">{tr("navWeather")} · {scopeLabel}</h3>

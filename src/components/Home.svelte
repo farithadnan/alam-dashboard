@@ -85,7 +85,7 @@ async function share() {
 <h3 class="qh">{tr("newsTitle")}</h3>
 {#if news.length}
   <ul class="list-none m-0 border-t border-line p-0">
-    {#each news as n (n.url)}
+    {#each news as n, i (n.url ?? n.title + i)}
       <li class="border-b border-line px-2.5 py-2.5">
         <a class="text-[14px] font-semibold hover:text-accent" href={n.url} target="_blank" rel="noopener">{n.title}</a>
         <div class="text-[12px] text-muted">{n.outlet}</div>

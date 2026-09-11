@@ -123,6 +123,33 @@ function nearestStation() {
   </ul>
 {/if}
 
+{#if stations.length > 3}
+  <div class="mt-3 grid gap-2 sm:grid-cols-2">
+    <div class="glass rounded-xl p-3">
+      <div class="caption text-[12px]">{tr("cleanest")}</div>
+      <ul class="mt-1 list-none p-0">
+        {#each stations.slice().sort((a, b) => a.value - b.value).slice(0, 3) as s (s.station)}
+          <li class="flex items-center justify-between py-0.5 text-[13px]">
+            <span class="truncate">{cityOf(s.stationName)}</span>
+            <span class="font-mono font-semibold" style="color:{numColor(s.band?.label)}">{s.value}</span>
+          </li>
+        {/each}
+      </ul>
+    </div>
+    <div class="glass rounded-xl p-3">
+      <div class="caption text-[12px]">{tr("worst")}</div>
+      <ul class="mt-1 list-none p-0">
+        {#each stations.slice(0, 3) as s (s.station)}
+          <li class="flex items-center justify-between py-0.5 text-[13px]">
+            <span class="truncate">{cityOf(s.stationName)}</span>
+            <span class="font-mono font-semibold" style="color:{numColor(s.band?.label)}">{s.value}</span>
+          </li>
+        {/each}
+      </ul>
+    </div>
+  </div>
+{/if}
+
 {#if app.scope === "near"}
   <div class="mt-3 flex items-center gap-2">
     <button class="ghostbtn" onclick={nearestStation}>{tr("nearest")}</button>
