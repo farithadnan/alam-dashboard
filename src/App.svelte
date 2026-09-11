@@ -4,6 +4,8 @@ import { app, load, initLoc } from "./lib/store.svelte.js";
 import { theme, toggleTheme, applyTheme } from "./lib/theme.svelte.js";
 import { lang, setLang, tr } from "./lib/i18n.svelte.js";
 import { nearestState } from "./lib/flags.js";
+import { NAV, SCOPES } from "./lib/shell.js";
+import { locate } from "./lib/location.js";
 import Icon from "./components/ui/Icon.svelte";
 import Skeleton from "./components/ui/Skeleton.svelte";
 import Home from "./components/Home.svelte";
@@ -21,19 +23,6 @@ let locBusy = $state(false);
 const states = $derived(app.data?.states ?? []);
 const towns = $derived((app.data?.allTowns ?? []).filter((t) => t.state === app.state));
 const townName = $derived(app.data?.weather?.find((r) => r.station === app.town && r.kind === "weather")?.stationName ?? app.data?.allTowns?.find((t) => t.station === app.town)?.name ?? app.town ?? "");
-
-const SCOPES = [
-  { value: "near", key: "scopeNear" },
-  { value: "state", key: "scopeState" },
-  { value: "malaysia", key: "scopeMalaysia" },
-];
-
-const NAV = [
-  { view: "home", icon: "home", key: "navHome" },
-  { view: "weather", icon: "weather", key: "navWeather" },
-  { view: "air", icon: "air", key: "navAQI" },
-  { view: "hazards", icon: "quake", key: "navHazards" },
-];
 
 $effect(() => {
   void app.scope;
@@ -55,19 +44,18 @@ function onStatePick(e) {
   const first = (app.data?.allTowns ?? []).find((t) => t.state === st);
   if (first) app.town = first.station;
 }
-function useLocation() {
-  if (!navigator.geolocation) return;
+async function useLocation() {
   locBusy = true;
-  navigator.geolocation.getCurrentPosition(
-    (p) => {
-      const near = nearestState(p.coords.latitude, p.coords.longitude);
-      if (near && states.includes(near.name)) app.state = near.name;
-      locBusy = false;
-      locOpen = false;
-    },
-    () => { locBusy = false; },
-    { timeout: 8000 },
-  );
+  try {
+    const { lat, lon } = await locate();
+    const near = nearestState(lat, lon);
+    if (near && states.includes(near.name)) app.state = near.name;
+    locOpen = false;
+  } catch {
+    /* denied or unavailable — leave the picker open */
+  } finally {
+    locBusy = false;
+  }
 }
 function toggleLang() {
   setLang(lang.code === "en" ? "ms" : "en");

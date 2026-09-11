@@ -2,15 +2,14 @@
 import { app } from "../lib/store.svelte.js";
 import { getHistory } from "../lib/api.js";
 import { numColor, cityOf, groupBy, atTown } from "../lib/flags.js";
+import { bandCounts, seriesStats, legendOf, airMapPoints, nearestBy } from "../lib/air.js";
+import { locate } from "../lib/location.js";
 import { tr, bandLabel, bandAdvice } from "../lib/i18n.svelte.js";
-import { mapPopup } from "../lib/popup.js";
 import TrendChart from "./ui/TrendChart.svelte";
 import Spinner from "./ui/Spinner.svelte";
 import Skeleton from "./ui/Skeleton.svelte";
 import MapView from "./ui/MapView.svelte";
 import Section from "./ui/Section.svelte";
-
-const BAND_ORDER = ["Good", "Moderate", "Unhealthy", "Very Unhealthy", "Hazardous"];
 
 const stations = $derived((app.data?.stations ?? []).slice().sort((a, b) => b.value - a.value));
 const weather = $derived(app.data?.weather ?? []);
@@ -18,22 +17,10 @@ const townName = $derived(weather.find((r) => r.station === app.town && r.kind =
 const airTown = $derived(weather.find((r) => r.station === app.town && r.kind === "aqi"));
 const heroAir = $derived(stations.find((s) => atTown(s, townName, app.town)) ?? stations[0] ?? null);
 
-const counts = $derived(
-  BAND_ORDER.map((label) => ({ label, n: stations.filter((s) => s.band?.label === label).length })).filter((c) => c.n > 0),
-);
-const allPts = $derived(
-  stations
-    .filter((s) => s.coords?.lat && s.coords?.lon)
-    .map((s) => {
-      const col = numColor(s.band?.label);
-      return {
-        lat: s.coords.lat, lon: s.coords.lon, color: col, num: s.value, size: 26,
-        html: mapPopup({ title: cityOf(s.stationName), value: String(s.value), valueColor: col, flag: bandLabel(s.band?.label), note: bandAdvice(s.band?.label) || s.band?.advice }),
-      };
-    }),
-);
+const counts = $derived(bandCounts(stations));
+const allPts = $derived(airMapPoints(stations));
 const mapFocus = $derived(open ? (() => { const s = stations.find((x) => x.station === open); return s?.coords ? { lat: s.coords.lat, lon: s.coords.lon, zoom: 11 } : null; })() : null);
-const legend = $derived([...new Map(stations.map((s) => [s.band?.label, numColor(s.band?.label)])).entries()]);
+const legend = $derived(legendOf(stations));
 const groups = $derived(groupBy(stations, (s) => s.meta?.state ?? ""));
 
 let range = $state(24);
@@ -59,23 +46,12 @@ $effect(() => {
     .finally(() => { if (id === reqId) seriesLoading = false; });
 });
 
-const stats = $derived.by(() => {
-  const vs = series.map((d) => d.v);
-  if (!vs.length) return null;
-  return { min: Math.min(...vs), max: Math.max(...vs), avg: Math.round(vs.reduce((a, b) => a + b, 0) / vs.length) };
-});
+const stats = $derived(seriesStats(series));
 
 function setRange(h) {
   range = h;
 }
 
-
-function haversine(a, b) {
-  const R = 6371, rad = (d) => (d * Math.PI) / 180;
-  const dLat = rad(b.lat - a.lat), dLon = rad(b.lon - a.lon);
-  const h = Math.sin(dLat / 2) ** 2 + Math.cos(rad(a.lat)) * Math.cos(rad(b.lat)) * Math.sin(dLon / 2) ** 2;
-  return 2 * R * Math.asin(Math.sqrt(h));
-}
 
 function toggleRow(o) {
   open = open === o.station ? null : o.station;
@@ -83,27 +59,19 @@ function toggleRow(o) {
 }
 
 /** Find the monitoring station closest to the user and open it. */
-function nearestStation() {
-  if (!navigator.geolocation) return;
+async function nearestStation() {
   nearInfo = tr("locating");
-  navigator.geolocation.getCurrentPosition(
-    (pos) => {
-      const me = { lat: pos.coords.latitude, lon: pos.coords.longitude };
-      let best = null, bd = Infinity;
-      for (const s of stations) {
-        if (!s.coords?.lat) continue;
-        const d = haversine(me, s.coords);
-        if (d < bd) { bd = d; best = s; }
-      }
-      if (best) {
-        open = best.station;
-        setRange(24);
-        nearInfo = `${cityOf(best.stationName)} · ${bd.toFixed(1)} km`;
-      } else nearInfo = "";
-    },
-    () => { nearInfo = ""; },
-    { timeout: 8000 },
-  );
+  try {
+    const me = await locate();
+    const hit = nearestBy(stations, me);
+    if (hit) {
+      open = hit.item.station;
+      setRange(24);
+      nearInfo = `${cityOf(hit.item.stationName)} · ${hit.km.toFixed(1)} km`;
+    } else nearInfo = "";
+  } catch {
+    nearInfo = "";
+  }
 }
 </script>
 
