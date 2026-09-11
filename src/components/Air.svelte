@@ -4,6 +4,7 @@ import { getHistory } from "../lib/api.js";
 import { numColor, cityOf, groupBy, atTown } from "../lib/flags.js";
 import { bandCounts, seriesStats, legendOf, airMapPoints, nearestBy } from "../lib/air.js";
 import { locate } from "../lib/location.js";
+import { createLoader } from "../lib/async.js";
 import { tr, bandLabel, bandAdvice } from "../lib/i18n.svelte.js";
 import TrendChart from "./ui/TrendChart.svelte";
 import Spinner from "./ui/Spinner.svelte";
@@ -33,17 +34,17 @@ const target = $derived(open ? (stations.find((s) => s.station === open) ?? null
 // spinner shows while it loads and stale responses are discarded.
 let series = $state([]);
 let seriesLoading = $state(false);
-let reqId = 0;
+const loadSeries = createLoader();
 $effect(() => {
   const st = target?.station;
   const h = range;
   if (!st) { series = []; return; }
-  const id = ++reqId;
   seriesLoading = true;
-  getHistory("doe-eqms", st, h)
-    .then((res) => { if (id === reqId) series = (res.history ?? []).map((r) => ({ t: r.measuredAt, v: r.value })); })
-    .catch(() => { if (id === reqId) series = []; })
-    .finally(() => { if (id === reqId) seriesLoading = false; });
+  loadSeries(() => getHistory("doe-eqms", st, h), {
+    onValue: (res) => (series = (res.history ?? []).map((r) => ({ t: r.measuredAt, v: r.value }))),
+    onError: () => (series = []),
+    onSettled: () => (seriesLoading = false),
+  });
 });
 
 const stats = $derived(seriesStats(series));

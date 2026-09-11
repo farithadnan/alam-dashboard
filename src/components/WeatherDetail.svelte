@@ -5,6 +5,7 @@ import { wmo, moonPhase, numColor } from "../lib/flags.js";
 import { mapPopup } from "../lib/popup.js";
 import { tr, wmoLabel, bandLabel, bandAdvice } from "../lib/i18n.svelte.js";
 import { shareCard } from "../lib/sharecard.js";
+import { createLoader } from "../lib/async.js";
 import Carousel from "./ui/Carousel.svelte";
 import StatCard from "./ui/StatCard.svelte";
 import MapView from "./ui/MapView.svelte";
@@ -27,14 +28,16 @@ const forecast = $derived((app.data?.forecast ?? []).filter((r) => r.station ===
 const hourly = $derived((app.data?.hourly ?? []).filter((r) => r.station === station).sort((a, b) => a.measuredAt.localeCompare(b.measuredAt)));
 let airSeries = $state([]);
 let airLoading = $state(false);
+const loadAir = createLoader();
 $effect(() => {
   const st = townAir?.station;
   if (!st) { airSeries = []; return; }
   airLoading = true;
-  getHistory("doe-eqms", st, 24)
-    .then((res) => (airSeries = (res.history ?? []).map((r) => ({ t: r.measuredAt, v: r.value }))))
-    .catch(() => (airSeries = []))
-    .finally(() => (airLoading = false));
+  loadAir(() => getHistory("doe-eqms", st, 24), {
+    onValue: (res) => (airSeries = (res.history ?? []).map((r) => ({ t: r.measuredAt, v: r.value }))),
+    onError: () => (airSeries = []),
+    onSettled: () => (airLoading = false),
+  });
 });
 const moon = moonPhase();
 
@@ -52,14 +55,16 @@ const focus = $derived(now?.coords ? { lat: now.coords.lat, lon: now.coords.lon,
 // MET official forecast for this town's state/district.
 let official = $state([]);
 let officialLoading = $state(false);
+const loadOfficial = createLoader();
 $effect(() => {
   const st = stateName;
   if (!st) return;
   officialLoading = true;
-  getOfficial(st)
-    .then((r) => (official = r.official ?? []))
-    .catch(() => (official = []))
-    .finally(() => (officialLoading = false));
+  loadOfficial(() => getOfficial(st), {
+    onValue: (r) => (official = r.official ?? []),
+    onError: () => (official = []),
+    onSettled: () => (officialLoading = false),
+  });
 });
 const district = $derived(
   !official.length
