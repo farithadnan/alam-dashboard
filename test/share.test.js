@@ -10,10 +10,11 @@ describe("shareCaption — the message that travels with the card", () => {
   });
 
   it("omits anything it does not have rather than printing blanks", () => {
-    // the link is always appended, so assert on content rather than an exact string
+    // The link is always appended, so assert per line rather than on the whole string.
     const bare = shareCaption({ town: "Arau" });
-    expect(bare.startsWith("Arau")).toBe(true);
-    expect(bare).not.toContain(":"); // place only, no empty "AQI" section
+    expect(bare.split("\n")[0]).toBe("Arau"); // place only, no empty sections
+    expect(bare).not.toContain("AQI");
+    expect(bare).not.toContain("undefined");
     expect(shareCaption({ town: "Arau", value: 42 })).toContain("AQI 42");
     expect(shareCaption({ town: "Arau", value: 42 })).not.toContain("undefined");
     expect(shareCaption({ town: "Arau", value: 42 })).not.toContain("null");
