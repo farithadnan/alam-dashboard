@@ -3,8 +3,9 @@ import { j } from "../lib/api.js";
 import { tr } from "../lib/i18n.svelte.js";
 
 const ENDPOINTS = [
-  { m: "GET", p: "/api", d: "Self-describing index: name, version, endpoints, rate limit." },
-  { m: "GET", p: "/api/summary?state=Johor", d: "Current weather, AQI, forecast, hourly, warnings and earthquakes (optionally filtered per state)." },
+  { m: "GET", p: "/api", d: "Self-describing index: name, version, endpoints, rate limit. /v1 is an alias." },
+  { m: "GET", p: "/api/summary?state=Johor&town=johor-bahru", d: "Everything this app shows in one call: weather, AQI, forecast, hourly, warnings, earthquakes. Scoped to a town so it stays small (133 KB instead of 1.09 MB)." },
+  { m: "GET", p: "/api/official?state=Johor&town=johor-bahru", d: "MET Malaysia's official district forecast and the district it resolved. Free, no key." },
   { m: "GET", p: "/api/stations", d: "List of known monitoring stations." },
   { m: "GET", p: "/api/current?source=doe-eqms", d: "Latest observation per station for a source." },
   { m: "GET", p: "/api/history?source=doe-eqms&station=<slug>&hours=24", d: "Observation history for a station." },
