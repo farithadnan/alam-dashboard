@@ -20,7 +20,10 @@ export function initLoc() {
   } catch {}
 }
 
+let seq = 0; // ignores out-of-order responses when the user switches quickly
+
 export async function load() {
+  const id = ++seq;
   app.loading = true;
   try {
     // State narrows stations/weather; town narrows the heavier hourly + forecast
@@ -32,7 +35,10 @@ export async function load() {
     if (app.picked && app.picked !== app.town) params.set("towns", app.picked);
     const qs = params.toString();
     const bundle = await j(`./api/summary${qs ? `?${qs}` : ""}`);
+    if (id !== seq) return; // a newer request superseded this one
     if (!app.state && bundle.states?.length) app.state = bundle.states[0];
+    // Only trust the town if this bundle actually contains it; otherwise fall back
+    // to the first town of the returned scope.
     const towns = [...new Set((bundle.weather || []).filter((r) => r.kind === "weather").map((r) => r.station))];
     if (!app.town || !towns.includes(app.town)) app.town = towns[0] ?? app.town;
     app.data = bundle;
@@ -41,6 +47,7 @@ export async function load() {
     persistLoc();
     try { localStorage.setItem(CACHE_KEY, JSON.stringify({ data: bundle, state: app.state, town: app.town })); } catch {}
   } catch (e) {
+    if (id !== seq) return;
     app.error = e?.message || "unavailable";
     if (!app.data) {
       try {
@@ -49,6 +56,6 @@ export async function load() {
       } catch {}
     }
   } finally {
-    app.loading = false;
+    if (id === seq) app.loading = false;
   }
 }

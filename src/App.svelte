@@ -42,6 +42,13 @@ onMount(() => {
   const t = setInterval(() => { if (!document.hidden) load(); }, 300000); // 5 min, paused when tab hidden
   return () => clearInterval(t);
 });
+function onStatePick(e) {
+  // Move the town with the state right away, so we never request a town that
+  // belongs to the previous state (that returns no hourly/forecast data).
+  const st = e.currentTarget.value;
+  const first = (app.data?.allTowns ?? []).find((t) => t.state === st);
+  if (first) app.town = first.station;
+}
 function useLocation() {
   if (!navigator.geolocation) return;
   locBusy = true;
@@ -125,7 +132,7 @@ function toggleLang() {
       <h2 class="mt-0 mb-3 text-[16px] font-bold">{tr("changeLoc")}</h2>
       <label class="flex flex-col gap-1">
         <span class="caption text-[12px]">{tr("state")}</span>
-        <select id="state-select" bind:value={app.state}>
+        <select id="state-select" bind:value={app.state} onchange={onStatePick}>
           {#each states as name (name)}
             <option value={name}>{name}</option>
           {/each}
@@ -153,6 +160,12 @@ function toggleLang() {
       <Skeleton h={170} class="!rounded-xl" />
       <Skeleton h={14} w="24%" />
       <Skeleton h={120} class="!rounded-xl" />
+    </div>
+  {:else if !app.data}
+    <div class="mx-auto mt-16 max-w-sm text-center">
+      <p class="text-[15px] font-semibold">{tr("loadFailed")}</p>
+      <p class="caption mt-1 text-[13px]">{tr("loadFailedHint")}</p>
+      <button class="btn-primary mt-4" onclick={load}>{tr("retry")}</button>
     </div>
   {:else if view === "home"}
     <Home onNavigate={(v) => (view = v)} />
