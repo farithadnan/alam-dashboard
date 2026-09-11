@@ -6,6 +6,7 @@ import { mapPopup } from "../lib/popup.js";
 import { tr, wmoLabel, bandLabel, bandAdvice } from "../lib/i18n.svelte.js";
 import { shareCard } from "../lib/sharecard.js";
 import { createLoader } from "../lib/async.js";
+import { districtFor } from "../lib/official.js";
 import Carousel from "./ui/Carousel.svelte";
 import StatCard from "./ui/StatCard.svelte";
 import MapView from "./ui/MapView.svelte";
@@ -66,13 +67,8 @@ $effect(() => {
     onSettled: () => (officialLoading = false),
   });
 });
-const district = $derived(
-  !official.length
-    ? null
-    : official.find((o) => o.district.toLowerCase() === (townName || "").toLowerCase()) ??
-      official.find((o) => (townName || "").toLowerCase().includes(o.district.toLowerCase())) ??
-      official[0],
-);
+// MET district for this town — null when it cannot be resolved, never another district.
+const district = $derived(districtFor(official, townName));
 const districtDays = $derived(district ? official.filter((o) => o.district === district.district) : []);
 const dayName = (d) => ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"][new Date(d + "T00:00:00").getDay()];
 const hm = (t) => (t ? String(t).slice(11, 16) : "—");
@@ -202,7 +198,7 @@ async function doShare() {
         <li class="flex items-center gap-3 border-b border-line px-2.5 py-2 text-[13.5px]">
           <span class="w-10 shrink-0 text-muted">{dayName(d.date)}</span>
           <span class="min-w-0 flex-1">{d.summary}{#if d.when}<span class="text-muted"> · {d.when}</span>{/if}</span>
-          <span class="shrink-0 font-mono text-[13px]">{d.tmin}°–{d.tmax}°</span>
+          <span class="shrink-0 font-mono text-[13px] font-semibold">{d.tmax}° <span class="text-muted">{d.tmin}°</span></span>
         </li>
       {/each}
     </ul>
