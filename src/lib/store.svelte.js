@@ -1,7 +1,7 @@
 import { j } from "./api.js";
 
 /** Shared reactive app state (Svelte 5 runes module store). One `/api/summary` fetch serves all views. */
-export const app = $state({ data: null, state: null, town: null, scope: "near", loading: false, updated: "", error: "" });
+export const app = $state({ data: null, state: null, town: null, scope: "near", picked: null, loading: false, updated: "", error: "" });
 
 const CACHE_KEY = "alam-cache";
 

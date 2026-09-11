@@ -71,7 +71,7 @@ function toggleLang() {
     </nav>
 
     <div class="ml-auto flex items-center gap-1.5">
-      {#if view === "weather" || view === "air"}
+      {#if (view === "weather" || view === "air") && !app.picked}
         <div class="seg" role="group" aria-label="Scope">
           <button class:on={app.scope === "near"} class="segbtn" onclick={() => (app.scope = "near")}>{tr("scopeNear")}</button>
           <button class:on={app.scope === "state"} class="segbtn" onclick={() => (app.scope = "state")}>{tr("scopeState")}</button>

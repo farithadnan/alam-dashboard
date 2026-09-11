@@ -17,6 +17,14 @@ const warnings = $derived(app.data?.hazards?.warnings ?? []);
 const quakes = $derived(app.data?.hazards?.earthquakes ?? []);
 const climate = $derived(app.data?.hazards?.climate ?? null);
 const news = $derived(app.data?.news ?? []);
+let newsQ = $state("");
+const newsFiltered = $derived(
+  news.filter((n) => {
+    const q = newsQ.trim().toLowerCase();
+    if (!q) return true;
+    return `${n.title ?? ""} ${n.outlet ?? ""}`.toLowerCase().includes(q);
+  }),
+);
 
 function atTown(o) {
   const t = (townName || "").toLowerCase().replace(/\s+/g, " ");
@@ -42,25 +50,27 @@ async function share() {
 
 {#if now}
   {@const [icon, label] = now.meta?.code != null ? wmo(String(now.meta.code)) : [null, null]}
-  <div class="glass relative mt-1 flex items-center gap-4 rounded-2xl p-4">
-    <button class="iconbtn absolute right-3 top-3" onclick={share} aria-label={tr("share")} title={tr("share")}>↗</button>
-    <div class="min-w-0 flex-1">
-      <div class="pr-10 text-[15px] font-semibold">{townName}{#if app.state}<span class="text-muted">, {app.state}</span>{/if}</div>
-      <div class="mt-1 flex items-end gap-3">
-        {#if icon}<span class="text-[30px] leading-none sm:text-[40px]" aria-hidden="true">{icon}</span>{/if}
-        <span class="font-mono text-[34px] font-extrabold leading-none tracking-tighter sm:text-[44px]">{Math.round(now.value)}°</span>
-        <span class="pb-1 text-[13px] text-muted">{tr("feels")} {Math.round(now.meta?.apparentTemp ?? now.value)}° · {label ? "" : ""}</span>
-      </div>
+  <div class="glass mt-1 rounded-2xl p-4">
+    <div class="flex items-start justify-between gap-2">
+      <div class="min-w-0 text-[15px] font-semibold">{townName}{#if app.state}<span class="text-muted">, {app.state}</span>{/if}</div>
+      <button class="iconbtn shrink-0" onclick={share} aria-label={tr("share")} title={tr("share")}>↗</button>
     </div>
-    {#if townAir}
-      <div class="shrink-0 rounded-xl border px-3 py-1.5 text-center" style="border-color:{numColor(townAir.band?.label)}">
-        <div class="caption text-[11px]">{tr("airNow")}</div>
-        <div class="font-mono text-[22px] font-bold leading-none" style="color:{numColor(townAir.band?.label)}">{townAir.value}</div>
-        <div class="text-[11px] font-semibold" style="color:{numColor(townAir.band?.label)}">{bandLabel(townAir.band?.label)}</div>
+    <div class="mt-1 flex items-end justify-between gap-3">
+      <div class="flex min-w-0 items-end gap-3">
+        {#if icon}<span class="shrink-0 text-[30px] leading-none sm:text-[40px]" aria-hidden="true">{icon}</span>{/if}
+        <span class="font-mono text-[34px] font-extrabold leading-none tracking-tighter sm:text-[44px]">{Math.round(now.value)}°</span>
+        <span class="pb-1 text-[13px] text-muted">{tr("feels")} {Math.round(now.meta?.apparentTemp ?? now.value)}°</span>
       </div>
-    {:else if air}
-      <div class="shrink-0 text-right"><div class="caption text-[11px]">US AQI</div><div class="font-mono text-[20px] font-semibold">{air.value}</div></div>
-    {/if}
+      {#if townAir}
+        <div class="shrink-0 rounded-xl border px-3 py-1.5 text-center" style="border-color:{numColor(townAir.band?.label)}">
+          <div class="caption text-[11px]">{tr("airNow")}</div>
+          <div class="font-mono text-[22px] font-bold leading-none" style="color:{numColor(townAir.band?.label)}">{townAir.value}</div>
+          <div class="text-[11px] font-semibold" style="color:{numColor(townAir.band?.label)}">{bandLabel(townAir.band?.label)}</div>
+        </div>
+      {:else if air}
+        <div class="shrink-0 text-right"><div class="caption text-[11px]">US AQI</div><div class="font-mono text-[20px] font-semibold">{air.value}</div></div>
+      {/if}
+    </div>
   </div>
 {/if}
 
@@ -84,14 +94,19 @@ async function share() {
 
 <h3 class="qh">{tr("newsTitle")}</h3>
 {#if news.length}
+  <input class="mt-1 w-full" type="search" placeholder={tr("searchNews")} aria-label={tr("searchNews")} bind:value={newsQ} />
+  {#if newsFiltered.length}
   <ul class="list-none m-0 border-t border-line p-0">
-    {#each news as n, i (n.url ?? n.title + i)}
+    {#each newsFiltered as n, i (n.url ?? n.title + i)}
       <li class="border-b border-line px-2.5 py-2.5">
         <a class="text-[14px] font-semibold hover:text-accent" href={n.url} target="_blank" rel="noopener">{n.title}</a>
         <div class="text-[12px] text-muted">{n.outlet}</div>
       </li>
     {/each}
   </ul>
+  {:else}
+    <p class="caption">{tr("noMatches")}</p>
+  {/if}
 {:else}
   <p class="caption">{tr("noNews")}</p>
 {/if}

@@ -41,7 +41,7 @@ const mapPts = $derived(
     .map((r) => {
       const [icon] = wmo(String(r.meta?.code));
       const on = r.station === station;
-      return { lat: r.coords.lat, lon: r.coords.lon, emoji: icon, color: on ? "#c14a1f" : "#8a8277", size: on ? 30 : 22 };
+      return { id: r.station, lat: r.coords.lat, lon: r.coords.lon, emoji: icon, color: on ? "#c14a1f" : "#8a8277", size: on ? 30 : 22, html: `<div style="font:600 14px system-ui;color:#242628">${r.stationName}</div><div style="font:700 20px system-ui;color:#6b6258">${Math.round(r.value)}°</div>` };
     }),
 );
 const focus = $derived(now?.coords ? { lat: now.coords.lat, lon: now.coords.lon, zoom: 9 } : null);
@@ -176,7 +176,7 @@ async function doShare() {
 
   {#if mapPts.length}
     <h3 class="qh">{tr("stationsMap")}</h3>
-    <MapView pts={mapPts} fit={!focus} focus={focus} class="h-64 w-full rounded-xl lg:h-[40vh]" />
+    <MapView pts={mapPts} fit={!focus} focus={focus} onPick={(id) => (app.picked = id)} class="h-64 w-full rounded-xl lg:h-[40vh]" />
   {/if}
 {:else}
   <p class="caption mt-2">{tr("noData")}</p>

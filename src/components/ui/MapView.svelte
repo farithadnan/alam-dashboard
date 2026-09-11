@@ -2,7 +2,7 @@
 import { onMount, onDestroy } from "svelte";
 import L from "leaflet";
 
-let { pts = [], fit = true, fitMax = 10, focus = null, class: cls = "h-64 w-full rounded-xl" } = $props();
+let { pts = [], fit = true, fitMax = 10, focus = null, onPick = null, class: cls = "h-64 w-full rounded-xl" } = $props();
 let el;
 let map;
 let icons = [];
@@ -51,6 +51,7 @@ function drawIcons() {
     });
     const m = L.marker([p.lat, p.lon], { icon }).addTo(map);
     if (p.html || p.title) m.bindPopup(p.html || p.title, { maxWidth: 260 });
+    if (onPick && p.id) m.on("click", () => onPick(p.id));
     icons.push(m);
   }
 }

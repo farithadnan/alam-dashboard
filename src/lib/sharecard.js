@@ -44,8 +44,11 @@ export function drawCard(d) {
   x.fillText(`${d.town}${d.state ? ", " + d.state : ""}`.slice(0, 40), 72, 214);
 
   if (d.value != null) {
+    x.fillStyle = "#8a8277";
+    x.font = "600 30px system-ui, sans-serif";
+    x.fillText("AIR QUALITY", 74, 300);
     x.fillStyle = color;
-    x.font = "800 250px system-ui, sans-serif";
+    x.font = "800 230px system-ui, sans-serif";
     x.fillText(String(d.value), 68, 470);
     x.font = "700 62px system-ui, sans-serif";
     x.fillText(d.band || "", 76, 556);

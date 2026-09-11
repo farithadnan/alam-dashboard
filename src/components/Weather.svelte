@@ -26,12 +26,12 @@ const avg = $derived(towns.length ? towns.reduce((s, r) => s + r.value, 0) / tow
 const hi = $derived(towns.length ? Math.max(...towns.map((r) => r.value)) : null);
 const lo = $derived(towns.length ? Math.min(...towns.map((r) => r.value)) : null);
 
-/** A town the user tapped to inspect (without changing their saved location). */
-let picked = $state(null);
+/** Tapping a card or map marker inspects that town without changing the saved location. */
+const picked = $derived(app.picked);
 </script>
 
 {#if picked}
-  <WeatherDetail station={picked} onClose={() => (picked = null)} />
+  <WeatherDetail station={picked} onClose={() => (app.picked = null)} />
 {:else if app.scope === "near"}
   <WeatherDetail station={app.town} />
 {:else}
@@ -41,7 +41,7 @@ let picked = $state(null);
     <p class="caption -mt-1">{tr("avgLine")} {Math.round(avg)}° · {tr("high")} {Math.round(hi)}° · {tr("low")} {Math.round(lo)}° · {towns.length} {tr("townsWord")}</p>
   {/if}
   {#if weatherPts.length}
-    <MapView pts={weatherPts} class="h-64 w-full rounded-xl lg:h-[46vh]" fitMax={app.scope === "state" ? 9 : 8} />
+    <MapView pts={weatherPts} onPick={(id) => (app.picked = id)} class="h-64 w-full rounded-xl lg:h-[46vh]" fitMax={app.scope === "state" ? 9 : 8} />
   {/if}
   {#each scopeGroups as g (g.key)}
     <Section title={g.key} startOpen={scopeGroups.length === 1}>
@@ -49,7 +49,7 @@ let picked = $state(null);
         {#each g.items as r (r.station)}
           {@const [icon, label] = wmo(String(r.meta?.code))}
           <li>
-            <button class="glass flex w-full items-center gap-2 rounded-xl px-3 py-2 text-left" onclick={() => (picked = r.station)}>
+            <button class="glass flex w-full items-center gap-2 rounded-xl px-3 py-2 text-left" onclick={() => (app.picked = r.station)}>
               <span class="text-[20px]" aria-hidden="true">{icon}</span>
               <span class="min-w-0">
                 <span class="block truncate text-[13.5px] font-semibold">{r.stationName}</span>
