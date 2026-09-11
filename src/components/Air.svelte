@@ -4,7 +4,6 @@ import { getHistory } from "../lib/api.js";
 import { numColor, cityOf, groupBy } from "../lib/flags.js";
 import { tr, trFmt, bandLabel, bandAdvice } from "../lib/i18n.svelte.js";
 import TrendChart from "./ui/TrendChart.svelte";
-import HourlyGrid from "./ui/HourlyGrid.svelte";
 import MapView from "./ui/MapView.svelte";
 import Section from "./ui/Section.svelte";
 
@@ -46,6 +45,12 @@ const series = $derived.by(() => {
   if (!target) return [];
   if (range === 24) return (target.history ?? []).map((r) => ({ t: r.t, v: r.v }));
   return weekSeries;
+});
+
+const stats = $derived.by(() => {
+  const vs = series.map((d) => d.v);
+  if (!vs.length) return null;
+  return { min: Math.min(...vs), max: Math.max(...vs), avg: Math.round(vs.reduce((a, b) => a + b, 0) / vs.length) };
 });
 
 async function setRange(h) {
@@ -178,13 +183,10 @@ function nearestStation() {
     </div>
     <p class="caption mt-1 text-[12px]">{range === 24 ? tr("past24") : tr("past7d")}</p>
     {#if series.length >= 2}
-      <TrendChart series={series} color={numColor(heroAir.band?.label)} ariaLabel="Air quality trend" />
+      <TrendChart series={series} color={numColor(heroAir.band?.label)} ariaLabel="Air quality trend" mode={range === 168 ? "days" : "hours"} />
+      {#if stats}<p class="caption mt-1 text-[12px]">{"min " + stats.min + " · avg " + stats.avg + " · max " + stats.max}</p>{/if}
     {/if}
   </div>
-  {#if range === 24}
-    <h3 class="qh">{tr("hourlyReadings")}</h3>
-    <HourlyGrid history={heroAir.history ?? []} color={numColor(heroAir.band?.label)} />
-  {/if}
 {:else}
   {#each groups as g (g.key)}
     <Section title={g.key} startOpen={groups.length === 1}>
@@ -215,11 +217,8 @@ function nearestStation() {
                 </div>
                 <p class="caption mt-1 text-[12px]">{range === 24 ? tr("past24") : tr("past7d")}</p>
                 {#if series.length >= 2}
-                  <TrendChart series={series} color={numColor(o.band?.label)} ariaLabel="Air quality trend" />
-                {/if}
-                {#if range === 24}
-                  <div class="caption mt-3 text-[12px]">{tr("hourlyReadings")}</div>
-                  <HourlyGrid history={o.history ?? []} color={numColor(o.band?.label)} />
+                  <TrendChart series={series} color={numColor(o.band?.label)} ariaLabel="Air quality trend" mode={range === 168 ? "days" : "hours"} />
+                  {#if stats}<p class="caption mt-1 text-[12px]">{"min " + stats.min + " · avg " + stats.avg + " · max " + stats.max}</p>{/if}
                 {/if}
               </div>
             {/if}

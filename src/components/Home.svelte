@@ -45,10 +45,10 @@ async function share() {
   <div class="glass relative mt-1 flex items-center gap-4 rounded-2xl p-4">
     <button class="iconbtn absolute right-3 top-3" onclick={share} aria-label={tr("share")} title={tr("share")}>↗</button>
     <div class="min-w-0 flex-1">
-      <div class="text-[15px] font-semibold">{townName}{#if app.state}<span class="text-muted">, {app.state}</span>{/if}</div>
+      <div class="pr-10 text-[15px] font-semibold">{townName}{#if app.state}<span class="text-muted">, {app.state}</span>{/if}</div>
       <div class="mt-1 flex items-end gap-3">
-        {#if icon}<span class="text-[40px] leading-none" aria-hidden="true">{icon}</span>{/if}
-        <span class="font-mono text-[44px] font-extrabold leading-none tracking-tighter">{Math.round(now.value)}°</span>
+        {#if icon}<span class="text-[30px] leading-none sm:text-[40px]" aria-hidden="true">{icon}</span>{/if}
+        <span class="font-mono text-[34px] font-extrabold leading-none tracking-tighter sm:text-[44px]">{Math.round(now.value)}°</span>
         <span class="pb-1 text-[13px] text-muted">{tr("feels")} {Math.round(now.meta?.apparentTemp ?? now.value)}° · {label ? "" : ""}</span>
       </div>
     </div>
