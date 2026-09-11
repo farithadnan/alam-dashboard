@@ -37,6 +37,9 @@ $effect(() => {
     onSettled: () => (hazeLoading = false),
   });
 });
+/** Scroll a section of this page into view (used by the summary chips). */
+const jump = (id) => document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
+
 const DOW = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 const dayLabel = (d) =>
   d === new Date().toISOString().slice(0, 10) ? tr("today") : DOW[new Date(`${d}T00:00:00`).getDay()];
@@ -100,13 +103,26 @@ async function share() {
   </div>
 {/if}
 
+<!-- Live chips: the highest-agency elements on the page, so they act. Warnings and
+     climate jump to the advisory below; quakes open the Earthquakes view. -->
 <div class="mt-2 flex flex-wrap gap-2 text-[13px]">
-  <span class="glass rounded-full px-3 py-1">{trFmt("warningsInForce", { n: warnings.length })}</span>
-  <span class="glass rounded-full px-3 py-1">{trFmt("quakesWeek", { n: quakes.length })}</span>
-  {#if climate}<span class="glass rounded-full px-3 py-1">{climate.meta?.phase || "Neutral"}</span>{/if}
+  <button type="button" class="glass chip cursor-pointer rounded-full px-3 py-1 hover:border-accent"
+    aria-label={trFmt("warningsInForce", { n: warnings.length })} onclick={() => jump("advisories")}>
+    {trFmt("warningsInForce", { n: warnings.length })}
+  </button>
+  <button type="button" class="glass chip cursor-pointer rounded-full px-3 py-1 hover:border-accent"
+    aria-label={trFmt("quakesWeek", { n: quakes.length })} onclick={() => onNavigate("hazards")}>
+    {trFmt("quakesWeek", { n: quakes.length })}
+  </button>
+  {#if climate}
+    <button type="button" class="glass chip cursor-pointer rounded-full px-3 py-1 hover:border-accent"
+      aria-label={String(climate.meta?.phase || "Neutral")} onclick={() => jump("advisories")}>
+      {climate.meta?.phase || "Neutral"}
+    </button>
+  {/if}
 </div>
 
-<h3 class="qh">{tr("advisories")}</h3>
+<h3 class="qh" id="advisories">{tr("advisories")}</h3>
 <Warnings />
 {#if climate}
   {@const phase = climate.meta?.phase || "Neutral"}
