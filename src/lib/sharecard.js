@@ -71,6 +71,24 @@ export function drawCard(d) {
 }
 
 /** Render then share (or download). Returns "shared" | "downloaded" | "cancelled". */
+/**
+ * The share caption, composed from the same data the card is drawn from.
+ *
+ * Without this the share produced a bare image with no message, which is what made
+ * an existing feature look like a missing one. The link is the live origin, so it
+ * stays correct when the app moves to its own domain.
+ */
+export function shareCaption(d) {
+  const where = [d.town, d.state].filter(Boolean).join(", ");
+  const bits = [];
+  if (d.value != null) bits.push(`AQI ${Math.round(d.value)}${d.band ? ` ${d.band}` : ""}`);
+  if (d.temp != null) bits.push(`${d.temp}°${d.cond ? ` ${d.cond}` : ""}`);
+  if (d.advice) bits.push(d.advice);
+  const link = typeof location !== "undefined" ? location.origin : "";
+  const body = [where, bits.join(", ")].filter(Boolean).join(": ");
+  return link ? `${body}\n${link}` : body;
+}
+
 export async function shareCard(d) {
   const canvas = drawCard(d);
   const blob = await new Promise((r) => canvas.toBlob(r, "image/png"));
@@ -78,7 +96,8 @@ export async function shareCard(d) {
   const file = new File([blob], "alam.png", { type: "image/png" });
   if (navigator.canShare?.({ files: [file] }) && navigator.share) {
     try {
-      await navigator.share({ files: [file], title: "Alam", text: d.text || "" });
+      // A share with no message is just an image; always carry the numbers.
+      await navigator.share({ files: [file], title: `Alam — ${d.town ?? "Malaysia"}`, text: d.text || shareCaption(d) });
       return "shared";
     } catch (e) {
       if (e?.name === "AbortError") return "cancelled";
