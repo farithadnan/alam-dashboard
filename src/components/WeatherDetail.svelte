@@ -6,7 +6,6 @@ import { mapPopup } from "../lib/popup.js";
 import { tr, wmoLabel, bandLabel, bandAdvice } from "../lib/i18n.svelte.js";
 import { shareCard } from "../lib/sharecard.js";
 import { createLoader } from "../lib/async.js";
-import { districtFor } from "../lib/official.js";
 import Carousel from "./ui/Carousel.svelte";
 import StatCard from "./ui/StatCard.svelte";
 import MapView from "./ui/MapView.svelte";
@@ -61,14 +60,16 @@ $effect(() => {
   const st = stateName;
   if (!st) return;
   officialLoading = true;
-  loadOfficial(() => getOfficial(st), {
+  loadOfficial(() => getOfficial(st, station), {
     onValue: (r) => (official = r.official ?? []),
     onError: () => (official = []),
     onSettled: () => (officialLoading = false),
   });
 });
-// MET district for this town — null when it cannot be resolved, never another district.
-const district = $derived(districtFor(official, townName));
+// Rows are already scoped to this town's district by the API (town -> district
+// mapping lives there, next to the locality and district data). Array.prototype.at
+// keeps this a plain read: no district resolved means no rows, so nothing renders.
+const district = $derived(official.at(0) ?? null);
 const districtDays = $derived(district ? official.filter((o) => o.district === district.district) : []);
 const dayName = (d) => ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"][new Date(d + "T00:00:00").getDay()];
 const hm = (t) => (t ? String(t).slice(11, 16) : "—");

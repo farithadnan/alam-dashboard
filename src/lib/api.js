@@ -11,6 +11,11 @@ export const getHistory = (src, station, hours) =>
   j(`${B}/history?source=${src}&station=${encodeURIComponent(station)}&hours=${hours}`);
 export const getForecast = () => j(`${B}/forecast?source=open-meteo`);
 export const getHazards = () => j(`${B}/hazards`);
-export const getOfficial = (state) => j(`${B}/official${state ? `?state=${encodeURIComponent(state)}` : ""}`);
+export const getOfficial = (state, town) => {
+  const q = new URLSearchParams();
+  if (state) q.set("state", state);
+  if (town) q.set("town", town);
+  return j(`${B}/official${q.size ? `?${q}` : ""}`);
+};
 
 export const clock = () => new Date().toLocaleTimeString();
