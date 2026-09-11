@@ -1,10 +1,11 @@
 <script>
 import { onMount } from "svelte";
-import { app, load } from "./lib/store.svelte.js";
+import { app, load, initLoc } from "./lib/store.svelte.js";
 import { theme, toggleTheme, applyTheme } from "./lib/theme.svelte.js";
 import { lang, setLang, tr } from "./lib/i18n.svelte.js";
 import { nearestState } from "./lib/flags.js";
 import Icon from "./components/ui/Icon.svelte";
+import Skeleton from "./components/ui/Skeleton.svelte";
 import Home from "./components/Home.svelte";
 import Weather from "./components/Weather.svelte";
 import Air from "./components/Air.svelte";
@@ -31,9 +32,11 @@ const NAV = [
 $effect(() => {
   void app.scope;
   void app.town;
+  void app.picked;
   if (app.state) load();
 });
 onMount(() => {
+  initLoc();
   load();
   applyTheme();
   const t = setInterval(() => { if (!document.hidden) load(); }, 300000); // 5 min, paused when tab hidden
@@ -103,8 +106,9 @@ function toggleLang() {
   {/if}
 
   {#if app.error}
-    <div class="border-t border-line bg-panel px-4 py-1 text-center text-[12px] text-muted">
-      {app.data ? "Showing last known data — live update failed." : "Data temporarily unavailable — please try again."}
+    <div class="flex items-center justify-center gap-3 border-t border-line bg-panel px-4 py-2 text-[12.5px]">
+      <span class="text-muted">{app.data ? tr("staleData") : tr("loadFailed")}</span>
+      <button class="ghostbtn !min-h-0 !py-1 text-[12px]" onclick={load}>{tr("retry")}</button>
     </div>
   {/if}
 </header>
@@ -135,7 +139,16 @@ function toggleLang() {
 {/if}
 
 <main class="mx-auto w-full max-w-[1280px] px-4 pt-3 pb-24 sm:pb-10">
-  {#if view === "home"}
+  {#if !app.data && app.loading}
+    <div class="mt-2 space-y-3">
+      <Skeleton h={104} class="!rounded-2xl" />
+      <div class="flex gap-2"><Skeleton h={30} w="96px" /><Skeleton h={30} w="96px" /><Skeleton h={30} w="96px" /></div>
+      <Skeleton h={14} w="38%" />
+      <Skeleton h={170} class="!rounded-xl" />
+      <Skeleton h={14} w="24%" />
+      <Skeleton h={120} class="!rounded-xl" />
+    </div>
+  {:else if view === "home"}
     <Home onNavigate={(v) => (view = v)} />
   {:else if view === "weather"}
     <Weather />
@@ -150,7 +163,7 @@ function toggleLang() {
   {/if}
 </main>
 
-<footer class="border-t border-line px-4 py-4 text-center text-[12.5px] text-muted sm:pb-4">
+<footer class="border-t border-line px-4 pt-4 pb-20 text-center text-[12.5px] text-muted sm:pb-5">
   <div class="flex items-center justify-center gap-2.5">
     <button class="hover:text-fg" onclick={() => (view = "about")}>{tr("navAbout")}</button>
     <span>·</span>
