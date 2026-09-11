@@ -1,7 +1,8 @@
 <script>
 import { app } from "../lib/store.svelte.js";
 import { wmo, cityOf, numColor } from "../lib/flags.js";
-import { tr, trFmt, bandLabel, bandAdvice } from "../lib/i18n.svelte.js";
+import { tr, trFmt, bandLabel, bandAdvice, wmoLabel } from "../lib/i18n.svelte.js";
+import { shareCard } from "../lib/sharecard.js";
 import Warnings from "./Warnings.svelte";
 
 let { onNavigate = () => {} } = $props();
@@ -22,11 +23,27 @@ function atTown(o) {
   const s = (o.stationName || "").toLowerCase().replace(/\s+/g, " ");
   return t && s && (s.includes(t) || t.includes(s) || o.station === app.town);
 }
+
+async function share() {
+  const [icon, label] = now?.meta?.code != null ? wmo(String(now.meta.code)) : [null, null];
+  await shareCard({
+    town: townName,
+    state: app.state,
+    value: townAir?.value ?? air?.value ?? null,
+    band: townAir ? bandLabel(townAir.band?.label) : air ? "US AQI" : "",
+    color: townAir ? numColor(townAir.band?.label) : "#c14a1f",
+    temp: now ? Math.round(now.value) : null,
+    cond: label ? wmoLabel(label) : "",
+    advice: townAir ? bandAdvice(townAir.band?.label) : tr("feels") + " " + Math.round(now?.meta?.apparentTemp ?? now?.value ?? 0) + "°",
+    text: `${townName}: ${townAir?.value ?? ""} ${townAir ? bandLabel(townAir.band?.label) : ""}`.trim(),
+  });
+}
 </script>
 
 {#if now}
   {@const [icon, label] = now.meta?.code != null ? wmo(String(now.meta.code)) : [null, null]}
-  <div class="glass mt-1 flex items-center gap-4 rounded-2xl p-4">
+  <div class="glass relative mt-1 flex items-center gap-4 rounded-2xl p-4">
+    <button class="iconbtn absolute right-3 top-3" onclick={share} aria-label={tr("share")} title={tr("share")}>↗</button>
     <div class="min-w-0 flex-1">
       <div class="text-[15px] font-semibold">{townName}{#if app.state}<span class="text-muted">, {app.state}</span>{/if}</div>
       <div class="mt-1 flex items-end gap-3">

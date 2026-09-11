@@ -1,7 +1,8 @@
 <script>
 import { app } from "../lib/store.svelte.js";
-import { wmo, groupBy, moonPhase } from "../lib/flags.js";
-import { tr, wmoLabel } from "../lib/i18n.svelte.js";
+import { wmo, groupBy, moonPhase, numColor } from "../lib/flags.js";
+import { tr, wmoLabel, bandLabel, bandAdvice } from "../lib/i18n.svelte.js";
+import { shareCard } from "../lib/sharecard.js";
 import MapView from "./ui/MapView.svelte";
 import Section from "./ui/Section.svelte";
 import Carousel from "./ui/Carousel.svelte";
@@ -41,13 +42,30 @@ function hourLabel(t) {
   return h < 12 ? `${h || 12}am` : h === 12 ? "12pm" : `${h - 12}pm`;
 }
 const hm = (t) => (t ? String(t).slice(11, 16) : "—");
+const stations = $derived(app.data?.stations ?? []);
+const townAir = $derived(stations.find((s) => s.station === app.town) ?? null);
+
+async function doShare() {
+  const [icon, label] = now?.meta?.code != null ? wmo(String(now.meta.code)) : [null, null];
+  await shareCard({
+    town: townName,
+    state: app.state,
+    value: townAir?.value ?? air?.value ?? null,
+    band: townAir ? bandLabel(townAir.band?.label) : air ? "US AQI" : "",
+    color: townAir ? numColor(townAir.band?.label) : "#c14a1f",
+    temp: now ? Math.round(now.value) : null,
+    cond: label ? wmoLabel(label) : "",
+    advice: townAir ? bandAdvice(townAir.band?.label) : "",
+  });
+}
 </script>
 
 {#if app.scope === "near"}
   {#if now}
     {@const [icon, label] = now.meta?.code != null ? wmo(String(now.meta.code)) : [null, null]}
-    <div class="mt-1">
+    <div class="relative mt-1">
       <div class="text-[15px] font-semibold">{townName}{#if app.state}<span class="text-muted">, {app.state}</span>{/if}</div>
+      <button class="iconbtn absolute right-0 top-0" onclick={doShare} aria-label={tr("share")} title={tr("share")}>↗</button>
       <div class="mt-1 flex items-end gap-4">
         {#if icon}<span class="shrink-0 text-[52px] leading-none" aria-hidden="true">{icon}</span>{/if}
         <div class="font-mono text-[60px] font-extrabold leading-none tracking-tighter">{Math.round(now.value)}°</div>
