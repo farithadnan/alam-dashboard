@@ -17,16 +17,6 @@ export const STATES = [
   { id: 16, name: "WP Putrajaya", lat: 2.93, lon: 101.7 },
 ];
 
-export const BANDS = [
-  { from: 0, label: "Good", color: "#43a047" },
-  { from: 51, label: "Moderate", color: "#f4a922" },
-  { from: 101, label: "Unhealthy", color: "#e05d2b" },
-  { from: 201, label: "Very Unhealthy", color: "#d3342f" },
-  { from: 301, label: "Hazardous", color: "#8e24aa" },
-];
-export const bandColor = (v) => (BANDS.filter((b) => v >= b.from).slice(-1)[0]?.color ?? BANDS[0].color);
-export const bandLabel = (v) => (BANDS.filter((b) => v >= b.from).slice(-1)[0]?.label ?? "Good");
-
 /** WCAG-compliant text colours (>=4.5 on cream); vivid band colours are for dots/borders. */
 export const NUM = { Good: "#2e7d32", Moderate: "#8f5c00", Unhealthy: "#b3491a", "Very Unhealthy": "#a51612", Hazardous: "#6a1b9a" };
 export const numColor = (l) => NUM[l] || l;
@@ -78,27 +68,7 @@ export const nearestState = (lat, lon) => {
   return best ? { name: best.name, km: Math.round(bestD) } : null;
 };
 
-/* Surface a bbox-normalized SVG line (used by the shared Sparkline component). */
-export function sparkline(values, color, width = 120, height = 26) {
-  if (!values || values.length < 2) return null;
-  const P = 2, mn = Math.min(...values), mx = Math.max(...values);
-  const range = (mx - mn) || 1, lo = mn - range * 0.15, hi = mx + range * 0.15;
-  const pts = values.map((v, i) => [P + (i / (values.length - 1)) * (width - 2 * P), height - P - ((v - lo) / (hi - lo)) * (height - 2 * P)]);
-  let d = "";
-  pts.forEach((p, i) => { d += (i ? " L" : "M") + p[0].toFixed(1) + "," + p[1].toFixed(1); });
-  const last = pts[pts.length - 1];
-  return {
-    d,
-    area: `${d} L ${last[0].toFixed(1)},${height - P} L ${pts[0][0].toFixed(1)},${height - P} Z`,
-    color,
-    last: values[values.length - 1],
-    width,
-    height,
-  };
-}
-
 /* MET warning severity (FIRST/SECOND/THIRD category -> 1/2/3) + presentation. */
-export const severityWord = (s) => (s >= 3 ? "High" : s === 2 ? "Watch" : "Advisory");
 export const severityColor = (s) => (s >= 3 ? "#a51612" : s === 2 ? "#b3491a" : "#8f5c00");
 
 const REGION_KEYS = ["Indonesia", "Philippines", "Malaysia", "Singapore", "Brunei", "Thailand", "Vietnam", "Taiwan", "Papua New Guinea", "Australia", "New Zealand", "Vanuatu", "Fiji", "Tonga", "Solomon Islands", "Sri Lanka", "India", "Myanmar"];
@@ -125,4 +95,12 @@ export function moonPhase(date = new Date()) {
   const names = ["New moon", "Waxing crescent", "First quarter", "Waxing gibbous", "Full moon", "Waning gibbous", "Last quarter", "Waning crescent"];
   const emojis = ["🌑", "🌒", "🌓", "🌔", "🌕", "🌖", "🌗", "🌘"];
   return { name: names[i], emoji: emojis[i], age: Math.round(age) };
+}
+
+/** Does an observation belong to the given town? Compares names loosely. */
+export function atTown(o, townName, townSlug) {
+  const t = (townName || "").toLowerCase().replace(/\s+/g, " ");
+  const n = (o?.stationName || o?.station || "").toLowerCase().replace(/\s+/g, " ");
+  if (!t || !n) return false;
+  return n.includes(t) || t.includes(n) || o?.station === townSlug;
 }

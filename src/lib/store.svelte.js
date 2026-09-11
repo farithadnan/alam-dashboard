@@ -42,7 +42,7 @@ export async function load() {
     const towns = [...new Set((bundle.weather || []).filter((r) => r.kind === "weather").map((r) => r.station))];
     if (!app.town || !towns.includes(app.town)) app.town = towns[0] ?? app.town;
     app.data = bundle;
-    app.updated = new Date().toLocaleTimeString();
+    app.updated = bundle.ts ? new Date(bundle.ts).toLocaleTimeString() : new Date().toLocaleTimeString();
     app.error = "";
     persistLoc();
     try { localStorage.setItem(CACHE_KEY, JSON.stringify({ data: bundle, state: app.state, town: app.town })); } catch {}

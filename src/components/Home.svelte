@@ -1,8 +1,9 @@
 <script>
 import { app } from "../lib/store.svelte.js";
-import { wmo, cityOf, numColor } from "../lib/flags.js";
+import { wmo, numColor, atTown, timeAgo } from "../lib/flags.js";
 import { tr, trFmt, bandLabel, bandAdvice, wmoLabel } from "../lib/i18n.svelte.js";
 import { shareCard } from "../lib/sharecard.js";
+import SearchInput from "./ui/SearchInput.svelte";
 import Warnings from "./Warnings.svelte";
 
 let { onNavigate = () => {} } = $props();
@@ -12,7 +13,7 @@ const stations = $derived((app.data?.stations ?? []).slice().sort((a, b) => b.va
 const townName = $derived(weather.find((r) => r.station === app.town && r.kind === "weather")?.stationName ?? app.data?.allTowns?.find((t) => t.station === app.town)?.name ?? app.town ?? "");
 const now = $derived(weather.find((r) => r.station === app.town && r.kind === "weather"));
 const air = $derived(weather.find((r) => r.station === app.town && r.kind === "aqi"));
-const townAir = $derived(stations.find((s) => atTown(s)) ?? null);
+const townAir = $derived(stations.find((s) => atTown(s, townName, app.town)) ?? null);
 const warnings = $derived(app.data?.hazards?.warnings ?? []);
 const quakes = $derived(app.data?.hazards?.earthquakes ?? []);
 const climate = $derived(app.data?.hazards?.climate ?? null);
@@ -26,11 +27,6 @@ const newsFiltered = $derived(
   }),
 );
 
-function atTown(o) {
-  const t = (townName || "").toLowerCase().replace(/\s+/g, " ");
-  const s = (o.stationName || "").toLowerCase().replace(/\s+/g, " ");
-  return t && s && (s.includes(t) || t.includes(s) || o.station === app.town);
-}
 
 async function share() {
   const [icon, label] = now?.meta?.code != null ? wmo(String(now.meta.code)) : [null, null];
@@ -94,13 +90,13 @@ async function share() {
 
 <h3 class="qh">{tr("newsTitle")}</h3>
 {#if news.length}
-  <input class="mt-1 w-full" type="search" placeholder={tr("searchNews")} aria-label={tr("searchNews")} bind:value={newsQ} />
+  <SearchInput bind:value={newsQ} placeholder={tr("searchNews")} ariaLabel={tr("searchNews")} />
   {#if newsFiltered.length}
   <ul class="list-none m-0 border-t border-line p-0">
     {#each newsFiltered as n, i (n.url ?? n.title + i)}
       <li class="border-b border-line px-2.5 py-2.5">
         <a class="text-[14px] font-semibold hover:text-accent" href={n.url} target="_blank" rel="noopener">{n.title}</a>
-        <div class="text-[12px] text-muted">{n.outlet}</div>
+        <div class="text-[12px] text-muted">{n.outlet}{#if n.publishedAt} · {timeAgo(n.publishedAt)}{/if}</div>
       </li>
     {/each}
   </ul>

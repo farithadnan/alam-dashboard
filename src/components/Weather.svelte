@@ -1,6 +1,7 @@
 <script>
 import { app } from "../lib/store.svelte.js";
 import { wmo, groupBy } from "../lib/flags.js";
+import { mapPopup } from "../lib/popup.js";
 import { tr, wmoLabel } from "../lib/i18n.svelte.js";
 import MapView from "./ui/MapView.svelte";
 import Section from "./ui/Section.svelte";
@@ -18,7 +19,7 @@ const weatherPts = $derived(
       const col = tempColor(r.value);
       return {
         lat: r.coords.lat, lon: r.coords.lon, emoji: icon, color: col, size: 28,
-        html: `<div style=\"font:600 15px system-ui;color:#242628\">${r.stationName}</div><div style=\"font:800 28px system-ui;line-height:1.1;color:${col}\">${Math.round(r.value)}°</div><div style=\"font:13px system-ui;color:#6b6258\">${icon} ${wmoLabel(label)}</div>`,
+        html: mapPopup({ title: r.stationName, value: `${Math.round(r.value)}°`, valueColor: col, flag: `${icon} ${wmoLabel(label)}` }),
       };
     }),
 );

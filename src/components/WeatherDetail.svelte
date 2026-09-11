@@ -2,9 +2,11 @@
 import { app } from "../lib/store.svelte.js";
 import { getOfficial, getHistory } from "../lib/api.js";
 import { wmo, moonPhase, numColor } from "../lib/flags.js";
+import { mapPopup } from "../lib/popup.js";
 import { tr, wmoLabel, bandLabel, bandAdvice } from "../lib/i18n.svelte.js";
 import { shareCard } from "../lib/sharecard.js";
 import Carousel from "./ui/Carousel.svelte";
+import StatCard from "./ui/StatCard.svelte";
 import MapView from "./ui/MapView.svelte";
 import TrendChart from "./ui/TrendChart.svelte";
 import Spinner from "./ui/Spinner.svelte";
@@ -42,7 +44,7 @@ const mapPts = $derived(
     .map((r) => {
       const [icon] = wmo(String(r.meta?.code));
       const on = r.station === station;
-      return { id: r.station, lat: r.coords.lat, lon: r.coords.lon, emoji: icon, color: on ? "#c14a1f" : "#8a8277", size: on ? 30 : 22, html: `<div style="font:600 14px system-ui;color:#242628">${r.stationName}</div><div style="font:700 20px system-ui;color:#6b6258">${Math.round(r.value)}°</div>` };
+      return { id: r.station, lat: r.coords.lat, lon: r.coords.lon, emoji: icon, color: on ? "#c14a1f" : "#8a8277", size: on ? 30 : 22, html: mapPopup({ title: r.stationName, value: `${Math.round(r.value)}°`, valueColor: "#6b6258" }) };
     }),
 );
 const focus = $derived(now?.coords ? { lat: now.coords.lat, lon: now.coords.lon, zoom: 9 } : null);
@@ -122,14 +124,14 @@ async function doShare() {
 
   <h3 class="qh">{tr("todayDetail")}</h3>
   <div class="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-4">
-    <div class="glass rounded-xl px-3 py-2"><div class="caption text-[11px]">{tr("wind")}</div><div class="text-[15px] font-semibold">{now.meta?.wind ?? "–"} km/h</div><div class="caption text-[11px]">{tr("gust")} {now.meta?.gust ?? "–"}</div></div>
-    <div class="glass rounded-xl px-3 py-2"><div class="caption text-[11px]">{tr("humidity")}</div><div class="text-[15px] font-semibold">{now.meta?.humidity ?? "–"}%</div></div>
-    <div class="glass rounded-xl px-3 py-2"><div class="caption text-[11px]">{tr("dewPoint")}</div><div class="text-[15px] font-semibold">{now.meta?.dewPoint != null ? `${Math.round(now.meta.dewPoint)}°` : "–"}</div></div>
-    <div class="glass rounded-xl px-3 py-2"><div class="caption text-[11px]">{tr("pressure")}</div><div class="text-[15px] font-semibold">{now.meta?.pressure != null ? `${Math.round(now.meta.pressure)} hPa` : "–"}</div></div>
-    <div class="glass rounded-xl px-3 py-2"><div class="caption text-[11px]">{tr("visibility")}</div><div class="text-[15px] font-semibold">{now.meta?.visibility != null ? `${(now.meta.visibility / 1000).toFixed(1)} km` : "–"}</div></div>
-    <div class="glass rounded-xl px-3 py-2"><div class="caption text-[11px]">{tr("uv")}</div><div class="text-[15px] font-semibold">{air?.meta?.uv ?? "–"}</div></div>
-    <div class="glass rounded-xl px-3 py-2"><div class="caption text-[11px]">{tr("sunrise")}</div><div class="text-[15px] font-semibold">{hm(now.meta?.sunrise)}</div></div>
-    <div class="glass rounded-xl px-3 py-2"><div class="caption text-[11px]">{tr("sunset")}</div><div class="text-[15px] font-semibold">{hm(now.meta?.sunset)}</div></div>
+    <StatCard label={tr("wind")} value={`${now.meta?.wind ?? "–"} km/h`} sub={`${tr("gust")} ${now.meta?.gust ?? "–"}`} />
+    <StatCard label={tr("humidity")} value={`${now.meta?.humidity ?? "–"}%`} />
+    <StatCard label={tr("dewPoint")} value={now.meta?.dewPoint != null ? `${Math.round(now.meta.dewPoint)}°` : "–"} />
+    <StatCard label={tr("pressure")} value={now.meta?.pressure != null ? `${Math.round(now.meta.pressure)} hPa` : "–"} />
+    <StatCard label={tr("visibility")} value={now.meta?.visibility != null ? `${(now.meta.visibility / 1000).toFixed(1)} km` : "–"} />
+    <StatCard label={tr("uv")} value={air?.meta?.uv ?? "–"} />
+    <StatCard label={tr("sunrise")} value={hm(now.meta?.sunrise)} />
+    <StatCard label={tr("sunset")} value={hm(now.meta?.sunset)} />
     <div class="glass flex items-center gap-2 rounded-xl px-3 py-2"><span class="text-[20px]">{moon.emoji}</span><div><div class="caption text-[11px]">{tr("moon")}</div><div class="text-[14px] font-semibold">{moon.name}</div></div></div>
   </div>
 

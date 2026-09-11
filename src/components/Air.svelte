@@ -1,8 +1,9 @@
 <script>
 import { app } from "../lib/store.svelte.js";
 import { getHistory } from "../lib/api.js";
-import { numColor, cityOf, groupBy } from "../lib/flags.js";
-import { tr, trFmt, bandLabel, bandAdvice } from "../lib/i18n.svelte.js";
+import { numColor, cityOf, groupBy, atTown } from "../lib/flags.js";
+import { tr, bandLabel, bandAdvice } from "../lib/i18n.svelte.js";
+import { mapPopup } from "../lib/popup.js";
 import TrendChart from "./ui/TrendChart.svelte";
 import Spinner from "./ui/Spinner.svelte";
 import Skeleton from "./ui/Skeleton.svelte";
@@ -15,7 +16,7 @@ const stations = $derived((app.data?.stations ?? []).slice().sort((a, b) => b.va
 const weather = $derived(app.data?.weather ?? []);
 const townName = $derived(weather.find((r) => r.station === app.town && r.kind === "weather")?.stationName ?? app.town ?? "");
 const airTown = $derived(weather.find((r) => r.station === app.town && r.kind === "aqi"));
-const heroAir = $derived(stations.find((s) => atTown(s)) ?? stations[0] ?? null);
+const heroAir = $derived(stations.find((s) => atTown(s, townName, app.town)) ?? stations[0] ?? null);
 
 const counts = $derived(
   BAND_ORDER.map((label) => ({ label, n: stations.filter((s) => s.band?.label === label).length })).filter((c) => c.n > 0),
@@ -27,7 +28,7 @@ const allPts = $derived(
       const col = numColor(s.band?.label);
       return {
         lat: s.coords.lat, lon: s.coords.lon, color: col, num: s.value, size: 26,
-        html: `<div style="font:600 15px system-ui;color:#242628">${cityOf(s.stationName)}</div><div style="font:800 28px system-ui;line-height:1.1;color:${col}">${s.value}</div><div style="font:600 13px system-ui;color:${col}">${bandLabel(s.band?.label)}</div><div style="font:12px system-ui;color:#6b6258">${bandAdvice(s.band?.label) || s.band?.advice}</div>`,
+        html: mapPopup({ title: cityOf(s.stationName), value: String(s.value), valueColor: col, flag: bandLabel(s.band?.label), note: bandAdvice(s.band?.label) || s.band?.advice }),
       };
     }),
 );
@@ -68,12 +69,6 @@ function setRange(h) {
   range = h;
 }
 
-function atTown(o) {
-  const t = (townName || "").toLowerCase().replace(/\s+/g, " ");
-  const s = (o.stationName || o.station || "").toLowerCase().replace(/\s+/g, " ");
-  if (!t || !s) return false;
-  return s.includes(t) || t.includes(s) || o.station === app.town;
-}
 
 function haversine(a, b) {
   const R = 6371, rad = (d) => (d * Math.PI) / 180;

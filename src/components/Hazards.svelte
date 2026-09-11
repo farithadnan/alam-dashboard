@@ -2,6 +2,7 @@
 import { app } from "../lib/store.svelte.js";
 import { timeAgo, regionOf, friendlyLoc, magWord, magText, groupBy } from "../lib/flags.js";
 import { tr, magWordL } from "../lib/i18n.svelte.js";
+import { mapPopup } from "../lib/popup.js";
 import MapView from "./ui/MapView.svelte";
 import Section from "./ui/Section.svelte";
 
@@ -16,7 +17,7 @@ const quakePts = $derived(
       const meta = [depth, flags, regionOf(q.stationName)].filter(Boolean).join(" · ");
       return {
         lat: q.meta.lat, lon: q.meta.lon, color: col, num: Number(q.magnitude).toFixed(1), size: 26, ripple: true,
-        html: `<div style="font:600 15px system-ui;color:#242628">${friendlyLoc(q.stationName) || q.stationName}</div><div style="font:800 26px system-ui;line-height:1.1;color:${col}">M${Number(q.magnitude).toFixed(1)}</div><div style="font:600 12px system-ui;color:${col}">${magWordL(q.magnitude)}</div><div style="font:12px system-ui;color:#6b6258">${meta}</div>`,
+        html: mapPopup({ title: friendlyLoc(q.stationName) || q.stationName, value: `M${Number(q.magnitude).toFixed(1)}`, valueColor: col, flag: magWordL(q.magnitude), sub: meta }),
       };
     }),
 );
@@ -58,6 +59,9 @@ let open = $state(null);
                 {#if q.meta?.mmi != null}<div>{tr("intensity")}</div><div class="font-mono text-fg">MMI {q.meta.mmi}</div>{/if}
                 {#if q.meta?.felt != null}<div>{tr("feltReports")}</div><div class="font-mono text-fg">{q.meta.felt}</div>{/if}
                 {#if q.meta?.tsunami != null}<div>{tr("tsunami")}</div><div class="text-fg">{q.meta.tsunami ? tr("yes") : tr("no")}</div>{/if}
+                {#if q.meta?.cdi != null}<div>{tr("reportedIntensity")}</div><div class="font-mono text-fg">MMI {q.meta.cdi}</div>{/if}
+                {#if q.meta?.sig != null}<div>{tr("significance")}</div><div class="font-mono text-fg">{q.meta.sig}</div>{/if}
+                {#if q.meta?.eqType}<div>{tr("eventType")}</div><div class="text-fg">{q.meta.eqType}</div>{/if}
                 {#if q.meta?.nst != null}<div>{tr("stationsUsed")}</div><div class="font-mono text-fg">{q.meta.nst}</div>{/if}
                 {#if q.meta?.status}<div>{tr("status")}</div><div class="text-fg">{q.meta.status}</div>{/if}
               </div>

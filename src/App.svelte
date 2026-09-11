@@ -22,6 +22,12 @@ const states = $derived(app.data?.states ?? []);
 const towns = $derived((app.data?.allTowns ?? []).filter((t) => t.state === app.state));
 const townName = $derived(app.data?.weather?.find((r) => r.station === app.town && r.kind === "weather")?.stationName ?? app.data?.allTowns?.find((t) => t.station === app.town)?.name ?? app.town ?? "");
 
+const SCOPES = [
+  { value: "near", key: "scopeNear" },
+  { value: "state", key: "scopeState" },
+  { value: "malaysia", key: "scopeMalaysia" },
+];
+
 const NAV = [
   { view: "home", icon: "home", key: "navHome" },
   { view: "weather", icon: "weather", key: "navWeather" },
@@ -83,9 +89,9 @@ function toggleLang() {
     <div class="ml-auto flex items-center gap-1.5">
       {#if (view === "weather" || view === "air") && !app.picked}
         <div class="seg" role="group" aria-label="Scope">
-          <button class:on={app.scope === "near"} class="segbtn" onclick={() => (app.scope = "near")}>{tr("scopeNear")}</button>
-          <button class:on={app.scope === "state"} class="segbtn" onclick={() => (app.scope = "state")}>{tr("scopeState")}</button>
-          <button class:on={app.scope === "malaysia"} class="segbtn" onclick={() => (app.scope = "malaysia")}>{tr("scopeMalaysia")}</button>
+          {#each SCOPES as s (s.value)}
+            <button class:on={app.scope === s.value} class="segbtn" onclick={() => (app.scope = s.value)}>{tr(s.key)}</button>
+          {/each}
         </div>
       {/if}
       {#if view !== "hazards"}
