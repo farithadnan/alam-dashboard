@@ -5,6 +5,7 @@ import { numColor, cityOf, groupBy } from "../lib/flags.js";
 import { tr, trFmt, bandLabel, bandAdvice } from "../lib/i18n.svelte.js";
 import TrendChart from "./ui/TrendChart.svelte";
 import Spinner from "./ui/Spinner.svelte";
+import Skeleton from "./ui/Skeleton.svelte";
 import MapView from "./ui/MapView.svelte";
 import Section from "./ui/Section.svelte";
 
@@ -196,6 +197,14 @@ function nearestStation() {
     {/if}
   </div>
 {:else}
+  {#if app.loading && !stations.length}
+    <div class="mt-2 space-y-2">
+      <Skeleton h={14} w="35%" />
+      <Skeleton h={52} class="!rounded-xl" />
+      <Skeleton h={52} class="!rounded-xl" />
+      <Skeleton h={52} class="!rounded-xl" />
+    </div>
+  {:else}
   {#each groups as g (g.key)}
     <Section title={g.key} startOpen={groups.length === 1}>
       <ul class="list-none m-0 p-0">
@@ -237,4 +246,5 @@ function nearestStation() {
       </ul>
     </Section>
   {/each}
+  {/if}
 {/if}

@@ -105,6 +105,12 @@ function toggleLang() {
     </div>
   {/if}
 
+  {#if app.loading}
+    <div class="absolute inset-x-0 bottom-0 h-[2px] overflow-hidden" aria-hidden="true">
+      <div class="loadingbar"></div>
+    </div>
+  {/if}
+
   {#if app.error}
     <div class="flex items-center justify-center gap-3 border-t border-line bg-panel px-4 py-2 text-[12.5px]">
       <span class="text-muted">{app.data ? tr("staleData") : tr("loadFailed")}</span>

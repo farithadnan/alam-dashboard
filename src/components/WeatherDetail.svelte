@@ -8,6 +8,7 @@ import Carousel from "./ui/Carousel.svelte";
 import MapView from "./ui/MapView.svelte";
 import TrendChart from "./ui/TrendChart.svelte";
 import Spinner from "./ui/Spinner.svelte";
+import Skeleton from "./ui/Skeleton.svelte";
 
 /** Full detail for ONE town — reused by "near me" and by tapping a card anywhere. */
 let { station = "", onClose = null } = $props();
@@ -48,12 +49,15 @@ const focus = $derived(now?.coords ? { lat: now.coords.lat, lon: now.coords.lon,
 
 // MET official forecast for this town's state/district.
 let official = $state([]);
+let officialLoading = $state(false);
 $effect(() => {
   const st = stateName;
   if (!st) return;
+  officialLoading = true;
   getOfficial(st)
     .then((r) => (official = r.official ?? []))
-    .catch(() => (official = []));
+    .catch(() => (official = []))
+    .finally(() => (officialLoading = false));
 });
 const district = $derived(
   !official.length
@@ -160,7 +164,15 @@ async function doShare() {
     {/each}
   </Carousel>
 
-  {#if district}
+  {#if officialLoading}
+    <h3 class="qh">{tr("officialTitle")}</h3>
+    <div class="mt-1 space-y-2">
+      <Skeleton h={14} w="45%" />
+      <Skeleton h={34} />
+      <Skeleton h={34} />
+      <Skeleton h={34} />
+    </div>
+  {:else if district}
     <h3 class="qh">{tr("officialTitle")}</h3>
     <p class="caption -mt-1">{tr("officialNote")} · {district.district}</p>
     <ul class="list-none m-0 border-t border-line p-0">

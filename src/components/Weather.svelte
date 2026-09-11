@@ -5,6 +5,7 @@ import { tr, wmoLabel } from "../lib/i18n.svelte.js";
 import MapView from "./ui/MapView.svelte";
 import Section from "./ui/Section.svelte";
 import WeatherDetail from "./WeatherDetail.svelte";
+import Skeleton from "./ui/Skeleton.svelte";
 
 const weather = $derived(app.data?.weather ?? []);
 const towns = $derived(weather.filter((r) => r.kind === "weather"));
@@ -40,9 +41,17 @@ const picked = $derived(app.picked);
   {#if avg != null}
     <p class="caption -mt-1">{tr("avgLine")} {Math.round(avg)}° · {tr("high")} {Math.round(hi)}° · {tr("low")} {Math.round(lo)}° · {towns.length} {tr("townsWord")}</p>
   {/if}
-  {#if weatherPts.length}
-    <MapView pts={weatherPts} onPick={(id) => (app.picked = id)} class="h-64 w-full rounded-xl lg:h-[46vh]" fitMax={app.scope === "state" ? 9 : 8} />
-  {/if}
+  {#if app.loading && !towns.length}
+    <div class="mt-2 space-y-3">
+      <Skeleton h={256} class="!rounded-xl" />
+      <Skeleton h={14} w="40%" />
+      <Skeleton h={56} class="!rounded-xl" />
+      <Skeleton h={56} class="!rounded-xl" />
+    </div>
+  {:else}
+    {#if weatherPts.length}
+      <MapView pts={weatherPts} onPick={(id) => (app.picked = id)} class="h-64 w-full rounded-xl lg:h-[46vh]" fitMax={app.scope === "state" ? 9 : 8} />
+    {/if}
   {#each scopeGroups as g (g.key)}
     <Section title={g.key} startOpen={scopeGroups.length === 1}>
       <ul class="mt-1 grid list-none grid-cols-2 gap-2 p-0 sm:grid-cols-3 lg:grid-cols-4">
@@ -60,5 +69,6 @@ const picked = $derived(app.picked);
         {/each}
       </ul>
     </Section>
-  {/each}
+    {/each}
+  {/if}
 {/if}
