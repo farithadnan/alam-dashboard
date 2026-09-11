@@ -36,8 +36,25 @@ const groups = $derived(groupBy(stations, (s) => s.meta?.state ?? ""));
 
 let range = $state(24);
 let open = $state(null);
-let detail = $state([]); // {t,v} series for the expanded station
+let weekSeries = $state([]); // fetched only when 7d is chosen
 let nearInfo = $state("");
+
+/** The station currently being charted: the expanded row, or the "near me" hero. */
+const target = $derived(open ? (stations.find((s) => s.station === open) ?? null) : app.scope === "near" ? heroAir : null);
+/** 24h comes straight from the bundle (always available), so the chart renders on first paint. */
+const series = $derived.by(() => {
+  if (!target) return [];
+  if (range === 24) return (target.history ?? []).map((r) => ({ t: r.t, v: r.v }));
+  return weekSeries;
+});
+
+async function setRange(h) {
+  range = h;
+  if (h === 168 && target) {
+    const res = await getHistory("doe-eqms", target.station, 168);
+    weekSeries = (res.history ?? []).map((r) => ({ t: r.measuredAt, v: r.value }));
+  }
+}
 
 function atTown(o) {
   const t = (townName || "").toLowerCase().replace(/\s+/g, " ");
@@ -53,19 +70,9 @@ function haversine(a, b) {
   return 2 * R * Math.asin(Math.sqrt(h));
 }
 
-async function loadTrend(o, h) {
-  range = h;
-  if (h <= 24) {
-    detail = (o.history ?? []).map((r) => ({ t: r.t, v: r.v }));
-    if (!detail.length) detail = (o.trend ?? []).map((v, i) => ({ t: "", v, i }));
-  } else {
-    const res = await getHistory("doe-eqms", o.station, 168);
-    detail = (res.history ?? []).map((r) => ({ t: r.measuredAt, v: r.value }));
-  }
-}
 function toggleRow(o) {
   open = open === o.station ? null : o.station;
-  if (open === o.station) loadTrend(o, range);
+  range = 24;
 }
 
 /** Find the monitoring station closest to the user and open it. */
@@ -83,7 +90,7 @@ function nearestStation() {
       }
       if (best) {
         open = best.station;
-        loadTrend(best, 24);
+        setRange(24);
         nearInfo = `${cityOf(best.stationName)} · ${bd.toFixed(1)} km`;
       } else nearInfo = "";
     },
@@ -139,11 +146,12 @@ function nearestStation() {
     </div>
     <p class="mt-2 text-[13px] text-muted">{bandAdvice(heroAir.band?.label) || heroAir.band?.advice}</p>
     <div class="mt-2 flex gap-2">
-      <button class:on={range === 24} class="segbtn" onclick={() => loadTrend(heroAir, 24)}>24h</button>
-      <button class:on={range === 168} class="segbtn" onclick={() => loadTrend(heroAir, 168)}>7d</button>
+      <button class:on={range === 24} class="segbtn" onclick={() => setRange(24)}>24h</button>
+      <button class:on={range === 168} class="segbtn" onclick={() => setRange(168)}>7d</button>
     </div>
-    {#if detail.length >= 2}
-      <TrendChart values={detail.map((d) => d.v)} times={detail.map((d) => d.t)} color={numColor(heroAir.band?.label)} ariaLabel="Air quality trend" />
+    <p class="caption mt-1 text-[12px]">{range === 24 ? tr("past24") : tr("past7d")}</p>
+    {#if series.length >= 2}
+      <TrendChart series={series} color={numColor(heroAir.band?.label)} ariaLabel="Air quality trend" />
     {/if}
   </div>
   {#if range === 24}
@@ -175,11 +183,12 @@ function nearestStation() {
                   {#if o.meta?.pm10 != null}<div>PM10</div><div class="font-mono text-fg">{o.meta.pm10}</div>{/if}
                 </div>
                 <div class="mt-2 flex gap-2">
-                  <button class:on={range === 24} class="segbtn" onclick={() => loadTrend(o, 24)}>24h</button>
-                  <button class:on={range === 168} class="segbtn" onclick={() => loadTrend(o, 168)}>7d</button>
+                  <button class:on={range === 24} class="segbtn" onclick={() => setRange(24)}>24h</button>
+                  <button class:on={range === 168} class="segbtn" onclick={() => setRange(168)}>7d</button>
                 </div>
-                {#if detail.length >= 2}
-                  <TrendChart values={detail.map((d) => d.v)} times={detail.map((d) => d.t)} color={numColor(o.band?.label)} ariaLabel="Air quality trend" />
+                <p class="caption mt-1 text-[12px]">{range === 24 ? tr("past24") : tr("past7d")}</p>
+                {#if series.length >= 2}
+                  <TrendChart series={series} color={numColor(o.band?.label)} ariaLabel="Air quality trend" />
                 {/if}
                 {#if range === 24}
                   <div class="caption mt-3 text-[12px]">{tr("hourlyReadings")}</div>

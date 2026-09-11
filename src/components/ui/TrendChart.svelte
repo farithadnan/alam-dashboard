@@ -1,36 +1,52 @@
 <script>
-let { values = [], times = [], color = "#c14a1f", height = 130, ariaLabel = "Trend" } = $props();
+let { series = [], color = "#c14a1f", height = 160, ariaLabel = "Trend" } = $props();
 
-const W = 600;
-const PAD = 10;
+// Fixed viewBox with real margins so axis labels never overlap the plot.
+const W = 640;
+const L = 40;
+const R = 12;
+const T = 14;
+const B = 26;
+const innerW = W - L - R;
+const innerH = height - T - B;
+
+const values = $derived(series.map((s) => s.v));
 const min = $derived(values.length ? Math.min(...values) : 0);
 const max = $derived(values.length ? Math.max(...values) : 1);
 const span = $derived(max - min || 1);
 
-const pts = $derived(
-  values.map((v, i) => [
-    (i / Math.max(1, values.length - 1)) * W,
-    height - PAD - ((v - min) / span) * (height - 2 * PAD),
-  ]),
+const px = (i) => L + (i / Math.max(1, values.length - 1)) * innerW;
+const py = (v) => T + (1 - (v - min) / span) * innerH;
+
+const line = $derived(values.map((v, i) => `${i ? "L" : "M"}${px(i).toFixed(1)} ${py(v).toFixed(1)}`).join(" "));
+const area = $derived(line ? `${line} L ${(L + innerW).toFixed(1)} ${T + innerH} L ${L} ${T + innerH} Z` : "");
+const yTicks = $derived([max, Math.round((max + min) / 2), min]);
+const hhmm = (t) => (/T\d\d:/.test(t || "") ? String(t).slice(11, 16) : "");
+
+/** Up to 5 evenly-spaced x labels (hour marks), never crowding the y axis. */
+const xTicks = $derived(
+  values.length < 2
+    ? []
+    : Array.from({ length: Math.min(5, values.length) }, (_, k) => {
+        const i = Math.round((k / (Math.min(5, values.length) - 1 || 1)) * (values.length - 1));
+        return { i, x: px(i), label: hhmm(series[i]?.t) };
+      }),
 );
-const line = $derived(pts.map((p, i) => `${i ? "L" : "M"}${p[0].toFixed(1)} ${p[1].toFixed(1)}`).join(" "));
-const area = $derived(line ? `${line} L ${W} ${height} L 0 ${height} Z` : "");
-const hhmm = (t) => (t ? String(t).slice(11, 16) : "");
 </script>
 
 {#if values.length >= 2}
-  <div class="relative">
-    <svg viewBox="0 0 {W} {height}" class="block w-full" style="height:{height}px" role="img" aria-label={ariaLabel} preserveAspectRatio="none">
-      <path d={area} fill={color} opacity="0.13" />
-      <path d={line} fill="none" stroke={color} stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round" vector-effect="non-scaling-stroke" />
-    </svg>
-    <span class="absolute left-1 top-0 font-mono text-[10.5px] text-muted">{max}</span>
-    <span class="absolute bottom-0 left-1 font-mono text-[10.5px] text-muted">{min}</span>
-    {#if times.length >= 2}
-      <div class="flex justify-between font-mono text-[10.5px] text-muted">
-        <span>{hhmm(times[0])}</span>
-        <span>{hhmm(times[times.length - 1])}</span>
-      </div>
-    {/if}
-  </div>
+  <svg viewBox="0 0 {W} {height}" class="mt-1 block w-full" role="img" aria-label={ariaLabel}>
+    <!-- horizontal gridlines + y labels -->
+    {#each yTicks as t, k (k)}
+      <line x1={L} x2={L + innerW} y1={py(t)} y2={py(t)} stroke="currentColor" stroke-opacity="0.14" stroke-width="1" />
+      <text x={L - 6} y={py(t) + 3.5} text-anchor="end" font-size="10.5" fill="currentColor" fill-opacity="0.55">{t}</text>
+    {/each}
+    <path d={area} fill={color} opacity="0.12" />
+    <path d={line} fill="none" stroke={color} stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round" />
+    <!-- x axis -->
+    <line x1={L} x2={L + innerW} y1={T + innerH} y2={T + innerH} stroke="currentColor" stroke-opacity="0.2" stroke-width="1" />
+    {#each xTicks as t (t.i)}
+      <text x={t.x} y={height - 8} text-anchor="middle" font-size="10.5" fill="currentColor" fill-opacity="0.55">{t.label}</text>
+    {/each}
+  </svg>
 {/if}
