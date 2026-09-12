@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { atTown, timeAgo, groupBy, numColor, regionOf, wmo } from "../src/lib/flags.js";
+import { atTown, timeAgo, groupBy, numColor, regionOf } from "../src/lib/flags.js";
+import { wmo } from "../src/lib/weather-codes.js";
 import { mapPopup } from "../src/lib/popup.js";
 
 describe("atTown — matches an observation to the selected town", () => {
