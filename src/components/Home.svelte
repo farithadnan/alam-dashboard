@@ -41,18 +41,18 @@
 
   {#if now}
     {@const [icon, label] = now.meta?.code != null ? wmo(String(now.meta.code)) : [null, null]}
-    <div class="glass mt-1 rounded-2xl p-4 sm:p-5">
+    <div class="glass mt-1 rounded-2xl p-3 sm:p-4">
       <div class="flex items-start justify-between gap-2">
-        <div class="min-w-0 text-[16px] font-semibold">{townName}{#if app.state}<span class="text-muted">, {app.state}</span>{/if}</div>
+        <div class="min-w-0 text-[15px] font-semibold">{townName}{#if app.state}<span class="text-muted">, {app.state}</span>{/if}</div>
         <div class="flex shrink-0 items-center gap-1.5">
           <TelegramAlerts town={app.town} state={app.state} />
           <ShareButton payload={sharePayload({ town: townName, state: app.state, now, townAir, air })} />
         </div>
       </div>
-      <div class="mt-2 flex items-end justify-between gap-3">
+      <div class="mt-1.5 flex items-end justify-between gap-3">
         <div class="flex min-w-0 items-end gap-3">
-          {#if icon}<span class="shrink-0 text-[40px] leading-none sm:text-[52px]" aria-hidden="true">{icon}</span>{/if}
-          <span class="font-mono text-[44px] font-extrabold leading-none tracking-tighter sm:text-[56px]">{Math.round(now.value)}°</span>
+          {#if icon}<span class="shrink-0 text-[30px] leading-none sm:text-[36px]" aria-hidden="true">{icon}</span>{/if}
+          <span class="font-mono text-[32px] font-extrabold leading-none sm:text-[40px]">{Math.round(now.value)}°</span>
           <span class="pb-1 text-[13px] text-muted">{tr("feels")} {Math.round(now.meta?.apparentTemp ?? now.value)}°</span>
         </div>
         {#if townAir}

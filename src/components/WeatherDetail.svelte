@@ -161,12 +161,17 @@ function hourLabel(t) {
   {:else if district}
     <h3 class="qh">{tr("officialTitle")}</h3>
     <p class="caption -mt-1">{tr("officialNote")} · {district.district}</p>
+    <p class="caption -mt-0.5 mb-1">{tr("forecastLegend")}</p>
     <ul class="list-none m-0 border-t border-line p-0">
       {#each districtDays.slice(0, 7) as d (d.date)}
         <li class="flex items-center gap-3 border-b border-line px-2.5 py-2 text-[13.5px]">
-          <span class="w-10 shrink-0 text-muted">{dayName(d.date)}</span>
+          <span class="w-12 shrink-0 font-semibold">{dayName(d.date)}</span>
           <span class="min-w-0 flex-1">{d.summary}{#if d.when}<span class="text-muted"> · {d.when}</span>{/if}</span>
-          <span class="shrink-0 font-mono text-[13px] font-semibold">{d.tmax}° <span class="text-muted">{d.tmin}°</span></span>
+          <span class="shrink-0 text-[12.5px]">
+            <span class="font-semibold">{d.tmax}°<span class="ml-0.5 text-[10.5px] font-normal text-muted"> {tr("forecastHigh")}</span></span>
+            <span class="mx-1 text-muted">/</span>
+            <span class="text-muted">{d.tmin}°<span class="ml-0.5 text-[10.5px] font-normal text-muted"> {tr("forecastLow")}</span></span>
+          </span>
         </li>
       {/each}
     </ul>
