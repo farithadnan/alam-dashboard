@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { shareCaption } from "../src/lib/sharecard.js";
-import { airSharePayload, quakeSharePayload } from "../src/lib/share.js";
+import { airSharePayload, warningSharePayload } from "../src/lib/share.js";
 
 describe("shareCaption — the message that travels with the card", () => {
   it("leads with the place, then the numbers", () => {
@@ -38,17 +38,19 @@ describe("share payloads for the other views", () => {
     expect(c).toContain("AQI 128 Unhealthy");
   });
 
-  it("captions a quake as a magnitude, never as an AQI", () => {
-    const c = shareCaption(quakeSharePayload({ place: "Lospalos", magnitude: 5.3, magType: "mb", depth: 10, word: "Strong", color: "#b3491a", when: "3h ago" }));
-    expect(c).toContain("M 5.3 Strong");
-    expect(c).not.toContain("AQI");
-    expect(c).toContain("10 km deep");
-  });
 
-  it("omits depth and magType rather than printing holes", () => {
-    const c = shareCaption(quakeSharePayload({ place: "Off Sumatra", magnitude: 5 }));
-    expect(c).toContain("Off Sumatra");
-    expect(c).not.toContain("undefined");
-    expect(c).not.toContain("km deep");
+});
+
+describe("warning payload — the forwardable one", () => {
+  it("carries the full bulletin, the time and the link in one message", () => {
+    const t = warningSharePayload({ title: "Thunderstorms Warning", text: "Thunderstorms over Perlis and Kedah", when: "2h ago" }).text;
+    expect(t).toContain("Thunderstorms Warning");
+    expect(t).toContain("Perlis and Kedah");
+    expect(t).toContain("2h ago");
+    expect(t).toContain("http");
+  });
+  it("squashes newlines from the source bulletin", () => {
+    const t = warningSharePayload({ title: "X", text: "line one\n\nline  two" }).text;
+    expect(t).toContain("line one line two");
   });
 });

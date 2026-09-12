@@ -2,6 +2,8 @@
 import { app } from "../lib/store.svelte.js";
 import { timeAgo, severityColor } from "../lib/flags.js";
 import { tr, severityWord } from "../lib/i18n.svelte.js";
+import ShareButton from "./ui/ShareButton.svelte";
+import { warningSharePayload } from "../lib/share.js";
 
 const warnings = $derived(
   (app.data?.hazards?.warnings ?? []).filter((w) => {
@@ -30,7 +32,10 @@ function where(t) {
         <div class="flex items-start gap-2">
           <span class="mt-1.5 size-2.5 shrink-0 rounded-full" style="background:{severityColor(w.severity)}"></span>
           <div class="min-w-0 flex-1">
-            <div class="text-[14.5px] font-semibold leading-tight">{w.title}</div>
+            <div class="flex items-center justify-between gap-2">
+              <div class="text-[14.5px] font-semibold leading-tight">{w.title}</div>
+              <ShareButton textOnly payload={warningSharePayload({ title: w.title, text: w.meta?.textEn ?? w.meta?.textBm ?? "", when: timeAgo(w.measuredAt) })} />
+            </div>
             <div class="text-[12.5px] text-muted">{w.meta?.titleBm || ""}{#if w.meta?.titleBm} ·{/if} {timeAgo(w.measuredAt)}</div>
             {#if w.meta?.validTo}
               <div class="text-[12px] text-muted">{tr("validUntil")} {new Date(w.meta.validTo).toLocaleDateString("en-MY", { weekday: "short", day: "numeric", month: "short" })}</div>

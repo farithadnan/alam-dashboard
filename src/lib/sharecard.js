@@ -97,6 +97,16 @@ export function shareCaption(d) {
   return link ? `${body}\n${link}` : body;
 }
 
+/** Share just the message: right for a warning that is going into a family chat. */
+export async function shareText(d) {
+  const text = d.text || shareCaption(d);
+  const title = `Alam — ${d.town ?? "Malaysia"}`;
+  if (typeof navigator !== "undefined" && navigator.share) {
+    try { await navigator.share({ title, text }); return; } catch { /* dismissed */ }
+  }
+  try { await navigator.clipboard.writeText(text); } catch { /* nothing else to do */ }
+}
+
 export async function shareCard(d) {
   const canvas = drawCard(d);
   const blob = await new Promise((r) => canvas.toBlob(r, "image/png"));
