@@ -1,7 +1,7 @@
 // Minimal BM/EN i18n as a shared runes store. Strings keyed; components call tr('key').
 const en = {
   navWeather: "Weather", navAQI: "AQI", navHazards: "Earthquakes", navAbout: "About", changeLoc: "Change location",
-  navHome: "Home", navFlood: "Flood", navNews: "News", advisories: "Advisories", newsTitle: "Weather & hazard news", explore: "Explore", noNews: "No recent stories.", warningsInForce: "{n} warnings in force", quakesWeek: "{n} quakes this week",
+  navHome: "Home", navFlood: "Flood", navNews: "News", srcTitle: "Official sources", srcHint: "Straight from the issuing agencies — trusted, not re-sold.", advisories: "Advisories", newsTitle: "Weather & hazard news", explore: "Explore", noNews: "No recent stories.", warningsInForce: "{n} warnings in force", quakesWeek: "{n} quakes this week",
   scopeNear: "Near me", scopeState: "State", scopeMalaysia: "Malaysia",
   state: "State", town: "Town", useLoc: "Use my location", locating: "Locating…", location: "Location",
   feels: "Feels like", humidity: "humidity", wind: "wind", uv: "UV",
@@ -33,7 +33,7 @@ const en = {
   officialTitle: "Official forecast (MET Malaysia)", officialNote: "Official MET forecast for this district. Can differ from the outlook above.",
   locationPrompt: "Showing {place}. Not your place?", useMyLocation: "Use my location", dismiss: "Not now", locHint: "Your pick applies right away. Done closes this.",
   hazeTitle: "Haze outlook", hazeHint: "Peak fine-dust (PM2.5) each day. Lower is better; the daily limit is 25 µg/m³.", hazeAbove: "High: limit time outdoors", hazeBelow: "Typical for the season",
-  floodTitle: "Flood & rain alerts", floodRiver: "River levels", floodRain: "Heavy rain", floodNone: "No active flood alerts in {state} right now.", floodNote: "Live InfoBanjir (JPS) river levels and heavy rain. Only stations currently in an alert band appear.",
+  floodTitle: "Flood & rain alerts", floodRiver: "River levels", floodRain: "Heavy rain", floodNone: "No active flood alerts in {state} right now.", floodMonitor: "Watching river levels and rainfall shifts across Malaysia via InfoBanjir (JPS).", floodNote: "Live InfoBanjir (JPS) river levels and heavy rain. Only stations currently in an alert band appear.",
   updating: "Updating…", about: "About Alam", sources: "Sources: DOE · MET · USGS · NOAA · Open-Meteo",
   copyright: "© 2026 Farith Adnan",
   aboutTitle: "About Alam",
@@ -85,7 +85,7 @@ const en = {
 };
 const ms = {
   navWeather: "Cuaca", navAQI: "AQI", navHazards: "Gempa bumi", navAbout: "Tentang", changeLoc: "Tukar lokasi",
-  navHome: "Utama", navFlood: "Banjir", navNews: "Berita", advisories: "Nasihat", newsTitle: "Berita cuaca & bahaya", explore: "Terokai", noNews: "Tiada berita terkini.", warningsInForce: "{n} amaran aktif", quakesWeek: "{n} gempa minggu ini",
+  navHome: "Utama", navFlood: "Banjir", navNews: "Berita", srcTitle: "Sumber rasmi", srcHint: "Terus daripada agensi pengeluar — dipercayai, bukan jualan semula.", advisories: "Nasihat", newsTitle: "Berita cuaca & bahaya", explore: "Terokai", noNews: "Tiada berita terkini.", warningsInForce: "{n} amaran aktif", quakesWeek: "{n} gempa minggu ini",
   scopeNear: "Berdekatan", scopeState: "Negeri", scopeMalaysia: "Malaysia",
   state: "Negeri", town: "Bandar", useLoc: "Guna lokasi saya", locating: "Mengesan…", location: "Lokasi",
   feels: "Terasa seperti", humidity: "kelembapan", wind: "angin", uv: "UV",
@@ -118,7 +118,7 @@ const ms = {
   officialTitle: "Ramalan rasmi (MET Malaysia)", officialNote: "Ramalan rasmi MET untuk daerah ini. Boleh berbeza daripada ramalan di atas.",
   locationPrompt: "Memaparkan {place}. Bukan lokasi anda?", useMyLocation: "Guna lokasi saya", dismiss: "Bukan sekarang", locHint: "Pilihan anda diterapkan serta-merta. Siap untuk tutup.",
   hazeTitle: "Tinjauan jerebu", hazeHint: "Habuk halus (PM2.5) puncak setiap hari. Semakin rendah semakin baik; had harian ialah 25 µg/m³.", hazeAbove: "Tinggi: hadkan masa di luar", hazeBelow: "Biasa untuk musim ini",
-  floodTitle: "Amaran banjir & hujan", floodRiver: "Paras sungai", floodRain: "Hujan lebat", floodNone: "Tiada amaran banjir aktif di {state} buat masa ini.", floodNote: "Paras sungai dan hujan lebat InfoBanjir (JPS). Hanya stesen yang kini dalam keadaan amaran dipaparkan.",
+  floodTitle: "Amaran banjir & hujan", floodRiver: "Paras sungai", floodRain: "Hujan lebat", floodNone: "Tiada amaran banjir aktif di {state} buat masa ini.", floodMonitor: "Memantau paras sungai dan pergerakan hujan di seluruh Malaysia melalui InfoBanjir (JPS).", floodNote: "Paras sungai dan hujan lebat InfoBanjir (JPS). Hanya stesen yang kini dalam keadaan amaran dipaparkan.",
   updating: "Menyegarkan…", about: "Tentang Alam", sources: "Sumber: DOE · MET · USGS · NOAA · Open-Meteo",
   aboutText: "Alam ialah papan pemuka percuma dan bukan komersial untuk kualiti udara, cuaca dan amaran bahaya di seluruh Malaysia, menggunakan data awam daripada DOE APIMS, MET Malaysia, USGS, NOAA dan Open-Meteo. Data tidak dijamin; sahkan sumber rasmi sebelum bertindak. Bukan gabungan mana-mana badan kerajaan.",
   copyright: "© 2026 Farith Adnan",

@@ -63,4 +63,5 @@
     {/if}
   {:else}
     <p class="caption">{trFmt("floodNone", { state: app.state || "Malaysia" })}</p>
+    <p class="caption mt-0.5">{tr("floodMonitor")}</p>
   {/if}

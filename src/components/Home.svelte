@@ -29,6 +29,14 @@
       flash = true;
       setTimeout(() => (flash = false), 1600);
     };
+
+    const OFFICIAL = [
+      { name: "MET Malaysia", by: "Weather & warnings", href: "https://www.met.gov.my/" },
+      { name: "JPS InfoBanjir", by: "River levels & floods", href: "https://publicinfobanjir.water.gov.my/" },
+      { name: "DOE APIMS", by: "Air quality", href: "https://apims.doe.gov.my/" },
+      { name: "NADMA", by: "Disaster info", href: "https://portalbencana.nadma.gov.my/" },
+      { name: "USGS", by: "Earthquakes", href: "https://earthquake.usgs.gov/" },
+    ];
   </script>
 
   {#if now}
@@ -96,10 +104,15 @@
     <p class="caption">{phase.includes("El Niño") ? tr("climateElEffect") : phase.includes("La Niña") ? tr("climateLaEffect") : tr("climateNeutralEffect")}</p>
   {/if}
 
-  <h3 class="qh">{tr("explore")}</h3>
-  <div class="flex flex-wrap gap-2">
-    <button class="glass rounded-xl px-4 py-3 text-[14px] font-semibold" onclick={() => onNavigate("weather")}>{tr("navWeather")}</button>
-    <button class="glass rounded-xl px-4 py-3 text-[14px] font-semibold" onclick={() => onNavigate("air")}>{tr("navAQI")}</button>
-    <button class="glass rounded-xl px-4 py-3 text-[14px] font-semibold" onclick={() => onNavigate("flood")}>{tr("navFlood")}</button>
-    <button class="glass rounded-xl px-4 py-3 text-[14px] font-semibold" onclick={() => onNavigate("hazards")}>{tr("navHazards")}</button>
-  </div>
+  <h3 class="qh">{tr("srcTitle")}</h3>
+  <p class="caption -mt-1 mb-1">{tr("srcHint")}</p>
+  <ul class="list-none m-0 border-t border-line p-0">
+    {#each OFFICIAL as s (s.href)}
+      <li class="border-b border-line">
+        <a class="flex items-center justify-between gap-2 px-2.5 py-2 text-[14px] font-semibold hover:text-accent" href={s.href} target="_blank" rel="noopener">
+          <span class="min-w-0">{s.name}</span>
+          <span class="shrink-0 text-[12px] font-normal text-muted">{s.by}</span>
+        </a>
+      </li>
+    {/each}
+  </ul>
