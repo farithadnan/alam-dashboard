@@ -83,7 +83,11 @@ async function share() {
   <div class="glass mt-1 rounded-2xl p-4">
     <div class="flex items-start justify-between gap-2">
       <div class="min-w-0 text-[15px] font-semibold">{townName}{#if app.state}<span class="text-muted">, {app.state}</span>{/if}</div>
-      <button class="iconbtn shrink-0" onclick={share} aria-label={tr("share")} title={tr("share")}>↗</button>
+      <!-- Labelled on desktop, icon-only on mobile: an unlabelled arrow was easy to miss. -->
+      <button class="iconbtn shrink-0 gap-1.5" onclick={share} aria-label={tr("share")} title={tr("share")}>
+        <span aria-hidden="true">↗</span>
+        <span class="hidden text-[12px] font-medium sm:inline">{tr("share")}</span>
+      </button>
     </div>
     <div class="mt-1 flex items-end justify-between gap-3">
       <div class="flex min-w-0 items-end gap-3">
