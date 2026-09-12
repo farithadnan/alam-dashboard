@@ -2,7 +2,7 @@
 import { onMount } from "svelte";
 import { app, load, initLoc } from "./lib/store.svelte.js";
 import { theme, toggleTheme, applyTheme } from "./lib/theme.svelte.js";
-import { lang, setLang, tr } from "./lib/i18n.svelte.js";
+import { lang, setLang, tr, trFmt } from "./lib/i18n.svelte.js";
 import { nearestState } from "./lib/flags.js";
 import { NAV, SCOPES } from "./lib/shell.js";
 import { locate } from "./lib/location.js";
@@ -19,6 +19,13 @@ let view = $state("home");
 let locOpen = $state(false);
 let settingsOpen = $state(false);
 let locBusy = $state(false);
+// Was this location ever actually claimed by the user, or are they seeing a default?
+let claimed = $state(true);
+$effect(() => {
+  let stored = "1";
+  try { stored = localStorage.getItem("alam.claimed") ?? "0"; } catch {}
+  claimed = stored === "1";
+});
 
 const states = $derived(app.data?.states ?? []);
 const towns = $derived((app.data?.allTowns ?? []).filter((t) => t.state === app.state));
@@ -44,7 +51,13 @@ function onStatePick(e) {
   const first = (app.data?.allTowns ?? []).find((t) => t.state === st);
   if (first) app.town = first.station;
 }
+function markClaimed() {
+  claimed = true;
+  try { localStorage.setItem("alam.claimed", "1"); } catch {}
+}
+
 async function useLocation() {
+  markClaimed();
   locBusy = true;
   try {
     const { lat, lon } = await locate();
@@ -146,6 +159,21 @@ function toggleLang() {
 {/if}
 
 <main class="mx-auto w-full max-w-[1280px] px-4 pt-3 pb-24 sm:pb-10">
+  {#if !claimed}
+    <!-- Non-blocking claim: the page keeps its sensible default, but a visitor
+         from another state gets an obvious way to fix it. -->
+    <div class="glass mb-3 flex flex-wrap items-center justify-between gap-2 rounded-xl px-3 py-2 text-[13px]">
+      <span>{trFmt("locationPrompt", { place: app.state || "Malaysia" })}</span>
+      <span class="flex gap-2">
+        <button type="button" class="btn-primary cursor-pointer rounded-lg px-3 py-1" onclick={useLocation}>
+          {locBusy ? "…" : tr("useMyLocation")}
+        </button>
+        <button type="button" class="glass cursor-pointer rounded-lg px-3 py-1" onclick={markClaimed}>
+          {tr("dismiss")}
+        </button>
+      </span>
+    </div>
+  {/if}
   {#if !app.data && app.loading}
     <div class="mt-2 space-y-3">
       <Skeleton h={104} class="!rounded-2xl" />

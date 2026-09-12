@@ -100,3 +100,9 @@ select { min-height: 44px; border: 1px solid var(--color-line); border-radius: 1
   0%   { transform: translateX(-110%); }
   100% { transform: translateX(360%); }
 }
+
+/* Anchor targets must clear the sticky header, or a jump lands underneath it.
+   Applies to every in-page target, so new ones behave without being told. */
+[id] {
+  scroll-margin-top: 5.5rem;
+}
