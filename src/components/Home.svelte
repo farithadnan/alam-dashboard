@@ -6,6 +6,8 @@ import { shareCard } from "../lib/sharecard.js";
 import { getHaze } from "../lib/api.js";
 import { createLoader } from "../lib/async.js";
 import SearchInput from "./ui/SearchInput.svelte";
+import ShareButton from "./ui/ShareButton.svelte";
+import { sharePayload } from "../lib/share.js";
 import Skeleton from "./ui/Skeleton.svelte";
 import Warnings from "./Warnings.svelte";
 
@@ -62,20 +64,6 @@ const newsFiltered = $derived(
 );
 
 
-async function share() {
-  const [icon, label] = now?.meta?.code != null ? wmo(String(now.meta.code)) : [null, null];
-  await shareCard({
-    town: townName,
-    state: app.state,
-    value: townAir?.value ?? air?.value ?? null,
-    band: townAir ? bandLabel(townAir.band?.label) : air ? "US AQI" : "",
-    color: townAir ? numColor(townAir.band?.label) : "#c14a1f",
-    temp: now ? Math.round(now.value) : null,
-    cond: label ? wmoLabel(label) : "",
-    advice: townAir ? bandAdvice(townAir.band?.label) : tr("feels") + " " + Math.round(now?.meta?.apparentTemp ?? now?.value ?? 0) + "°",
-    text: `${townName}: ${townAir?.value ?? ""} ${townAir ? bandLabel(townAir.band?.label) : ""}`.trim(),
-  });
-}
 </script>
 
 {#if now}
@@ -83,11 +71,7 @@ async function share() {
   <div class="glass mt-1 rounded-2xl p-4">
     <div class="flex items-start justify-between gap-2">
       <div class="min-w-0 text-[15px] font-semibold">{townName}{#if app.state}<span class="text-muted">, {app.state}</span>{/if}</div>
-      <!-- Labelled on desktop, icon-only on mobile: an unlabelled arrow was easy to miss. -->
-      <button class="iconbtn shrink-0 gap-1.5" onclick={share} aria-label={tr("share")} title={tr("share")}>
-        <span aria-hidden="true">↗</span>
-        <span class="hidden text-[12px] font-medium sm:inline">{tr("share")}</span>
-      </button>
+      <ShareButton payload={sharePayload({ town: townName, state: app.state, now, townAir, air })} />
     </div>
     <div class="mt-1 flex items-end justify-between gap-3">
       <div class="flex min-w-0 items-end gap-3">

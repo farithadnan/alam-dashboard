@@ -12,6 +12,8 @@ import MapView from "./ui/MapView.svelte";
 import TrendChart from "./ui/TrendChart.svelte";
 import Spinner from "./ui/Spinner.svelte";
 import Skeleton from "./ui/Skeleton.svelte";
+import ShareButton from "./ui/ShareButton.svelte";
+import { sharePayload } from "../lib/share.js";
 
 /** Full detail for ONE town — reused by "near me" and by tapping a card anywhere. */
 let { station = "", onClose = null } = $props();
@@ -77,18 +79,6 @@ function hourLabel(t) {
   const h = parseInt((t || "").slice(11, 13) || "0", 10) || 0;
   return h < 12 ? `${h || 12}am` : h === 12 ? "12pm" : `${h - 12}pm`;
 }
-async function doShare() {
-  const [icon, label] = now?.meta?.code != null ? wmo(String(now.meta.code)) : [null, null];
-  await shareCard({
-    town: townName, state: stateName,
-    value: townAir?.value ?? air?.value ?? null,
-    band: townAir ? bandLabel(townAir.band?.label) : air ? "US AQI" : "",
-    color: townAir ? numColor(townAir.band?.label) : "#c14a1f",
-    temp: now ? Math.round(now.value) : null,
-    cond: label ? wmoLabel(label) : "",
-    advice: townAir ? bandAdvice(townAir.band?.label) : "",
-  });
-}
 </script>
 
 {#if now}
@@ -100,7 +90,7 @@ async function doShare() {
       </div>
       <div class="flex shrink-0 gap-1.5">
         {#if onClose}<button class="iconbtn" onclick={onClose} aria-label={tr("back")}>← {tr("back")}</button>{/if}
-        <button class="iconbtn" onclick={doShare} aria-label={tr("share")} title={tr("share")}>↗</button>
+        <ShareButton payload={sharePayload({ town: townName, state: stateName, now, townAir, air })} />
       </div>
     </div>
     <div class="mt-1 flex items-end gap-3 sm:gap-4">
