@@ -8,6 +8,7 @@ import { getHaze } from "../lib/api.js";
 import { createLoader } from "../lib/async.js";
 import SearchInput from "./ui/SearchInput.svelte";
 import ShareButton from "./ui/ShareButton.svelte";
+import TelegramAlerts from "./ui/TelegramAlerts.svelte";
 import { sharePayload } from "../lib/share.js";
 import { activeWarnings } from "../lib/warnings.js";
 import Skeleton from "./ui/Skeleton.svelte";
@@ -73,7 +74,10 @@ const newsFiltered = $derived(
   <div class="glass mt-1 rounded-2xl p-4">
     <div class="flex items-start justify-between gap-2">
       <div class="min-w-0 text-[15px] font-semibold">{townName}{#if app.state}<span class="text-muted">, {app.state}</span>{/if}</div>
-      <ShareButton payload={sharePayload({ town: townName, state: app.state, now, townAir, air })} />
+      <div class="flex shrink-0 items-center gap-1.5">
+        <TelegramAlerts town={app.town} state={app.state} />
+        <ShareButton payload={sharePayload({ town: townName, state: app.state, now, townAir, air })} />
+      </div>
     </div>
     <div class="mt-1 flex items-end justify-between gap-3">
       <div class="flex min-w-0 items-end gap-3">

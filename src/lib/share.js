@@ -37,3 +37,17 @@ export function sharePayload({ town, state, now, townAir, air }) {
     advice: townAir ? bandAdvice(townAir.band?.label) : now ? `${tr("feels")} ${Math.round(now.meta?.apparentTemp ?? now.value ?? 0)}°` : "",
   };
 }
+
+const slug = (s) =>
+  String(s ?? "").trim().toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
+
+/**
+ * A Telegram deep link that opens the bot pre-subscribed to a town + state. The bot
+ * parses /start loc_<town>_<state> and resolves the place itself, so the dashboard
+ * never has to duplicate the locality registry. Empty when there is no state to open.
+ */
+export function telegramAlertsUrl(town, state) {
+  const st = slug(state);
+  if (!town || !st) return "";
+  return `https://t.me/alamalerts_bot?start=loc_${town}_${st}`;
+}

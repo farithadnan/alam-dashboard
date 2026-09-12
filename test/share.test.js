@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { shareCaption } from "../src/lib/sharecard.js";
-import { airSharePayload, warningSharePayload } from "../src/lib/share.js";
+import { airSharePayload, warningSharePayload, telegramAlertsUrl } from "../src/lib/share.js";
 
 describe("shareCaption — the message that travels with the card", () => {
   it("leads with the place, then the numbers", () => {
@@ -52,5 +52,18 @@ describe("warning payload — the forwardable one", () => {
   it("squashes newlines from the source bulletin", () => {
     const t = warningSharePayload({ title: "X", text: "line one\n\nline  two", when: "now" }).text;
     expect(t).toContain("line one line two");
+  });
+});
+
+describe("telegram alerts deep link", () => {
+  it("opens the bot pre-subscribed to the town + state", () => {
+    expect(telegramAlertsUrl("pasir-gudang", "Johor")).toBe("https://t.me/alamalerts_bot?start=loc_pasir-gudang_johor");
+    // A state with spaces becomes a hyphenated slug the bot can parse back.
+    expect(telegramAlertsUrl("kuching", "Sarawak")).toBe("https://t.me/alamalerts_bot?start=loc_kuching_sarawak");
+  });
+  it("is empty when there is no state to subscribe to", () => {
+    expect(telegramAlertsUrl("pasir-gudang", "")).toBe("");
+    expect(telegramAlertsUrl("pasir-gudang", null)).toBe("");
+    expect(telegramAlertsUrl("", "Johor")).toBe("");
   });
 });
