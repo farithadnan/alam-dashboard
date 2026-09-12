@@ -6,6 +6,7 @@
   --color-fg: #242628;
   --color-muted: #6b6258;
   --color-line: #e6ddcf;
+  --color-ctrl: #c2ae90;   /* visible border for interactive controls */
   --color-panel: #fffdfa;
   --color-accent: #c14a1f;
   --color-good: #43a047;
@@ -31,29 +32,40 @@ body {
 }
 .navbtn.on { color: var(--color-fg); font-weight: 650; border-bottom-color: var(--color-accent); }
 .iconbtn {
-  background: none; border: 1px solid var(--color-line); border-radius: 8px;
+  background: none; border: 1px solid var(--color-ctrl); border-radius: 8px;
   color: var(--color-fg); padding: 4px 10px; min-height: 32px; font: inherit; font-size: 13px;
   cursor: pointer; transition: border-color .15s, background .15s;
 }
 .iconbtn:hover { border-color: var(--color-accent); }
 .ghostbtn {
-  background: none; border: 1px solid var(--color-line); border-radius: 999px;
+  background: none; border: 1px solid var(--color-ctrl); border-radius: 999px;
   color: var(--color-muted); padding: 8px 14px; min-height: 44px;
   display: inline-flex; align-items: center; font-size: 13px; cursor: pointer; font-family: inherit;
   transition: border-color .15s, color .15s;
 }
 .ghostbtn:hover { border-color: var(--color-accent); color: var(--color-fg); }
+/* A clickable chip/pill (warnings, scope chips) — an obvious control, not a label. */
+.chip {
+  border: 1px solid var(--color-ctrl);
+  transition: border-color .15s, background .15s;
+}
+/* A small label pill (e.g. news outlet) — informational, not interactive. */
+.badge {
+  display: inline-flex; align-items: center;
+  border: 1px solid var(--color-ctrl); border-radius: 999px;
+  padding: 1px 8px; font-size: 11px; line-height: 1.4; color: var(--color-muted);
+}
 .btn-primary {
   background: var(--color-accent); color: #fff; border: none; border-radius: 10px;
   min-height: 44px; padding: 10px 16px; font: inherit; font-weight: 650; font-size: 14px;
   cursor: pointer; transition: background .15s;
 }
 .btn-primary:hover { background: #a83c14; }
-select { min-height: 44px; border: 1px solid var(--color-line); border-radius: 10px; background: var(--color-panel); padding: 6px 10px; font: inherit; font-size: 14px; color: var(--color-fg); }
+select { min-height: 44px; border: 1px solid var(--color-ctrl); border-radius: 10px; background: var(--color-panel); padding: 6px 10px; font: inherit; font-size: 14px; color: var(--color-fg); }
 :focus-visible { outline: 2px solid var(--color-accent); outline-offset: 2px; }
 .segbtn { background: none; border: none; padding: 3px 11px; font-size: 12px; color: var(--color-muted); cursor: pointer; font-family: inherit; }
 .segbtn.on { background: var(--color-accent); color: #fff; }
-.seg { display: inline-flex; border: 1px solid var(--color-line); border-radius: 999px; overflow: hidden; }
+.seg { display: inline-flex; border: 1px solid var(--color-ctrl); border-radius: 999px; overflow: hidden; }
 
 /* Dark theme — overrides the @theme tokens on <html data-theme="dark"> */
 [data-theme="dark"] {
@@ -61,6 +73,7 @@ select { min-height: 44px; border: 1px solid var(--color-line); border-radius: 1
   --color-fg: #eceef1;
   --color-muted: #c3baaa;
   --color-line: #35393f;
+  --color-ctrl: #5d6a76;
   --color-panel: #1e2126;
   --color-accent: #e86a3a;
 }

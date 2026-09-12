@@ -66,6 +66,10 @@ const newsFiltered = $derived(
   }),
 );
 
+// News list is capped with a "Show more" reveal, so a long feed stays scannable.
+const NEWS_LIST_INITIAL = 8;
+let showAll = $state(false);
+
 
 </script>
 
@@ -142,13 +146,14 @@ const newsFiltered = $derived(
   <h3 class="qh">{tr("hazeTitle")}</h3>
   <Skeleton h={54} />
 {:else if haze.length}
-  <h3 class="qh">{tr("hazeTitle")} <span class="text-muted">µg/m³</span></h3>
+  <h3 class="qh">{tr("hazeTitle")}</h3>
+  <p class="caption mb-1">{tr("hazeHint")}</p>
   <ul class="list-none m-0 border-t border-line p-0">
     {#each haze.slice(0, 4) as d (d.date)}
       <li class="flex items-center gap-3 border-b border-line px-2.5 py-2 text-[13.5px]">
-        <span class="w-10 shrink-0 text-muted">{dayLabel(d.date)}</span>
-        <span class="min-w-0 flex-1 text-muted">{d.aboveGuideline ? tr("hazeAbove") : tr("hazeBelow")}</span>
-        <span class="shrink-0 font-mono text-[13px] font-semibold">{Math.round(d.pm25Max)}</span>
+        <span class="w-12 shrink-0 text-muted">{dayLabel(d.date)}</span>
+        <span class="min-w-0 flex-1 font-medium" style:color={d.aboveGuideline ? "var(--color-unhealthy)" : "var(--color-muted)"}>{d.aboveGuideline ? tr("hazeAbove") : tr("hazeBelow")}</span>
+        <span class="shrink-0 font-mono text-[13px] font-semibold">{Math.round(d.pm25Max)}<span class="text-muted"> µg/m³</span></span>
       </li>
     {/each}
   </ul>
@@ -159,13 +164,19 @@ const newsFiltered = $derived(
   <SearchInput bind:value={newsQ} placeholder={tr("searchNews")} ariaLabel={tr("searchNews")} />
   {#if newsFiltered.length}
   <ul class="list-none m-0 border-t border-line p-0">
-    {#each newsFiltered as n, i (n.url ?? n.title + i)}
+    {#each newsFiltered.slice(0, showAll ? newsFiltered.length : NEWS_LIST_INITIAL) as n, i (n.url ?? n.title + i)}
       <li class="border-b border-line px-2.5 py-2.5">
         <a class="text-[14px] font-semibold hover:text-accent" href={n.url} target="_blank" rel="noopener">{n.title}</a>
-        <div class="text-[12px] text-muted">{n.outlet}{#if n.publishedAt} · {timeAgo(n.publishedAt)}{/if}</div>
+        <div class="mt-0.5 flex items-center gap-2 text-[12px] text-muted">
+          {#if n.outlet}<span class="badge">{n.outlet}</span>{/if}
+          {#if n.publishedAt}<span>{timeAgo(n.publishedAt)}</span>{/if}
+        </div>
       </li>
     {/each}
   </ul>
+  {#if newsFiltered.length > NEWS_LIST_INITIAL}
+    <button class="ghostbtn mt-3 w-full justify-center" onclick={() => (showAll = !showAll)}>{showAll ? tr("showLess") : tr("showMore")}</button>
+  {/if}
   {:else}
     <p class="caption">{tr("noMatches")}</p>
   {/if}

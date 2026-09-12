@@ -105,16 +105,17 @@ function toggleLang() {
   </div>
 
   {#if settingsOpen}
-    <div class="absolute right-4 top-[54px] z-50 w-52 rounded-xl border border-line bg-panel p-3 shadow-2xl sm:hidden">
-      <div class="caption text-[12px]">{tr("state") === "State" ? "Language" : "Bahasa"}</div>
-      <div class="seg mt-1">
-        <button class:on={lang.code === "en"} class="segbtn" onclick={() => setLang("en")}>EN</button>
-        <button class:on={lang.code === "ms"} class="segbtn" onclick={() => setLang("ms")}>BM</button>
+    <!-- Mobile-only settings: language + theme. Sized for touch, not cramped. -->
+    <div class="absolute right-3 top-[54px] z-50 w-60 rounded-2xl border border-line bg-panel p-4 shadow-2xl sm:hidden">
+      <div class="caption mb-1.5 text-[12px] font-semibold">{tr("state") === "State" ? "Language" : "Bahasa"}</div>
+      <div class="seg flex w-full">
+        <button class:on={lang.code === "en"} class="segbtn flex-1 py-1.5" onclick={() => setLang("en")}>EN</button>
+        <button class:on={lang.code === "ms"} class="segbtn flex-1 py-1.5" onclick={() => setLang("ms")}>BM</button>
       </div>
-      <div class="caption mt-3 text-[12px]">Theme</div>
-      <div class="seg mt-1">
-        <button class:on={!theme.dark} class="segbtn" onclick={() => { if (theme.dark) toggleTheme(); }}>☀</button>
-        <button class:on={theme.dark} class="segbtn" onclick={() => { if (!theme.dark) toggleTheme(); }}>☾</button>
+      <div class="caption mb-1.5 mt-4 text-[12px] font-semibold">Theme</div>
+      <div class="seg flex w-full">
+        <button class:on={!theme.dark} class="segbtn flex-1 py-1.5" onclick={() => { if (theme.dark) toggleTheme(); }}>☀ Light</button>
+        <button class:on={theme.dark} class="segbtn flex-1 py-1.5" onclick={() => { if (!theme.dark) toggleTheme(); }}>☾ Dark</button>
       </div>
     </div>
   {/if}
@@ -147,13 +148,15 @@ function toggleLang() {
       </label>
       <label class="mt-3 flex flex-col gap-1">
         <span class="caption text-[12px]">{tr("town")}</span>
-        <select id="town-select" bind:value={app.town} onchange={() => (locOpen = false)}>
+        <select id="town-select" bind:value={app.town}>
           {#each towns as t (t.station)}
             <option value={t.station}>{t.name}</option>
           {/each}
         </select>
       </label>
-      <button class="btn-primary mt-4 w-full" onclick={useLocation}>{locBusy ? tr("locating") : tr("useLoc")}</button>
+      <p class="caption mt-3 text-[12.5px]">{tr("locHint")}</p>
+      <button class="btn-primary mt-3 w-full" onclick={() => (locOpen = false)}>{tr("done")}</button>
+      <button class="ghostbtn mt-2 w-full justify-center" onclick={useLocation}>{locBusy ? tr("locating") : tr("useLoc")}</button>
     </div>
   </div>
 {/if}
