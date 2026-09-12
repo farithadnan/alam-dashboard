@@ -37,8 +37,18 @@ $effect(() => {
     onSettled: () => (hazeLoading = false),
   });
 });
-/** Scroll a section of this page into view (used by the summary chips). */
-const jump = (id) => document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
+let flash = $state(false);
+
+/**
+ * Scroll a section into view, optionally highlighting it. Scrolling alone looked like
+ * nothing happened when the target was already near the fold.
+ */
+const jump = (id, highlight = false) => {
+  document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
+  if (!highlight) return;
+  flash = true;
+  setTimeout(() => (flash = false), 1600);
+};
 
 const DOW = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 const dayLabel = (d) =>
@@ -107,7 +117,7 @@ async function share() {
      climate jump to the advisory below; quakes open the Earthquakes view. -->
 <div class="mt-2 flex flex-wrap gap-2 text-[13px]">
   <button type="button" class="glass chip cursor-pointer rounded-full px-3 py-1 hover:border-accent"
-    aria-label={trFmt("warningsInForce", { n: warnings.length })} onclick={() => jump("advisories")}>
+    aria-label={trFmt("warningsInForce", { n: warnings.length })} onclick={() => jump("advisories", true)}>
     {trFmt("warningsInForce", { n: warnings.length })}
   </button>
   <button type="button" class="glass chip cursor-pointer rounded-full px-3 py-1 hover:border-accent"
@@ -122,7 +132,7 @@ async function share() {
   {/if}
 </div>
 
-<h3 class="qh" id="advisories">{tr("advisories")}</h3>
+<h3 class="qh" id="advisories" class:text-accent={flash}>{tr("advisories")}</h3>
 <Warnings />
 {#if climate}
   {@const phase = climate.meta?.phase || "Neutral"}
