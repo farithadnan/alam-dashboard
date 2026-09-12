@@ -74,6 +74,17 @@ $effect(() => {
 const district = $derived(official.at(0) ?? null);
 const districtDays = $derived(district ? official.filter((o) => o.district === district.district) : []);
 const dayName = (d) => ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"][new Date(d + "T00:00:00").getDay()];
+// MET's district forecast is Malay free-text; pick a stand-in icon from the wording.
+const metIcon = (text) => {
+  const t = (text || "").toLowerCase();
+  if (/petir|ribut|thunder|storm/.test(t)) return "⛈️";
+  if (/lebat|heavy rain/.test(t)) return "🌧️";
+  if (/hujan|rain|shower|gerimis|setempat|scattered|localised/.test(t)) return "🌦️";
+  if (/kabus|kabut|fog|jerebu|haze/.test(t)) return "🌫️";
+  if (/mendung|berawan|overcast|cloudy/.test(t)) return "☁️";
+  if (/cerah|panas|sunny|clear|cuaca baik|hot/.test(t)) return "☀️";
+  return "🌤️";
+};
 const hm = (t) => (t ? String(t).slice(11, 16) : "—");
 function hourLabel(t) {
   const h = parseInt((t || "").slice(11, 13) || "0", 10) || 0;
@@ -166,7 +177,7 @@ function hourLabel(t) {
       {#each districtDays.slice(0, 7) as d (d.date)}
         <li class="flex items-center gap-3 border-b border-line px-2.5 py-2 text-[13.5px]">
           <span class="w-12 shrink-0 font-semibold">{dayName(d.date)}</span>
-          <span class="min-w-0 flex-1">{d.summary}{#if d.when}<span class="text-muted"> · {d.when}</span>{/if}</span>
+          <span class="min-w-0 flex-1"><span class="mr-1.5 align-[-1px] text-[16px]" aria-hidden="true">{metIcon(d.summary)}</span>{d.summary}{#if d.when}<span class="text-muted"> · {d.when}</span>{/if}</span>
           <span class="shrink-0 text-[12.5px]">
             <span class="font-semibold">{d.tmax}°<span class="ml-0.5 text-[10.5px] font-normal text-muted"> {tr("forecastHigh")}</span></span>
             <span class="mx-1 text-muted">/</span>
