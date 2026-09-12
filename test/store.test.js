@@ -27,12 +27,12 @@ beforeEach(() => {
 
 describe("store.load — request sequencing", () => {
   it("discards a slow, stale response that resolves after a newer one", async () => {
-    global.fetch = vi.fn(fetchAfter(60, bundle("OLD", "arau", "Perlis")));
+    globalThis.fetch = vi.fn(fetchAfter(60, bundle("OLD", "arau", "Perlis")));
     const slow = load();
 
     app.state = "Johor";
     app.town = "johor-bahru";
-    global.fetch = vi.fn(fetchAfter(5, bundle("NEW", "johor-bahru", "Johor")));
+    globalThis.fetch = vi.fn(fetchAfter(5, bundle("NEW", "johor-bahru", "Johor")));
     const fast = load();
 
     await Promise.all([slow, fast]);
@@ -43,7 +43,7 @@ describe("store.load — request sequencing", () => {
   it("adopts the first town when the payload does not contain the requested one", async () => {
     app.state = "Johor";
     app.town = "arau"; // stale town from the previous state
-    global.fetch = vi.fn(fetchAfter(1, bundle("NEW", "johor-bahru", "Johor")));
+    globalThis.fetch = vi.fn(fetchAfter(1, bundle("NEW", "johor-bahru", "Johor")));
     await load();
     expect(app.town).toBe("johor-bahru");
   });
@@ -51,23 +51,23 @@ describe("store.load — request sequencing", () => {
   it("keeps the current town when the payload does contain it", async () => {
     app.state = "Perlis";
     app.town = "arau";
-    global.fetch = vi.fn(fetchAfter(1, bundle("OK", "arau", "Perlis")));
+    globalThis.fetch = vi.fn(fetchAfter(1, bundle("OK", "arau", "Perlis")));
     await load();
     expect(app.town).toBe("arau");
     expect(app.error).toBe("");
   });
 
   it("records an error for a failed latest request", async () => {
-    global.fetch = vi.fn(fetchAfter(1, {}, false));
+    globalThis.fetch = vi.fn(fetchAfter(1, {}, false));
     await load();
     expect(app.error).toBeTruthy();
     expect(app.loading).toBe(false);
   });
 
   it("does not let a stale failure clobber a newer success", async () => {
-    global.fetch = vi.fn(fetchAfter(60, {}, false)); // slow failure
+    globalThis.fetch = vi.fn(fetchAfter(60, {}, false)); // slow failure
     const slow = load();
-    global.fetch = vi.fn(fetchAfter(5, bundle("NEW", "arau", "Perlis"))); // fast success
+    globalThis.fetch = vi.fn(fetchAfter(5, bundle("NEW", "arau", "Perlis"))); // fast success
     const fast = load();
     await Promise.all([slow, fast]);
     expect(app.error).toBe("");
@@ -78,7 +78,7 @@ describe("store.load — request sequencing", () => {
 describe("store.load — request parameters", () => {
   it("scopes state + town, and includes an inspected town via ?towns=", async () => {
     const urls = [];
-    global.fetch = vi.fn(async (url) => {
+    globalThis.fetch = vi.fn(async (url) => {
       urls.push(url);
       return { ok: true, json: async () => bundle("OK", "arau", "Perlis") };
     });
@@ -93,7 +93,7 @@ describe("store.load — request parameters", () => {
 
   it("omits the state filter in Malaysia scope but still sends the town", async () => {
     const urls = [];
-    global.fetch = vi.fn(async (url) => {
+    globalThis.fetch = vi.fn(async (url) => {
       urls.push(url);
       return { ok: true, json: async () => bundle("OK", "arau", "Perlis") };
     });

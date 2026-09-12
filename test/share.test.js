@@ -50,7 +50,7 @@ describe("warning payload — the forwardable one", () => {
     expect(t).toContain("http");
   });
   it("squashes newlines from the source bulletin", () => {
-    const t = warningSharePayload({ title: "X", text: "line one\n\nline  two" }).text;
+    const t = warningSharePayload({ title: "X", text: "line one\n\nline  two", when: "now" }).text;
     expect(t).toContain("line one line two");
   });
 });

@@ -140,7 +140,7 @@ function hourLabel(t) {
       <div class="flex items-baseline gap-2">
         <span class="font-mono text-[28px] font-bold" style="color:{numColor(townAir.band?.label)}">{townAir.value}</span>
         <span class="text-[13px] font-semibold" style="color:{numColor(townAir.band?.label)}">{bandLabel(townAir.band?.label)}</span>
-        <span class="text-[12px] text-muted">{tr("past24")}</span>
+        <span class="text-[12px] text-muted">{tr("chartPast24")}</span>
       </div>
       {#if airLoading}
         <div class="flex h-[170px] items-center justify-center"><Spinner size={22} label={tr("loading")} /></div>
