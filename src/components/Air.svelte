@@ -106,7 +106,7 @@ async function nearestStation() {
   </ul>
 {/if}
 
-{#if counts.length}
+{#if app.scope !== "near" && counts.length}
   <h3 class="qh">{tr("catTitle")}</h3>
   <ul class="mt-1 grid list-none grid-cols-2 gap-2 p-0 sm:grid-cols-3">
     {#each counts as c (c.label)}
@@ -120,10 +120,10 @@ async function nearestStation() {
   </ul>
 {/if}
 
-{#if stations.length > 3}
+{#if app.scope !== "near" && stations.length > 3}
   <div class="mt-3 grid gap-2 sm:grid-cols-2">
     <div class="glass rounded-xl p-3">
-      <div class="caption text-[12px]">{tr("cleanestNow")}</div>
+      <div class="caption text-[12px]">🟢 {tr("cleanestNow")}</div>
       <ul class="mt-1 list-none p-0">
         {#each stations.slice().sort((a, b) => a.value - b.value).slice(0, 3) as s (s.station)}
           <li class="flex items-center justify-between py-0.5 text-[13px]">
@@ -134,7 +134,7 @@ async function nearestStation() {
       </ul>
     </div>
     <div class="glass rounded-xl p-3">
-      <div class="caption text-[12px]">{tr("worstNow")}</div>
+      <div class="caption text-[12px]">🔴 {tr("worstNow")}</div>
       <ul class="mt-1 list-none p-0">
         {#each stations.slice(0, 3) as s (s.station)}
           <li class="flex items-center justify-between py-0.5 text-[13px]">
@@ -237,19 +237,20 @@ async function nearestStation() {
   {/if}
 {/if}
 
-{#if hazeLoading && !haze.length}
-  <h3 class="qh">{tr("hazeTitle")}</h3>
-  <Skeleton h={54} />
-{:else if haze.length}
-  <h3 class="qh">{tr("hazeTitle")}</h3>
-  <p class="caption mb-1">{tr("hazeHint")}</p>
-  <ul class="list-none m-0 border-t border-line p-0">
-    {#each haze.slice(0, 4) as d (d.date)}
-      <li class="flex items-center gap-3 border-b border-line px-2.5 py-2 text-[13.5px]">
-        <span class="w-12 shrink-0 text-muted">{dayLabel(d.date)}</span>
-        <span class="shrink-0"><span class="badge" style="color:{numColor(hazeBand(d.pm25Max))};border-color:{numColor(hazeBand(d.pm25Max))}">{hazeEmoji(hazeBand(d.pm25Max))} {bandLabel(hazeBand(d.pm25Max))}</span></span>
-        <span class="shrink-0 font-mono text-[13px] font-semibold">{Math.round(d.pm25Max)}<span class="text-muted"> µg/m³</span></span>
-      </li>
-    {/each}
-  </ul>
+{#if app.scope === "near" && (hazeLoading || haze.length)}
+  <h3 class="qh">{tr("hazeTitle")}<span class="text-muted"> · {tr("yourTown")}</span></h3>
+  {#if hazeLoading && !haze.length}
+    <Skeleton h={54} />
+  {:else}
+    <p class="caption mb-1">{tr("hazeHint")}</p>
+    <ul class="list-none m-0 border-t border-line p-0">
+      {#each haze.slice(0, 4) as d (d.date)}
+        <li class="flex items-center gap-3 border-b border-line px-2.5 py-2 text-[13.5px]">
+          <span class="w-12 shrink-0 text-muted">{dayLabel(d.date)}</span>
+          <span class="shrink-0"><span class="badge" style="color:{numColor(hazeBand(d.pm25Max))};border-color:{numColor(hazeBand(d.pm25Max))}">{hazeEmoji(hazeBand(d.pm25Max))} {bandLabel(hazeBand(d.pm25Max))}</span></span>
+          <span class="shrink-0 font-mono text-[13px] font-semibold">{Math.round(d.pm25Max)}<span class="text-muted"> µg/m³</span></span>
+        </li>
+      {/each}
+    </ul>
+  {/if}
 {/if}

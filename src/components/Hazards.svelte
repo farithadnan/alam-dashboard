@@ -22,6 +22,11 @@ const quakePts = $derived(
     }),
 );
 const groups = $derived(groupBy(quakes.slice().sort((a, b) => b.magnitude - a.magnitude), (q) => regionOf(q.stationName)));
+const quakeSummary = $derived({
+  strong: quakes.filter((q) => q.magnitude >= 6).length,
+  moderate: quakes.filter((q) => q.magnitude >= 5 && q.magnitude < 6).length,
+  light: quakes.filter((q) => q.magnitude < 5).length,
+});
 const alertColor = (a) => ({ green: "#2e7d32", yellow: "#b26a00", orange: "#e05d2b", red: "#d32f2f" }[a] || "#6b6258");
 let open = $state(null);
 </script>
@@ -32,6 +37,12 @@ let open = $state(null);
 {#if quakePts.length}
   <MapView pts={quakePts} class="h-72 w-full rounded-xl lg:h-[52vh] lg:min-h-[400px]" fitMax={8} />
 {/if}
+
+<div class="mb-1 mt-2 flex flex-wrap gap-1.5 text-[12px]">
+  {#if quakeSummary.strong}<span class="badge" style="color:var(--color-vunhealthy);border-color:var(--color-vunhealthy)">🔴 {quakeSummary.strong} {tr("mag_strong")}</span>{/if}
+  {#if quakeSummary.moderate}<span class="badge" style="color:var(--color-unhealthy);border-color:var(--color-unhealthy)">🟠 {quakeSummary.moderate} {tr("mag_moderate")}</span>{/if}
+  <span class="badge text-muted">🔹 {quakeSummary.light} {tr("mag_light")}</span>
+</div>
 
 {#each groups as g (g.key)}
   <Section title={g.key} startOpen={groups.length === 1}>
