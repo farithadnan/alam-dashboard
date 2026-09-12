@@ -20,6 +20,7 @@
 
   <h3 class="qh">{tr("newsTitle")}</h3>
   {#if news.length}
+    <p class="caption -mt-1 mb-1">{news.length} {tr("newsCount")}</p>
     <SearchInput bind:value={newsQ} placeholder={tr("searchNews")} ariaLabel={tr("searchNews")} />
     {#if newsFiltered.length}
       <ul class="list-none m-0 border-t border-line p-0">

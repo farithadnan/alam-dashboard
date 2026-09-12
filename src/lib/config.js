@@ -20,7 +20,9 @@ export const SITE = {
    */
   url: String(rawUrl).replace(/\/+$/, ""),
   /** Contact address used by the About page. */
-  email: "hello@ohmyalam.com",
+  email: "dev@farithadnan.net",
+  /** Project GitHub (About page). */
+  github: "https://github.com/farithadnan",
   /** CARTO basemap key (inlined at build time by Vite). */
   cartoKey: (typeof import.meta !== "undefined" && import.meta.env?.VITE_CARTO_KEY) || "",
 };

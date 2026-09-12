@@ -1,7 +1,7 @@
 // Minimal BM/EN i18n as a shared runes store. Strings keyed; components call tr('key').
 const en = {
   navWeather: "Weather", navAQI: "AQI", navHazards: "Earthquakes", navAbout: "About", changeLoc: "Change location",
-  navHome: "Home", navFlood: "Flood", navNews: "News", srcTitle: "Official sources", srcHint: "Straight from the issuing agencies — trusted, not re-sold.", advisories: "Advisories", newsTitle: "Weather & hazard news", explore: "Explore", noNews: "No recent stories.", warningsInForce: "{n} warnings in force", quakesWeek: "{n} quakes this week",
+  navHome: "Home", navFlood: "Flood", navNews: "News", srcTitle: "Official sources", srcHint: "Straight from the issuing agencies — trusted, not re-sold.", advisories: "Advisories", newsTitle: "Weather & hazard news", explore: "Explore", noNews: "No recent stories.", newsCount: "recent stories", warningsInForce: "{n} warnings in force", quakesWeek: "{n} quakes this week",
   scopeNear: "Near me", scopeState: "State", scopeMalaysia: "Malaysia",
   state: "State", town: "Town", useLoc: "Use my location", locating: "Locating…", location: "Location",
   feels: "Feels like", humidity: "humidity", wind: "wind", uv: "UV",
@@ -65,7 +65,7 @@ const en = {
   privTitle: "Privacy policy",
   privText: "Alam does not collect personal data. Your theme and language preferences are stored only in your own browser (local storage) and never transmitted to a server.",
   contactTitle: "Contact",
-  contactText: "Questions, corrections, or feedback? Email us at hello@ohmyalam.com.",
+  contactText: "Questions, corrections, or feedback? Email dev@farithadnan.net.",
   reportTitle: "Report an issue",
   reportBtn: "Report an issue",
   reportType: "Type",
@@ -85,7 +85,7 @@ const en = {
 };
 const ms = {
   navWeather: "Cuaca", navAQI: "AQI", navHazards: "Gempa bumi", navAbout: "Tentang", changeLoc: "Tukar lokasi",
-  navHome: "Utama", navFlood: "Banjir", navNews: "Berita", srcTitle: "Sumber rasmi", srcHint: "Terus daripada agensi pengeluar — dipercayai, bukan jualan semula.", advisories: "Nasihat", newsTitle: "Berita cuaca & bahaya", explore: "Terokai", noNews: "Tiada berita terkini.", warningsInForce: "{n} amaran aktif", quakesWeek: "{n} gempa minggu ini",
+  navHome: "Utama", navFlood: "Banjir", navNews: "Berita", srcTitle: "Sumber rasmi", srcHint: "Terus daripada agensi pengeluar — dipercayai, bukan jualan semula.", advisories: "Nasihat", newsTitle: "Berita cuaca & bahaya", explore: "Terokai", noNews: "Tiada berita terkini.", newsCount: "berita terkini", warningsInForce: "{n} amaran aktif", quakesWeek: "{n} gempa minggu ini",
   scopeNear: "Berdekatan", scopeState: "Negeri", scopeMalaysia: "Malaysia",
   state: "Negeri", town: "Bandar", useLoc: "Guna lokasi saya", locating: "Mengesan…", location: "Lokasi",
   feels: "Terasa seperti", humidity: "kelembapan", wind: "angin", uv: "UV",
@@ -150,7 +150,7 @@ const ms = {
   privTitle: "Dasar privasi",
   privText: "Alam tidak mengumpul data peribadi. Pilihan tema dan bahasa anda disimpan hanya di dalam pelayar anda (local storage) dan tidak pernah dihantar ke pelayan.",
   contactTitle: "Hubungi",
-  contactText: "Soalan, pembetulan atau maklum balas? E-mel kami di hello@ohmyalam.com.",
+  contactText: "Soalan, pembetulan atau maklum balas? E-mel dev@farithadnan.net.",
   reportTitle: "Laporkan masalah",
   reportBtn: "Laporkan masalah",
   reportType: "Jenis",

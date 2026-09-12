@@ -21,8 +21,21 @@
         .then((r) => { if (id === seq) data = r ?? { river: [], rain: [] }; })
         .catch(() => { if (id === seq) data = { river: [], rain: [] }; })
         .finally(() => { if (id === seq) loading = false; });
-    });
-  </script>
+        });
+
+        // Compact summary: how many stations at each alert band, plus the highest river.
+        const summary = $derived.by(() => {
+        const sev = (s) => data.river.filter((a) => a.severity === s).length;
+        const highest = data.river.reduce((m, a) => (a.level > (m?.level ?? -1) ? a : m), null);
+        return {
+          danger: sev("Danger"),
+          warning: sev("Warning"),
+          alert: sev("Alert"),
+          heavy: data.rain.filter((a) => a.severity === "Heavy").length,
+          highest,
+        };
+        });
+        </script>
 
   <h3 class="qh">{tr("floodTitle")}</h3>
   <p class="caption -mt-1 mb-1">{tr("floodNote")} · <a class="underline hover:text-accent" href="https://publicinfobanjir.water.gov.my/" target="_blank" rel="noopener">{tr("floodOpen")}</a></p>
@@ -36,5 +49,15 @@
       {/each}
     </select>
   </div>
+
+  {#if data.river.length || data.rain.length}
+    <div class="mb-2 flex flex-wrap gap-1.5 text-[12px]">
+      {#if summary.danger}<span class="badge" style="color:var(--color-unhealthy);border-color:var(--color-unhealthy)">🔴 {summary.danger} Danger</span>{/if}
+      {#if summary.warning}<span class="badge" style="color:var(--color-unhealthy);border-color:var(--color-unhealthy)">🟠 {summary.warning} Warning</span>{/if}
+      {#if summary.alert}<span class="badge" style="color:var(--color-moderate);border-color:var(--color-moderate)">🟡 {summary.alert} Alert</span>{/if}
+      {#if summary.heavy}<span class="badge" style="color:var(--color-unhealthy);border-color:var(--color-unhealthy)">🌧 {summary.heavy} Heavy rain</span>{/if}
+      {#if summary.highest}<span class="badge text-muted">🔺 Highest {summary.highest.level} m · {summary.highest.district ?? summary.highest.stationName}</span>{/if}
+    </div>
+  {/if}
 
   <FloodAlerts river={data.river} rain={data.rain} loading={loading} state={state} />

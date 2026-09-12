@@ -36,7 +36,8 @@ function sendReport() {
   <p class="mt-1 leading-relaxed text-muted">{tr("privText")}</p>
 
   <h3 class="mt-6 text-[15px] font-bold">{tr("contactTitle")}</h3>
-  <p class="mt-1"><a class="text-accent underline" href="mailto:${SITE.email}">hello@ohmyalam.com</a></p>
+  <p class="mt-1"><a class="text-accent underline break-all" href="mailto:${SITE.email}">{SITE.email}</a></p>
+  <p class="mt-1"><a class="text-accent underline" href="{SITE.github}" target="_blank" rel="noopener">github.com/farithadnan</a></p>
 
   <button class="btn-primary mt-6" onclick={() => (reportOpen = true)}>{tr("reportBtn")}</button>
 </section>

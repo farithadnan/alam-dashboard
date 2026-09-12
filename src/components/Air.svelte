@@ -57,6 +57,8 @@ let hazeLoading = $state(false);
 const loadHaze = createLoader();
 const DOW = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 const dayLabel = (d) => (d === new Date().toISOString().slice(0, 10) ? tr("today") : DOW[new Date(`${d}T00:00:00`).getDay()]);
+const hazeBand = (v) => (v >= 55 ? "Unhealthy" : v >= 25 ? "Moderate" : "Good");
+const hazeEmoji = (b) => (b === "Unhealthy" ? "🟠" : b === "Moderate" ? "🟡" : "🟢");
 $effect(() => {
   const town = app.town;
   if (!town) { haze = []; return; }
@@ -245,7 +247,7 @@ async function nearestStation() {
     {#each haze.slice(0, 4) as d (d.date)}
       <li class="flex items-center gap-3 border-b border-line px-2.5 py-2 text-[13.5px]">
         <span class="w-12 shrink-0 text-muted">{dayLabel(d.date)}</span>
-        <span class="min-w-0 flex-1 font-medium" style:color={d.aboveGuideline ? "var(--color-unhealthy)" : "var(--color-muted)"}>{d.aboveGuideline ? tr("hazeAbove") : tr("hazeBelow")}</span>
+        <span class="shrink-0"><span class="badge" style="color:{numColor(hazeBand(d.pm25Max))};border-color:{numColor(hazeBand(d.pm25Max))}">{hazeEmoji(hazeBand(d.pm25Max))} {bandLabel(hazeBand(d.pm25Max))}</span></span>
         <span class="shrink-0 font-mono text-[13px] font-semibold">{Math.round(d.pm25Max)}<span class="text-muted"> µg/m³</span></span>
       </li>
     {/each}
