@@ -1,4 +1,5 @@
-import { wmo, numColor } from "./flags.js";
+import { numColor } from "./flags.js";
+import { wmo } from "./weather-codes.js";
 import { tr, bandLabel, bandAdvice, wmoLabel } from "./i18n.svelte.js";
 import { SITE } from "./config.js";
 

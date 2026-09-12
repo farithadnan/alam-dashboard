@@ -26,16 +26,6 @@ export const MAG_TEXT = { Light: "#6b6258", Moderate: "#b3491a", Strong: "#a5161
 export const magWord = (m) => (m >= 6 ? "Strong" : m >= 5 ? "Moderate" : "Light");
 export const magText = (w) => MAG_TEXT[w] || w;
 
-export const WMO = {
-  "0": ["☀️", "Clear"], "1": ["🌤️", "Mostly clear"], "2": ["⛅", "Partly cloudy"], "3": ["☁️", "Overcast"],
-  "45": ["🌫️", "Fog"], "48": ["🌫️", "Fog"],
-  "51": ["🌦️", "Drizzle"], "53": ["🌦️", "Drizzle"], "55": ["🌦️", "Drizzle"],
-  "61": ["🌧️", "Rain"], "63": ["🌧️", "Rain"], "65": ["🌧️", "Rain"],
-  "80": ["🌧️", "Showers"], "81": ["🌧️", "Showers"], "82": ["🌧️", "Showers"],
-  "71": ["❄️", "Snow"], "73": ["❄️", "Snow"], "75": ["❄️", "Snow"],
-  "95": ["⛈️", "Thunderstorm"], "96": ["⛈️", "Thunderstorm"], "99": ["⛈️", "Thunderstorm"],
-};
-export const wmo = (code) => WMO[String(code)] || ["🌡️", "—"];
 export const DAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
 /** Generic group-by returning [{ key, items }] preserving insertion order. */

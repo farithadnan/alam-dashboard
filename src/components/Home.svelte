@@ -1,6 +1,7 @@
 <script>
 import { app } from "../lib/store.svelte.js";
-import { wmo, numColor, atTown, timeAgo } from "../lib/flags.js";
+import { numColor, atTown, timeAgo } from "../lib/flags.js";
+import { wmo } from "../lib/weather-codes.js";
 import { tr, trFmt, bandLabel, bandAdvice, wmoLabel } from "../lib/i18n.svelte.js";
 import { shareCard } from "../lib/sharecard.js";
 import { getHaze } from "../lib/api.js";

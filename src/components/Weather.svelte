@@ -1,6 +1,7 @@
 <script>
 import { app } from "../lib/store.svelte.js";
-import { wmo, groupBy } from "../lib/flags.js";
+import { groupBy } from "../lib/flags.js";
+import { wmo } from "../lib/weather-codes.js";
 import { mapPopup } from "../lib/popup.js";
 import { tr, wmoLabel } from "../lib/i18n.svelte.js";
 import MapView from "./ui/MapView.svelte";

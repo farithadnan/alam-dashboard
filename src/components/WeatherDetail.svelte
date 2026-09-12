@@ -1,7 +1,8 @@
 <script>
 import { app } from "../lib/store.svelte.js";
 import { getOfficial, getHistory } from "../lib/api.js";
-import { wmo, moonPhase, numColor } from "../lib/flags.js";
+import { moonPhase, numColor } from "../lib/flags.js";
+import { wmo } from "../lib/weather-codes.js";
 import { mapPopup } from "../lib/popup.js";
 import { tr, wmoLabel, bandLabel, bandAdvice } from "../lib/i18n.svelte.js";
 import { shareCard } from "../lib/sharecard.js";
