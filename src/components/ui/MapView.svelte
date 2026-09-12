@@ -1,4 +1,5 @@
 <script>
+  import { SITE } from "../../lib/config.js";
 import { onMount, onDestroy } from "svelte";
 import L from "leaflet";
 
@@ -15,7 +16,7 @@ function zoomFactor(z) {
 onMount(() => {
   if (!el) return;
   map = L.map(el, { zoomControl: true, attributionControl: true }).setView([4.1, 109.2], 5);
-  const key = import.meta.env.VITE_CARTO_KEY;
+  const key = SITE.cartoKey;
   L.tileLayer(
     `https://{s}.basemaps.cartocdn.com/rastertiles/light_all/{z}/{x}/{y}{r}.png${key ? `?key=${key}` : ""}`,
     {

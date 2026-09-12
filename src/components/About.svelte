@@ -1,4 +1,5 @@
 <script>
+  import { SITE } from "../lib/config.js";
 import { tr } from "../lib/i18n.svelte.js";
 
 const feats = $derived([tr("feat1"), tr("feat2"), tr("feat3"), tr("feat4"), tr("feat5"), tr("feat6")]);
@@ -10,7 +11,7 @@ let remail = $state("");
 function sendReport() {
   const subj = encodeURIComponent(`[Alam report] ${rtype}`);
   const body = encodeURIComponent(`${rdesc}\n\n—\nContact: ${remail || "n/a"}`);
-  window.location.href = `mailto:hello@ohmyalam.com?subject=${subj}&body=${body}`;
+  window.location.href = `mailto:${SITE.email}?subject=${subj}&body=${body}`;
 }
 </script>
 
@@ -35,7 +36,7 @@ function sendReport() {
   <p class="mt-1 leading-relaxed text-muted">{tr("privText")}</p>
 
   <h3 class="mt-6 text-[15px] font-bold">{tr("contactTitle")}</h3>
-  <p class="mt-1"><a class="text-accent underline" href="mailto:hello@ohmyalam.com">hello@ohmyalam.com</a></p>
+  <p class="mt-1"><a class="text-accent underline" href="mailto:${SITE.email}">hello@ohmyalam.com</a></p>
 
   <button class="btn-primary mt-6" onclick={() => (reportOpen = true)}>{tr("reportBtn")}</button>
 </section>

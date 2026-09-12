@@ -4,6 +4,8 @@
 const W = 1080;
 const H = 1080;
 
+import { SITE } from "./config.js";
+
 function wrap(ctx, text, x, y, maxW, lineH) {
   const words = String(text || "").split(/\s+/);
   let line = "";
@@ -90,7 +92,7 @@ export function shareCaption(d) {
   // A quake has no temperature, so its condition line (depth, mag type) needs its own slot.
   else if (d.cond) bits.push(d.cond);
   if (d.advice) bits.push(d.advice);
-  const link = typeof location !== "undefined" ? location.origin : "";
+  const link = SITE.url;
   const body = [where, bits.join(", ")].filter(Boolean).join(": ");
   return link ? `${body}\n${link}` : body;
 }
