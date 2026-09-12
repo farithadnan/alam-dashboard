@@ -1,7 +1,7 @@
 <script>
-    import { app } from "../../lib/store.svelte.js";
-    import { tr } from "../../lib/i18n.svelte.js";
-    import { getFlood } from "../../lib/api.js";
+  import { app } from "../../lib/store.svelte.js";
+  import { tr, trFmt } from "../../lib/i18n.svelte.js";
+  import { getFlood } from "../../lib/api.js";
 
     /** Live InfoBanjir river-level + heavy-rain alerts for the saved state. */
     let data = $state({ river: [], rain: [] });
@@ -61,6 +61,6 @@
         {/each}
       </ul>
     {/if}
-  {:else if !loading}
-    <p class="caption">{tr("floodNone")}</p>
+  {:else}
+    <p class="caption">{trFmt("floodNone", { state: app.state || "Malaysia" })}</p>
   {/if}

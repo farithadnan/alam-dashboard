@@ -27,7 +27,6 @@ const stateName = $derived(now?.meta?.state ?? app.state ?? "");
 const air = $derived(weather.find((r) => r.station === station && r.kind === "aqi"));
 const stations = $derived(app.data?.stations ?? []);
 const townAir = $derived(stations.find((s) => s.station === station) ?? null);
-const forecast = $derived((app.data?.forecast ?? []).filter((r) => r.station === station).sort((a, b) => a.measuredAt.localeCompare(b.measuredAt)).slice(0, 10));
 const hourly = $derived((app.data?.hourly ?? []).filter((r) => r.station === station).sort((a, b) => a.measuredAt.localeCompare(b.measuredAt)));
 let airSeries = $state([]);
 let airLoading = $state(false);
@@ -124,14 +123,14 @@ function hourLabel(t) {
 
   <h3 class="qh">{tr("todayDetail")}</h3>
   <div class="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-4">
-    <StatCard label={tr("wind")} value={`${now.meta?.wind ?? "–"} km/h`} sub={`${tr("gust")} ${now.meta?.gust ?? "–"}`} />
-    <StatCard label={tr("humidity")} value={`${now.meta?.humidity ?? "–"}%`} />
-    <StatCard label={tr("dewPoint")} value={now.meta?.dewPoint != null ? `${Math.round(now.meta.dewPoint)}°` : "–"} />
-    <StatCard label={tr("pressure")} value={now.meta?.pressure != null ? `${Math.round(now.meta.pressure)} hPa` : "–"} />
-    <StatCard label={tr("visibility")} value={now.meta?.visibility != null ? `${(now.meta.visibility / 1000).toFixed(1)} km` : "–"} />
-    <StatCard label={tr("uv")} value={air?.meta?.uv ?? "–"} />
-    <StatCard label={tr("sunrise")} value={hm(now.meta?.sunrise)} />
-    <StatCard label={tr("sunset")} value={hm(now.meta?.sunset)} />
+    <StatCard label={`💨 ${tr("wind")}`} value={`${now.meta?.wind ?? "–"} km/h`} sub={`${tr("gust")} ${now.meta?.gust ?? "–"}`} />
+    <StatCard label={`💧 ${tr("humidity")}`} value={`${now.meta?.humidity ?? "–"}%`} />
+    <StatCard label={`❄️ ${tr("dewPoint")}`} value={now.meta?.dewPoint != null ? `${Math.round(now.meta.dewPoint)}°` : "–"} />
+    <StatCard label={`🧭 ${tr("pressure")}`} value={now.meta?.pressure != null ? `${Math.round(now.meta.pressure)} hPa` : "–"} />
+    <StatCard label={`👁 ${tr("visibility")}`} value={now.meta?.visibility != null ? `${(now.meta.visibility / 1000).toFixed(1)} km` : "–"} />
+    <StatCard label={`☀️ ${tr("uv")}`} value={air?.meta?.uv ?? "–"} />
+    <StatCard label={`🌅 ${tr("sunrise")}`} value={hm(now.meta?.sunrise)} />
+    <StatCard label={`🌇 ${tr("sunset")}`} value={hm(now.meta?.sunset)} />
     <div class="glass flex items-center gap-2 rounded-xl px-3 py-2"><span class="text-[20px]">{moon.emoji}</span><div><div class="caption text-[11px]">{tr("moon")}</div><div class="text-[14px] font-semibold">{moon.name}</div></div></div>
   </div>
 
@@ -149,29 +148,6 @@ function hourLabel(t) {
         <TrendChart series={airSeries} color={numColor(townAir.band?.label)} ariaLabel="Air quality trend" />
       {/if}
     </div>
-  {/if}
-
-  <h3 class="qh">{tr("forecast")}</h3>
-  {#if app.loading && !forecast.length}
-    <div class="flex gap-2 overflow-hidden">
-      {#each Array(7) as _, i (i)}
-        <Skeleton h={112} w="104px" class="!shrink-0 !rounded-xl" />
-      {/each}
-    </div>
-  {:else}
-  <Carousel>
-    {#each forecast as r (r.station + r.measuredAt)}
-      {@const [icon, label] = wmo(String(r.meta?.code))}
-      {@const isToday = r.measuredAt.slice(0, 10) === new Date().toISOString().slice(0, 10)}
-      <div class="glass flex w-[30%] shrink-0 flex-col items-center gap-1 rounded-xl px-2 py-3 sm:w-[17%]">
-        <span class="text-[13px] font-semibold">{isToday ? tr("today") : ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"][new Date(r.measuredAt).getUTCDay()]}</span>
-        <span class="text-[26px] leading-none" aria-hidden="true">{icon}</span>
-        <span class="text-[12px] text-muted">{wmoLabel(label)}</span>
-        <span class="font-mono text-[15px] font-semibold">{Math.round(r.meta?.tmax ?? r.value)}° <span class="ml-1 text-muted">{Math.round(r.meta?.tmin ?? 0)}°</span></span>
-        {#if r.meta?.precip > 0}<span class="text-[11px] text-muted">☔ {Math.round(r.meta.precip)}%</span>{/if}
-      </div>
-    {/each}
-  </Carousel>
   {/if}
 
   {#if officialLoading}

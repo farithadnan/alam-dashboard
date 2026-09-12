@@ -11,7 +11,9 @@ import Skeleton from "./components/ui/Skeleton.svelte";
 import Home from "./components/Home.svelte";
 import Weather from "./components/Weather.svelte";
 import Air from "./components/Air.svelte";
+import Flood from "./components/Flood.svelte";
 import Hazards from "./components/Hazards.svelte";
+import News from "./components/News.svelte";
 import About from "./components/About.svelte";
 import Api from "./components/Api.svelte";
 
@@ -163,17 +165,12 @@ function toggleLang() {
 
 <main class="mx-auto w-full max-w-[1280px] px-4 pt-3 pb-24 sm:pb-10">
   {#if !claimed}
-    <!-- Non-blocking claim: the page keeps its sensible default, but a visitor
-         from another state gets an obvious way to fix it. -->
-    <div class="glass mb-3 flex flex-wrap items-center justify-between gap-2 rounded-xl px-3 py-2 text-[13px]">
+    <!-- Slim, quiet location nudge: the hero owns the first screen. -->
+    <div class="caption mb-3 flex items-center justify-between gap-2 rounded-lg border border-line bg-panel px-3 py-1.5 text-[12.5px]">
       <span>{trFmt("locationPrompt", { place: app.state || "Malaysia" })}</span>
-      <span class="flex gap-2">
-        <button type="button" class="btn-primary cursor-pointer rounded-lg px-3 py-1" onclick={useLocation}>
-          {locBusy ? "…" : tr("useMyLocation")}
-        </button>
-        <button type="button" class="glass cursor-pointer rounded-lg px-3 py-1" onclick={markClaimed}>
-          {tr("dismiss")}
-        </button>
+      <span class="flex shrink-0 gap-2">
+        <button type="button" class="ghostbtn !min-h-0 !px-3 !py-1 text-[12px]" onclick={useLocation}>{locBusy ? "…" : tr("useMyLocation")}</button>
+        <button type="button" class="ghostbtn !min-h-0 !px-3 !py-1 text-[12px]" onclick={markClaimed}>{tr("dismiss")}</button>
       </span>
     </div>
   {/if}
@@ -198,8 +195,12 @@ function toggleLang() {
     <Weather />
   {:else if view === "air"}
     <Air />
+  {:else if view === "flood"}
+    <Flood />
   {:else if view === "hazards"}
     <Hazards />
+  {:else if view === "news"}
+    <News />
   {:else if view === "api"}
     <Api />
   {:else}

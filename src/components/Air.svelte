@@ -1,6 +1,6 @@
 <script>
 import { app } from "../lib/store.svelte.js";
-import { getHistory } from "../lib/api.js";
+import { getHistory, getHaze } from "../lib/api.js";
 import { numColor, cityOf, groupBy, atTown } from "../lib/flags.js";
 import { bandCounts, seriesStats, legendOf, airMapPoints, nearestBy } from "../lib/air.js";
 import { locate } from "../lib/location.js";
@@ -50,6 +50,23 @@ $effect(() => {
 });
 
 const stats = $derived(seriesStats(series));
+
+// Haze outlook (model PM2.5) for the saved town — dust belongs with air quality.
+let haze = $state([]);
+let hazeLoading = $state(false);
+const loadHaze = createLoader();
+const DOW = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+const dayLabel = (d) => (d === new Date().toISOString().slice(0, 10) ? tr("today") : DOW[new Date(`${d}T00:00:00`).getDay()]);
+$effect(() => {
+  const town = app.town;
+  if (!town) { haze = []; return; }
+  hazeLoading = true;
+  loadHaze(() => getHaze(town), {
+    onValue: (r) => (haze = r.haze ?? []),
+    onError: () => (haze = []),
+    onSettled: () => (hazeLoading = false),
+  });
+});
 
 function setRange(h) {
   range = h;
@@ -216,4 +233,21 @@ async function nearestStation() {
     </Section>
   {/each}
   {/if}
+{/if}
+
+{#if hazeLoading && !haze.length}
+  <h3 class="qh">{tr("hazeTitle")}</h3>
+  <Skeleton h={54} />
+{:else if haze.length}
+  <h3 class="qh">{tr("hazeTitle")}</h3>
+  <p class="caption mb-1">{tr("hazeHint")}</p>
+  <ul class="list-none m-0 border-t border-line p-0">
+    {#each haze.slice(0, 4) as d (d.date)}
+      <li class="flex items-center gap-3 border-b border-line px-2.5 py-2 text-[13.5px]">
+        <span class="w-12 shrink-0 text-muted">{dayLabel(d.date)}</span>
+        <span class="min-w-0 flex-1 font-medium" style:color={d.aboveGuideline ? "var(--color-unhealthy)" : "var(--color-muted)"}>{d.aboveGuideline ? tr("hazeAbove") : tr("hazeBelow")}</span>
+        <span class="shrink-0 font-mono text-[13px] font-semibold">{Math.round(d.pm25Max)}<span class="text-muted"> µg/m³</span></span>
+      </li>
+    {/each}
+  </ul>
 {/if}

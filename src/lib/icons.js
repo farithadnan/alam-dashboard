@@ -21,6 +21,8 @@ export const ICONS = {
   ],
   quake: [{ path: "M2 12h4l2-7 4 14 2-7h8" }],
   home: [{ path: "M3 10.5 12 3l9 7.5" }, { path: "M5 9.5V20h14V9.5" }],
+  flood: [{ path: "M2 9c1.6-2 3.2-2 4.8 0s3.2 2 4.8 0 3.2-2 4.8 0 3.2 2 4.8 0" }, { path: "M2 15c1.6-2 3.2-2 4.8 0s3.2 2 4.8 0 3.2-2 4.8 0 3.2 2 4.8 0" }],
+  news: [{ path: "M4 5h13v16H4z" }, { path: "M17 9h3v12" }, { path: "M7 9h5M7 13h5M7 17h4" }],
 };
 
 /** Names available to <Icon name="…" />. */
