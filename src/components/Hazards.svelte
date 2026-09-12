@@ -48,6 +48,9 @@ let open = $state(null);
           </button>
           {#if open === q.station}
             <div class="px-3 pb-3 text-[13px]">
+              <div class="mb-1 flex justify-end">
+                <ShareButton payload={quakeSharePayload({ place: friendlyLoc(q.stationName) || q.stationName, magnitude: q.magnitude, magType: q.meta?.magType, depth: q.meta?.depth, word: magWordL(q.magnitude), color: magText(magWord(q.magnitude)), when: timeAgo(q.measuredAt) })} />
+              </div>
               {#if q.meta?.tsunami === 1}
                 <p class="mb-1 rounded-lg px-2 py-1 text-[12.5px] font-semibold" style="background:#d32f2f1a;color:#a51612">⚠ {tr("tsunamiFlag")}</p>
               {/if}

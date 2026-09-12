@@ -4,6 +4,8 @@ import { getHistory } from "../lib/api.js";
 import { numColor, cityOf, groupBy, atTown } from "../lib/flags.js";
 import { bandCounts, seriesStats, legendOf, airMapPoints, nearestBy } from "../lib/air.js";
 import { locate } from "../lib/location.js";
+import ShareButton from "./ui/ShareButton.svelte";
+import { airSharePayload } from "../lib/share.js";
 import { createLoader } from "../lib/async.js";
 import { tr, bandLabel, bandAdvice } from "../lib/i18n.svelte.js";
 import TrendChart from "./ui/TrendChart.svelte";
@@ -134,7 +136,10 @@ async function nearestStation() {
 {/if}
 
 {#if app.scope === "near" && heroAir}
-  <h3 class="qh">{cityOf(heroAir.stationName)}</h3>
+  <div class="flex items-center justify-between gap-2">
+    <h3 class="qh">{cityOf(heroAir.stationName)}</h3>
+    <ShareButton payload={airSharePayload({ station: cityOf(heroAir.stationName), state: app.state, value: heroAir.value, band: bandLabel(heroAir.band?.label), color: numColor(heroAir.band?.label), advice: bandAdvice(heroAir.band?.label) || heroAir.band?.advice || "" })} />
+  </div>
   <div class="glass mt-1 rounded-2xl p-4">
     <div class="flex items-center justify-between gap-4">
       <div>

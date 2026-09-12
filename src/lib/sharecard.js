@@ -81,8 +81,14 @@ export function drawCard(d) {
 export function shareCaption(d) {
   const where = [d.town, d.state].filter(Boolean).join(", ");
   const bits = [];
-  if (d.value != null) bits.push(`AQI ${Math.round(d.value)}${d.band ? ` ${d.band}` : ""}`);
+  if (d.value != null) {
+    // Magnitudes carry a decimal, AQI does not.
+    const shown = d.unit === "M" ? Number(d.value).toFixed(1) : Math.round(d.value);
+    bits.push(`${d.unit ?? "AQI"} ${shown}${d.band ? ` ${d.band}` : ""}`);
+  }
   if (d.temp != null) bits.push(`${d.temp}°${d.cond ? ` ${d.cond}` : ""}`);
+  // A quake has no temperature, so its condition line (depth, mag type) needs its own slot.
+  else if (d.cond) bits.push(d.cond);
   if (d.advice) bits.push(d.advice);
   const link = typeof location !== "undefined" ? location.origin : "";
   const body = [where, bits.join(", ")].filter(Boolean).join(": ");

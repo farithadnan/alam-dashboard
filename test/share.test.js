@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { shareCaption } from "../src/lib/sharecard.js";
+import { airSharePayload, quakeSharePayload } from "../src/lib/share.js";
 
 describe("shareCaption — the message that travels with the card", () => {
   it("leads with the place, then the numbers", () => {
@@ -27,5 +28,27 @@ describe("shareCaption — the message that travels with the card", () => {
 
   it("carries a link so the share is actionable", () => {
     expect(shareCaption({ town: "Arau" })).toContain("http");
+  });
+});
+
+describe("share payloads for the other views", () => {
+  it("captions an AQI station with its band and place", () => {
+    const c = shareCaption(airSharePayload({ station: "Pasir Gudang", state: "Johor", value: 128, band: "Unhealthy", color: "#8f5c00", advice: "Limit outdoor activity" }));
+    expect(c).toContain("Pasir Gudang, Johor");
+    expect(c).toContain("AQI 128 Unhealthy");
+  });
+
+  it("captions a quake as a magnitude, never as an AQI", () => {
+    const c = shareCaption(quakeSharePayload({ place: "Lospalos", magnitude: 5.3, magType: "mb", depth: 10, word: "Strong", color: "#b3491a", when: "3h ago" }));
+    expect(c).toContain("M 5.3 Strong");
+    expect(c).not.toContain("AQI");
+    expect(c).toContain("10 km deep");
+  });
+
+  it("omits depth and magType rather than printing holes", () => {
+    const c = shareCaption(quakeSharePayload({ place: "Off Sumatra", magnitude: 5 }));
+    expect(c).toContain("Off Sumatra");
+    expect(c).not.toContain("undefined");
+    expect(c).not.toContain("km deep");
   });
 });
