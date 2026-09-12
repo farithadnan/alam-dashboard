@@ -5,8 +5,10 @@
     import { tr, trFmt, bandLabel } from "../lib/i18n.svelte.js";
     import ShareButton from "./ui/ShareButton.svelte";
     import TelegramAlerts from "./ui/TelegramAlerts.svelte";
+    import WeatherBanner from "./ui/WeatherBanner.svelte";
     import { sharePayload } from "../lib/share.js";
     import { activeWarnings } from "../lib/warnings.js";
+    import { getFlood } from "../lib/api.js";
     import Skeleton from "./ui/Skeleton.svelte";
     import Warnings from "./Warnings.svelte";
 
@@ -21,6 +23,28 @@
     const warnings = $derived(activeWarnings(app.data?.hazards?.warnings ?? []));
     const quakes = $derived(app.data?.hazards?.earthquakes ?? []);
     const climate = $derived(app.data?.hazards?.climate ?? null);
+    const newsCount = $derived(app.data?.news?.length ?? 0);
+    const airBad = $derived(["Unhealthy", "Very Unhealthy", "Hazardous"].includes(townAir?.band?.label ?? ""));
+
+    const wmo2 = $derived.by(() => (now?.meta?.code != null ? wmo(String(now.meta.code)) : ["", ""]));
+    const bannerAqi = $derived(
+      townAir
+        ? { value: townAir.value, band: bandLabel(townAir.band?.label), color: numColor(townAir.band?.label) }
+        : air
+          ? { value: Math.round(air.value), band: "AQI", color: numColor("Moderate") }
+          : null,
+    );
+
+    // Lightweight live flood count for the homepage chip (independent of the Flood tab).
+    let floodCount = $state(0);
+    let floodLoaded = $state(false);
+    $effect(() => {
+      let on = true;
+      getFlood()
+        .then((r) => { if (on) { floodCount = (r?.river?.length ?? 0) + (r?.rain?.length ?? 0); floodLoaded = true; } })
+        .catch(() => { if (on) floodLoaded = true; });
+      return () => (on = false);
+    });
 
     let flash = $state(false);
     const jump = (id, highlight = false) => {
@@ -40,43 +64,27 @@
   </script>
 
   {#if now}
-    {@const [icon, label] = now.meta?.code != null ? wmo(String(now.meta.code)) : [null, null]}
-    <div class="glass mt-1 rounded-2xl p-4 sm:p-5">
-      <div class="flex items-start justify-between gap-2">
-        <div class="min-w-0 text-[16px] font-semibold">{townName}{#if app.state}<span class="text-muted">, {app.state}</span>{/if}</div>
-        <div class="flex shrink-0 items-center gap-1.5">
+    {@const payload = sharePayload({ town: townName, state: app.state, now, townAir, air })}
+    <div class="mt-1">
+      <WeatherBanner icon={wmo2[0]} label={wmo2[1] || tr("weather")} temp={now.value} feels={now.meta?.apparentTemp ?? now.value} townName={townName} appState={app.state || ""} aqi={bannerAqi}>
+        <svelte:fragment slot="actions">
           <TelegramAlerts town={app.town} state={app.state} />
-          <ShareButton payload={sharePayload({ town: townName, state: app.state, now, townAir, air })} />
-        </div>
-      </div>
-      <div class="mt-2 flex items-end justify-between gap-3">
-        <div class="flex min-w-0 items-end gap-3">
-          {#if icon}<span class="shrink-0 text-[40px] leading-none sm:text-[52px]" aria-hidden="true">{icon}</span>{/if}
-          <span class="font-mono text-[44px] font-extrabold leading-none tracking-tighter sm:text-[56px]">{Math.round(now.value)}°</span>
-          <span class="pb-1 text-[13px] text-muted">{tr("feels")} {Math.round(now.meta?.apparentTemp ?? now.value)}°</span>
-        </div>
-        {#if townAir}
-          <div class="shrink-0 rounded-xl border px-3 py-1.5 text-center" style="border-color:{numColor(townAir.band?.label)}">
-            <div class="caption text-[11px]">{tr("airNow")}</div>
-            <div class="font-mono text-[22px] font-bold leading-none" style="color:{numColor(townAir.band?.label)}">{townAir.value}</div>
-            <div class="text-[11px] font-semibold" style="color:{numColor(townAir.band?.label)}">{bandLabel(townAir.band?.label)}</div>
-          </div>
-        {:else if air}
-          <div class="shrink-0 text-right"><div class="caption text-[11px]">US AQI</div><div class="font-mono text-[20px] font-semibold">{air.value}</div></div>
-        {/if}
-      </div>
+          <ShareButton payload={payload} />
+        </svelte:fragment>
+      </WeatherBanner>
+      <p class="caption mt-1.5">{tr("homeIntro")} <button type="button" class="underline hover:text-accent" onclick={() => onNavigate("about")}>{tr("homeIntroMore")}</button></p>
     </div>
   {:else if app.loading}
-    <div class="glass mt-1 space-y-3 rounded-2xl p-4">
-      <Skeleton h={16} w="42%" />
-      <div class="flex items-end justify-between gap-3">
-        <Skeleton h={40} w="45%" />
-        <Skeleton h={54} w="86px" class="!rounded-xl" />
+    <div class="glass mt-1 h-[190px] rounded-2xl p-4">
+      <Skeleton h={18} w="55%" />
+      <div class="mt-10 flex items-end justify-between gap-3">
+        <Skeleton h={44} w="42%" />
+        <Skeleton h={54} w="92px" class="!rounded-xl" />
       </div>
     </div>
   {/if}
 
-  <!-- Status chips: the 'is there anything to care about right now' moment. -->
+  <!-- Status + live counts: what to care about right now. -->
   <div class="mt-2 flex flex-wrap gap-2 text-[13px]">
     <button type="button" class="glass chip cursor-pointer rounded-full px-3 py-1 hover:border-accent"
       aria-label={trFmt("warningsInForce", { n: warnings.length })} onclick={() => jump("advisories", true)}>
@@ -89,6 +97,20 @@
     {#if climate}
       <button type="button" class="glass chip cursor-pointer rounded-full px-3 py-1 hover:border-accent"
         onclick={() => jump("advisories")}>{climate.meta?.phase || "Neutral"}</button>
+    {/if}
+    {#if floodLoaded}
+      <button type="button" class="glass chip cursor-pointer rounded-full px-3 py-1 hover:border-accent"
+        onclick={() => onNavigate("flood")}>{trFmt("homeFlood", { n: floodCount })}</button>
+    {/if}
+    {#if newsCount > 0}
+      <button type="button" class="glass chip cursor-pointer rounded-full px-3 py-1 hover:border-accent"
+        onclick={() => onNavigate("news")}>{trFmt("homeNews", { n: newsCount })}</button>
+    {/if}
+    {#if airBad}
+      <button type="button" class="glass chip cursor-pointer rounded-full px-3 py-1 hover:border-accent"
+        style="border-color:var(--color-unhealthy);color:var(--color-unhealthy)" onclick={() => onNavigate("air")}>
+        ⚠️ {bandLabel(townAir.band?.label)} air
+      </button>
     {/if}
   </div>
 
