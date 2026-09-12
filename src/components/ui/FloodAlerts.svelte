@@ -1,6 +1,8 @@
   <script>
     import { app } from "../../lib/store.svelte.js";
     import { tr, trFmt } from "../../lib/i18n.svelte.js";
+    import { mapPopup } from "../../lib/popup.js";
+    import MapView from "./MapView.svelte";
 
     /** Presentational: parent fetches and passes {river, rain, loading, state}.
      * state "" = all Malaysia (grouped by state); otherwise a single state. */
@@ -8,9 +10,32 @@
 
     const sevColor = (s) =>
       ({ Danger: "var(--color-vunhealthy)", Warning: "var(--color-unhealthy)", Alert: "var(--color-moderate)", Heavy: "var(--color-unhealthy)", Moderate: "var(--color-moderate)" })[s] ?? "var(--color-muted)";
+    const PIN_COLOR = { Danger: "#a51110", Warning: "#e05d2b", Alert: "#b26a00", Heavy: "#3b6ea8", Moderate: "#6f8fb0" };
 
     const displayState = $derived(state || app.state || "Malaysia");
     const grouped = $derived(!state);
+
+    // Pins for the map: every shown station, coloured by severity.
+    const floodPts = $derived.by(() => {
+      const out = [];
+      for (const a of river) {
+        if (typeof a.lat === "number" && typeof a.lon === "number") {
+          out.push({
+            lat: a.lat, lon: a.lon, color: PIN_COLOR[a.severity] ?? "#8a8277", num: Number(a.level).toFixed(1), size: 24, ripple: true,
+            html: mapPopup({ title: a.stationName, value: `${a.level} m`, valueColor: PIN_COLOR[a.severity] ?? "#6b6258", flag: a.severity, sub: `${a.district}, ${a.state}` }),
+          });
+        }
+      }
+      for (const a of rain) {
+        if (typeof a.lat === "number" && typeof a.lon === "number") {
+          out.push({
+            lat: a.lat, lon: a.lon, color: PIN_COLOR[a.severity] ?? "#6f8fb0", num: String(Math.round(a.mmHour)), size: 20, ripple: true,
+            html: mapPopup({ title: a.stationName, value: `${a.mmHour} mm/hr`, valueColor: PIN_COLOR[a.severity] ?? "#6b6258", flag: a.severity, sub: `${a.district}, ${a.state}` }),
+          });
+        }
+      }
+      return out;
+    });
 
     // Flatten both alert lists into one renderable sequence (real headers, state
     // group labels, and rows) so a single each renders everything, snippet-free.
@@ -37,6 +62,9 @@
   {#if loading && !river.length && !rain.length}
     <p class="caption">{tr("updating")}</p>
   {:else if rows.length}
+    {#if floodPts.length}
+      <MapView pts={floodPts} class="mb-3 h-52 w-full rounded-xl" fitMax={9} />
+    {/if}
     <ul class="list-none m-0 border-t border-line p-0">
       {#each rows as it, i (i)}
         {#if it.kind === "head"}

@@ -74,6 +74,12 @@ $effect(() => {
 const district = $derived(official.at(0) ?? null);
 const districtDays = $derived(district ? official.filter((o) => o.district === district.district) : []);
 const dayName = (d) => ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"][new Date(d + "T00:00:00").getDay()];
+// For the 7-day range strip: full-week temp bounds so every day shares the same scale.
+const wkDays = $derived(districtDays.slice(0, 7));
+const wkLo = $derived(wkDays.length ? Math.min(...wkDays.map((d) => d.tmin ?? 0)) : 0);
+const wkHi = $derived(wkDays.length ? Math.max(...wkDays.map((d) => d.tmax ?? 0)) : 1);
+const wkSpan = $derived(Math.max(1, wkHi - wkLo));
+const barPct = (v) => Math.max(0, Math.min(100, ((v - wkLo) / wkSpan) * 100));
 // MET's district forecast is Malay free-text; pick a stand-in icon from the wording.
 const metIcon = (text) => {
   const t = (text || "").toLowerCase();
@@ -173,19 +179,23 @@ function hourLabel(t) {
     <h3 class="qh">{tr("officialTitle")}</h3>
     <p class="caption -mt-1">{tr("officialNote")} · {district.district}</p>
     <p class="caption -mt-0.5 mb-1">{tr("forecastLegend")}</p>
-    <ul class="list-none m-0 border-t border-line p-0">
-      {#each districtDays.slice(0, 7) as d (d.date)}
-        <li class="flex items-center gap-3 border-b border-line px-2.5 py-2 text-[13.5px]">
-          <span class="w-12 shrink-0 font-semibold">{dayName(d.date)}</span>
-          <span class="min-w-0 flex-1"><span class="mr-1.5 align-[-1px] text-[16px]" aria-hidden="true">{metIcon(d.summary)}</span>{d.summary}{#if d.when}<span class="text-muted"> · {d.when}</span>{/if}</span>
-          <span class="shrink-0 text-[12.5px]">
-            <span class="font-semibold">{d.tmax}°<span class="ml-0.5 text-[10.5px] font-normal text-muted"> {tr("forecastHigh")}</span></span>
-            <span class="mx-1 text-muted">/</span>
-            <span class="text-muted">{d.tmin}°<span class="ml-0.5 text-[10.5px] font-normal text-muted"> {tr("forecastLow")}</span></span>
-          </span>
-        </li>
-      {/each}
-    </ul>
+    {#if wkDays.length}
+      <div class="grid grid-cols-7 gap-1 overflow-x-auto">
+        {#each wkDays as d (d.date)}
+          {@const w = barPct(d.tmin ?? 0)}
+          {@const h = Math.max(2, barPct(d.tmax ?? 0) - w)}
+          <div class="flex min-w-[48px] flex-col items-center gap-1 pb-1">
+            <span class="text-[11px] text-muted">{dayName(d.date)}</span>
+            <span class="text-[17px] leading-none" aria-hidden="true">{metIcon(d.summary)}</span>
+            <div class="relative h-16 w-2.5 rounded-full bg-line">
+              <div class="absolute left-0 right-0 rounded-full" style="bottom:{w}%;height:{h}%;background:#e05d2b"></div>
+            </div>
+            <span class="text-[11.5px] font-semibold">{d.tmax}°</span>
+            <span class="-mt-0.5 text-[10.5px] text-muted">{d.tmin}°</span>
+          </div>
+        {/each}
+      </div>
+    {/if}
   {/if}
 
   {#if mapPts.length}
