@@ -8,6 +8,7 @@ import { createLoader } from "../lib/async.js";
 import SearchInput from "./ui/SearchInput.svelte";
 import ShareButton from "./ui/ShareButton.svelte";
 import { sharePayload } from "../lib/share.js";
+import { activeWarnings } from "../lib/warnings.js";
 import Skeleton from "./ui/Skeleton.svelte";
 import Warnings from "./Warnings.svelte";
 
@@ -19,7 +20,7 @@ const townName = $derived(weather.find((r) => r.station === app.town && r.kind =
 const now = $derived(weather.find((r) => r.station === app.town && r.kind === "weather"));
 const air = $derived(weather.find((r) => r.station === app.town && r.kind === "aqi"));
 const townAir = $derived(stations.find((s) => atTown(s, townName, app.town)) ?? null);
-const warnings = $derived(app.data?.hazards?.warnings ?? []);
+const warnings = $derived(activeWarnings(app.data?.hazards?.warnings ?? []));
 const quakes = $derived(app.data?.hazards?.earthquakes ?? []);
 const climate = $derived(app.data?.hazards?.climate ?? null);
 const news = $derived(app.data?.news ?? []);

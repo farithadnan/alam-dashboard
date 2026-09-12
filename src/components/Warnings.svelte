@@ -2,15 +2,11 @@
 import { app } from "../lib/store.svelte.js";
 import { timeAgo, severityColor } from "../lib/flags.js";
 import { tr, severityWord } from "../lib/i18n.svelte.js";
+import { activeWarnings } from "../lib/warnings.js";
 import ShareButton from "./ui/ShareButton.svelte";
 import { warningSharePayload } from "../lib/share.js";
 
-const warnings = $derived(
-  (app.data?.hazards?.warnings ?? []).filter((w) => {
-    const vt = w.meta?.validTo;
-    return !vt || new Date(vt) >= new Date(Date.now() - 3600e3);
-  }),
-);
+const warnings = $derived(activeWarnings(app.data?.hazards?.warnings ?? []));
 let openW = $state({});
 function toggle(w) {
   openW[w.station + w.measuredAt] = !openW[w.station + w.measuredAt];
