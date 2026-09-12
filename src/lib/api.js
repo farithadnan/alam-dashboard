@@ -20,4 +20,7 @@ export const getOfficial = (state, town) => {
 
 export const getHaze = (town) => j(`${B}/haze${town ? `?town=${encodeURIComponent(town)}` : ""}`);
 
+/** Current InfoBanjir river-level + heavy-rain alerts, narrowed to a state when given. */
+export const getFlood = (state) => j(`${B}/flood${state ? `?state=${encodeURIComponent(state)}` : ""}`);
+
 export const clock = () => new Date().toLocaleTimeString();

@@ -13,6 +13,7 @@ import { sharePayload } from "../lib/share.js";
 import { activeWarnings } from "../lib/warnings.js";
 import Skeleton from "./ui/Skeleton.svelte";
 import Warnings from "./Warnings.svelte";
+import FloodAlerts from "./ui/FloodAlerts.svelte";
 
 let { onNavigate = () => {} } = $props();
 
@@ -141,6 +142,9 @@ let showAll = $state(false);
   </p>
   <p class="caption">{phase.includes("El Niño") ? tr("climateElEffect") : phase.includes("La Niña") ? tr("climateLaEffect") : tr("climateNeutralEffect")}</p>
 {/if}
+
+<h3 class="qh">{tr("floodTitle")}</h3>
+<FloodAlerts />
 
 {#if hazeLoading && !haze.length}
   <h3 class="qh">{tr("hazeTitle")}</h3>
