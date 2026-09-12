@@ -1,7 +1,7 @@
 // Minimal BM/EN i18n as a shared runes store. Strings keyed; components call tr('key').
 const en = {
   navWeather: "Weather", navAQI: "AQI", navHazards: "Earthquakes", navAbout: "About", changeLoc: "Change location",
-  navHome: "Home", navFlood: "Flood", navNews: "News", homeIntro: "Live weather, air quality and hazard alerts for Malaysia — built on open official data.", homeIntroMore: "More", homeFlood: "{n} flood alerts", homeNews: "{n} hazard stories", srcTitle: "Official sources", srcHint: "Straight from the issuing agencies — trusted, not re-sold.", advisories: "Advisories", newsTitle: "Weather & hazard news", explore: "Explore", noNews: "No recent stories.", newsCount: "recent stories", warningsInForce: "{n} warnings in force", quakesWeek: "{n} quakes this week",
+  navHome: "Home", navFlood: "Flood", navNews: "News", homeIntro: "Live weather, air quality and hazard alerts for Malaysia — built on open official data.", homeIntroMore: "More", homeFlood: "{n} flood alerts", homeNews: "{n} hazard stories", searchEndpoints: "Search endpoints…", srcTitle: "Official sources", srcHint: "Straight from the issuing agencies — trusted, not re-sold.", advisories: "Advisories", newsTitle: "Weather & hazard news", explore: "Explore", noNews: "No recent stories.", newsCount: "recent stories", warningsInForce: "{n} warnings in force", quakesWeek: "{n} quakes this week",
   scopeNear: "Near me", scopeState: "State", scopeMalaysia: "Malaysia",
   state: "State", town: "Town", useLoc: "Use my location", locating: "Locating…", location: "Location",
   feels: "Feels like", humidity: "humidity", wind: "wind", uv: "UV",
@@ -85,7 +85,7 @@ const en = {
 };
 const ms = {
   navWeather: "Cuaca", navAQI: "AQI", navHazards: "Gempa bumi", navAbout: "Tentang", changeLoc: "Tukar lokasi",
-  navHome: "Utama", navFlood: "Banjir", navNews: "Berita", homeIntro: "Cuaca, kualiti udara dan amaran bahaya secara langsung untuk Malaysia — dibina atas data rasmi terbuka.", homeIntroMore: "Lagi", homeFlood: "{n} amaran banjir", homeNews: "{n} berita bahaya", srcTitle: "Sumber rasmi", srcHint: "Terus daripada agensi pengeluar — dipercayai, bukan jualan semula.", advisories: "Nasihat", newsTitle: "Berita cuaca & bahaya", explore: "Terokai", noNews: "Tiada berita terkini.", newsCount: "berita terkini", warningsInForce: "{n} amaran aktif", quakesWeek: "{n} gempa minggu ini",
+  navHome: "Utama", navFlood: "Banjir", navNews: "Berita", homeIntro: "Cuaca, kualiti udara dan amaran bahaya secara langsung untuk Malaysia — dibina atas data rasmi terbuka.", homeIntroMore: "Lagi", homeFlood: "{n} amaran banjir", homeNews: "{n} berita bahaya", searchEndpoints: "Cari endpoint…", srcTitle: "Sumber rasmi", srcHint: "Terus daripada agensi pengeluar — dipercayai, bukan jualan semula.", advisories: "Nasihat", newsTitle: "Berita cuaca & bahaya", explore: "Terokai", noNews: "Tiada berita terkini.", newsCount: "berita terkini", warningsInForce: "{n} amaran aktif", quakesWeek: "{n} gempa minggu ini",
   scopeNear: "Berdekatan", scopeState: "Negeri", scopeMalaysia: "Malaysia",
   state: "Negeri", town: "Bandar", useLoc: "Guna lokasi saya", locating: "Mengesan…", location: "Lokasi",
   feels: "Terasa seperti", humidity: "kelembapan", wind: "angin", uv: "UV",

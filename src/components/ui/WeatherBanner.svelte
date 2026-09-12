@@ -27,7 +27,7 @@
     );
   </script>
 
-  <div class="banner scene-{scene} flex flex-col justify-between overflow-hidden rounded-2xl text-white" role="img" aria-label={label}>
+  <div class="banner scene-{scene} relative flex flex-col justify-between overflow-hidden rounded-2xl text-white" role="img" aria-label={label}>
     <div class="sun-glow" aria-hidden="true"></div>
     {#if scene === "rain"}
       {#each drops as d, i (i)}
@@ -65,7 +65,7 @@
   </div>
 
   <style>
-    .banner { min-height: 190px; box-sizing: border-box; }
+    .banner { min-height: 190px; box-sizing: border-box; position: relative; overflow: hidden; }
     .scene-icon {
       position: absolute; left: 50%; top: 45%; z-index: 1;
       transform: translate(-50%, -50%); font-size: 82px; line-height: 1;

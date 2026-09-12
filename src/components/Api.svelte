@@ -1,6 +1,7 @@
   <script>
     import { SITE } from "../lib/config.js";
     import { tr } from "../lib/i18n.svelte.js";
+    import SearchInput from "./ui/SearchInput.svelte";
 
     const base = SITE.url;
     const ENDPOINTS = [
@@ -12,10 +13,18 @@
       { m: "GET", p: "/api/history?source=doe-eqms&station=<slug>&hours=24", d: "Observation history for a station." },
       { m: "GET", p: "/api/forecast?source=open-meteo", d: "Daily forecast rows." },
       { m: "GET", p: "/api/hazards", d: "Weather warnings, recent earthquakes and climate phase." },
-      { m: "GET", p: "/api/flood", d: "InfoBanjir river levels and heavy-rain alerts (optionally ?state=)." },
+      { m: "GET", p: "/api/flood?state=Johor", d: "InfoBanjir river levels and heavy-rain alerts (state optional)." },
       { m: "GET", p: "/api/news", d: "Latest Malaysia weather/hazard news items." },
       { m: "GET", p: "/health", d: "Liveness check (not rate-limited)." },
     ];
+
+    let q = $state("");
+    let open = $state(null);
+    const filtered = $derived(
+      ENDPOINTS.filter((e) => `${e.m} ${e.p} ${e.d}`.toLowerCase().includes(q.trim().toLowerCase())),
+    );
+    // Turn "<slug>" placeholders into {value} so a curl is copy-paste valid.
+    const curlOf = (p) => `curl "${base}${p.replace(/<[^>]+>/g, "{value}")}"`;
     const CURL = `# whole Malaysia bundle
 curl ${base}/api/summary
 
@@ -35,15 +44,28 @@ curl "${base}/api/flood?state=Johor"`;
     <h3 class="mt-6 text-[15px] font-bold">{tr("apiTry")}</h3>
     <pre class="mt-2 overflow-auto rounded-xl border border-line bg-panel p-3 text-[12px] leading-relaxed">{CURL}</pre>
 
-    <ul class="mt-6 list-none space-y-3 p-0">
-      {#each ENDPOINTS as e (e.p)}
-        <li class="border-b border-line pb-3">
-          <div class="flex items-baseline gap-2">
-            <span class="shrink-0 rounded bg-accent/15 px-1.5 py-0.5 font-mono text-[11px] font-bold text-accent">{e.m}</span>
-            <code class="font-mono text-[13px] break-all">{e.p}</code>
-          </div>
-          <p class="mt-1 text-[13px] text-muted">{e.d}</p>
-        </li>
-      {/each}
-    </ul>
+    <div class="mt-6 mb-2 flex items-center justify-between gap-2">
+      <h3 class="qh mb-0">Endpoints</h3>
+      <SearchInput bind:value={q} placeholder={tr("searchEndpoints")} ariaLabel={tr("searchEndpoints")} class="max-w-[240px]" />
+    </div>
+
+    {#if filtered.length}
+      <ul class="list-none m-0 border-t border-line p-0">
+        {#each filtered as e (e.p)}
+          <li class="border-b border-line">
+            <button class="flex w-full items-center gap-2 px-2.5 py-2.5 text-left" onclick={() => (open = open === e.p ? null : e.p)} aria-expanded={open === e.p}>
+              <span class="shrink-0 rounded bg-accent/15 px-1.5 py-0.5 font-mono text-[11px] font-bold text-accent">{e.m}</span>
+              <code class="min-w-0 flex-1 break-all font-mono text-[13px]">{e.p}</code>
+              <span class="font-mono text-muted">{open === e.p ? "−" : "+"}</span>
+            </button>
+            <p class="px-2.5 pb-1 text-[13px] text-muted">{e.d}</p>
+            {#if open === e.p}
+              <pre class="mx-2.5 mb-2.5 overflow-auto rounded-lg border border-line bg-panel p-2 text-[12px]">{curlOf(e.p)}</pre>
+            {/if}
+          </li>
+        {/each}
+      </ul>
+    {:else}
+      <p class="caption">No endpoints match “{q}”.</p>
+    {/if}
   </section>

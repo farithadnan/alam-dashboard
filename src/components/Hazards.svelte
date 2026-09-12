@@ -7,8 +7,14 @@ import MapView from "./ui/MapView.svelte";
 import Section from "./ui/Section.svelte";
 
 const quakes = $derived(app.data?.hazards?.earthquakes ?? []);
+let magFilter = $state("all"); // all | strong | moderate | light
+const shown = $derived(
+  magFilter === "all"
+    ? quakes
+    : quakes.filter((q) => (magFilter === "strong" ? q.magnitude >= 6 : magFilter === "moderate" ? q.magnitude >= 5 && q.magnitude < 6 : q.magnitude >= 4.5 && q.magnitude < 5)),
+);
 const quakePts = $derived(
-  quakes
+  shown
     .filter((q) => q.meta?.lat && q.meta?.lon)
     .map((q) => {
       const col = magText(magWord(q.magnitude));
@@ -21,12 +27,13 @@ const quakePts = $derived(
       };
     }),
 );
-const groups = $derived(groupBy(quakes.slice().sort((a, b) => b.magnitude - a.magnitude), (q) => regionOf(q.stationName)));
-const quakeSummary = $derived({
-  strong: quakes.filter((q) => q.magnitude >= 6).length,
-  moderate: quakes.filter((q) => q.magnitude >= 5 && q.magnitude < 6).length,
-  light: quakes.filter((q) => q.magnitude < 5).length,
-});
+const groups = $derived(groupBy(shown.slice().sort((a, b) => b.magnitude - a.magnitude), (q) => regionOf(q.stationName)));
+const MATCARDS = $derived([
+  { id: "all", label: "All", n: quakes.length, color: "#8a8277" },
+  { id: "strong", label: "6.0+", n: quakes.filter((q) => q.magnitude >= 6).length, color: "#a51612" },
+  { id: "moderate", label: "5.0–5.9", n: quakes.filter((q) => q.magnitude >= 5 && q.magnitude < 6).length, color: "#b3491a" },
+  { id: "light", label: "4.5–4.9", n: quakes.filter((q) => q.magnitude < 5).length, color: "#6b6258" },
+]);
 const alertColor = (a) => ({ green: "#2e7d32", yellow: "#b26a00", orange: "#e05d2b", red: "#d32f2f" }[a] || "#6b6258");
 let open = $state(null);
 </script>
@@ -38,16 +45,20 @@ let open = $state(null);
   <MapView pts={quakePts} class="h-72 w-full rounded-xl lg:h-[52vh] lg:min-h-[400px]" fitMax={8} />
 {/if}
 
-<div class="mb-1 mt-2 flex flex-wrap gap-1.5 text-[12px]">
-  {#if quakeSummary.strong}<span class="badge" style="color:var(--color-vunhealthy);border-color:var(--color-vunhealthy)">🔴 {quakeSummary.strong} {tr("mag_strong")}</span>{/if}
-  {#if quakeSummary.moderate}<span class="badge" style="color:var(--color-unhealthy);border-color:var(--color-unhealthy)">🟠 {quakeSummary.moderate} {tr("mag_moderate")}</span>{/if}
-  <span class="badge text-muted">🔹 {quakeSummary.light} {tr("mag_light")}</span>
+<div class="mb-1 mt-2 grid grid-cols-4 gap-2 text-center">
+  {#each MATCARDS as c (c.id)}
+    <button type="button" class="glass rounded-xl px-1 py-2" onclick={() => (magFilter = c.id)}
+      style={magFilter === c.id ? `border-color:${c.color};color:${c.color};background:${c.color}1a` : ""}>
+      <div class="font-mono text-[16px] font-bold leading-none">{c.n}</div>
+      <div class="mt-1 text-[11px] text-muted">{c.label}</div>
+    </button>
+  {/each}
 </div>
-
+{#if magFilter !== "all"}<button class="caption mb-1 cursor-pointer underline hover:text-accent" onclick={() => (magFilter = "all")}>Clear filter ({shown.length})</button>{/if}
 {#each groups as g (g.key)}
   <Section title={g.key} startOpen={groups.length === 1}>
     <ul class="list-none m-0 p-0">
-      {#each g.items as q (q.station)}
+      {#each g.items as q (q.station + q.measuredAt)}
         <li class="border-b border-line" style="border-left:3px solid {magText(magWord(q.magnitude)) === "#6b6258" ? "transparent" : magText(magWord(q.magnitude))}">
           <button class="flex w-full items-center gap-2 px-2.5 py-2.5 text-left" onclick={() => (open = open === q.station ? null : q.station)} aria-expanded={open === q.station}>
             <div class="min-w-0 flex-1">
