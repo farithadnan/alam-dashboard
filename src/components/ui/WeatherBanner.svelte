@@ -11,7 +11,6 @@
     import ShootingStar from "./weatherbanner/ShootingStar.svelte";
     import Rain from "./weatherbanner/Rain.svelte";
     import ThunderFlash from "./weatherbanner/ThunderFlash.svelte";
-    import Cloud from "./weatherbanner/Cloud.svelte";
     import Overlay from "./weatherbanner/Overlay.svelte";
     import { sceneOf } from "./weatherbanner/scene.js";
 
@@ -23,7 +22,6 @@
     <div class="sun-glow" aria-hidden="true"></div>
 
     {#if scene === "sunny" || scene === "partly"}<Sun />{/if}
-    {#if scene === "partly"}<Cloud style="right:24%;top:4%" scale={0.4} tone={0} />{/if}
     {#if scene === "night"}<Moon /><Stars count={18} /><ShootingStar />{/if}
     {#if scene === "rain" || scene === "thunder"}<Rain heavy={scene === "thunder"} />{/if}
     {#if scene === "thunder"}<ThunderFlash />{/if}
