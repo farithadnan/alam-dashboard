@@ -98,6 +98,7 @@
   </script>
 
   <PageHeader title={`${tr("navAQI")} · ${app.scope === "malaysia" ? "Malaysia" : app.state}`} updated={app.updated} />
+  <p class="caption -mt-1 mb-1">{tr("aqiTip")}</p>
   <MapView pts={allPts} class="h-72 w-full rounded-xl lg:h-[52vh] lg:min-h-[400px]" fitMax={app.scope === "near" ? 12 : app.scope === "state" ? 9 : 8} focus={mapFocus} />
   {#if legend.length}
     <ul class="mt-2 flex list-none flex-wrap gap-2 p-0 text-[12px]">

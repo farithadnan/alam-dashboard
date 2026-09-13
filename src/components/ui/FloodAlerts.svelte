@@ -81,25 +81,22 @@
       <MapView pts={floodPts} class="mb-3 h-72 w-full rounded-xl lg:h-[52vh] lg:min-h-[400px]" fitMax={9} />
     {/if}
 
-    <!-- Severity filter cards, below the map -->
+    <!-- Severity filter: compact pills (the old cards read as unexplained counts) -->
     {#if total}
-      <div class="mb-2 grid grid-cols-2 gap-2 sm:grid-cols-3">
-        <button type="button" class="glass rounded-xl px-1 py-2 text-center" onclick={() => onSev?.("")}
-          style={sevFilter === "" ? "border-color:#8a8277;background:#8a82771a;color:#8a8277" : "border-color:transparent"}>
-          <div class="font-mono text-[16px] font-bold leading-none">{total}</div>
-          <div class="mt-1 text-[11px] text-muted">{tr("floodSevAll")}</div>
-        </button>
+      <div class="mb-1 flex flex-wrap gap-1.5">
+        <button type="button" class="pillfilter" class:on={sevFilter === ""} onclick={() => onSev?.("")}>{tr("floodSevAll")} · {total}</button>
         {#each present as p (p.s)}
-          <button type="button" class="glass rounded-xl px-1 py-2 text-center" onclick={() => onSev?.(p.s)}
-            style={sevFilter === p.s ? `border-color:${p.c};background:${p.c}1a;color:${p.c}` : `border-color:${p.c}55`}>
-            <div class="font-mono text-[16px] font-bold leading-none" style="color:{p.c}">{p.n}</div>
-            <div class="mt-1 text-[11px]" style="color:{p.c}">{p.e} {p.label}</div>
-          </button>
+          <button type="button" class="pillfilter" onclick={() => onSev?.(p.s)}
+            style={sevFilter === p.s ? `border-color:${p.c};background:${p.c}1a;color:${p.c}` : ""}>{p.e} {p.label} · {p.n}</button>
         {/each}
       </div>
-      {#if highest}
-        <p class="caption mb-1">🔺 Highest {highest.level} m · {highest.district ?? highest.stationName}</p>
-      {/if}
+      <p class="caption -mt-1 mb-2 text-muted">{tr("floodSevHint")}</p>
+    {/if}
+    {#if highest}
+      <div class="mb-2 flex items-center gap-2 rounded-xl border border-line px-3 py-2 text-[13px]">
+        <span aria-hidden="true">🔺</span>
+        <span>{tr("floodHighest")} <span class="font-mono font-bold">{highest.level} m</span> · {highest.district ?? highest.stationName}</span>
+      </div>
     {/if}
     {#if state}
       <ul class="list-none m-0 border-t border-line p-0">

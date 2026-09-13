@@ -2,7 +2,7 @@
 import { app } from "../lib/store.svelte.js";
 import { getOfficial, getHistory } from "../lib/api.js";
 import { moonPhase, numColor } from "../lib/flags.js";
-import { wmo } from "../lib/weather-codes.js";
+import { wmo, isNightNow } from "../lib/weather-codes.js";
 import { mapPopup } from "../lib/popup.js";
 import { tr, wmoLabel, bandLabel, bandAdvice } from "../lib/i18n.svelte.js";
 import { shareCard } from "../lib/sharecard.js";
@@ -47,7 +47,7 @@ const mapPts = $derived(
   towns
     .filter((r) => r.coords?.lat)
     .map((r) => {
-      const [icon] = wmo(String(r.meta?.code));
+      const [icon] = wmo(String(r.meta?.code), isNightNow(r.meta));
       const on = r.station === station;
       return { id: r.station, lat: r.coords.lat, lon: r.coords.lon, emoji: icon, color: on ? "#c14a1f" : "#8a8277", size: on ? 30 : 22, html: mapPopup({ title: r.stationName, value: `${Math.round(r.value)}°`, valueColor: "#6b6258" }) };
     }),
@@ -100,7 +100,7 @@ function hourLabel(t) {
 </script>
 
 {#if now}
-  {@const [icon, label] = now.meta?.code != null ? wmo(String(now.meta.code)) : [null, null]}
+  {@const [icon, label] = now.meta?.code != null ? wmo(String(now.meta.code), isNightNow(now.meta)) : [null, null]}
   <div class="relative mt-1">
     <div class="flex items-start justify-between gap-2">
       <div class="min-w-0">

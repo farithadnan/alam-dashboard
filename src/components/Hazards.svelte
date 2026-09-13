@@ -45,15 +45,13 @@
     <MapView pts={quakePts} class="h-72 w-full rounded-xl lg:h-[52vh] lg:min-h-[400px]" fitMax={8} />
   {/if}
 
-  <div class="mb-1 mt-2 grid grid-cols-4 gap-2 text-center">
+  <div class="mt-2 mb-1 flex flex-wrap gap-1.5">
     {#each MATCARDS as c (c.id)}
-      <button type="button" class="glass rounded-xl px-1 py-2" onclick={() => (magFilter = c.id)}
-        style={magFilter === c.id ? `border-color:${c.color};color:${c.color};background:${c.color}1a` : ""}>
-        <div class="font-mono text-[16px] font-bold leading-none">{c.n}</div>
-        <div class="mt-1 text-[11px] text-muted">{c.label}</div>
-      </button>
+      <button type="button" class="pillfilter" onclick={() => (magFilter = c.id)}
+        style={magFilter === c.id ? `border-color:${c.color};color:${c.color};background:${c.color}1a` : ""}>{c.label} <span class="font-mono font-semibold">{c.n}</span></button>
     {/each}
   </div>
+  <p class="caption -mt-1 mb-1 text-muted">{tr("quakeCountHint")}</p>
   {#if magFilter !== "all"}<button class="caption mb-1 cursor-pointer underline hover:text-accent" onclick={() => (magFilter = "all")}>Clear filter ({shown.length})</button>{/if}
   {#each groups as g (g.key)}
     <Section title={g.key} startOpen={groups.length === 1}>

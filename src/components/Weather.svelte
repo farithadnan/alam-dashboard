@@ -2,7 +2,7 @@
   import PageHeader from "./ui/PageHeader.svelte";
 import { app } from "../lib/store.svelte.js";
 import { groupBy } from "../lib/flags.js";
-import { wmo } from "../lib/weather-codes.js";
+import { wmo, isNightNow } from "../lib/weather-codes.js";
 import { mapPopup } from "../lib/popup.js";
 import { tr, wmoLabel } from "../lib/i18n.svelte.js";
 import MapView from "./ui/MapView.svelte";
@@ -41,9 +41,7 @@ const picked = $derived(app.picked);
 {:else}
   {@const scopeLabel = app.scope === "malaysia" ? "Malaysia" : app.state}
   <PageHeader title={`${tr("navWeather")} · ${scopeLabel}`} updated={app.updated} />
-  {#if avg != null}
-    <p class="caption -mt-1">{tr("avgLine")} {Math.round(avg)}° · {tr("high")} {Math.round(hi)}° · {tr("low")} {Math.round(lo)}° · {towns.length} {tr("townsWord")}</p>
-  {/if}
+  <p class="caption -mt-1 mb-1">{tr("weatherTip")}</p>
   {#if app.loading && !towns.length}
     <div class="mt-2 space-y-3">
       <Skeleton h={256} class="!rounded-xl" />
@@ -55,11 +53,14 @@ const picked = $derived(app.picked);
     {#if weatherPts.length}
       <MapView pts={weatherPts} onPick={(id) => (app.picked = id)} class="h-72 w-full rounded-xl lg:h-[52vh] lg:min-h-[400px]" fitMax={app.scope === "state" ? 9 : 8} />
     {/if}
+  {#if avg != null}
+    <p class="caption mb-1">{tr("avgLine")} {Math.round(avg)}° · {tr("high")} {Math.round(hi)}° · {tr("low")} {Math.round(lo)}° · {towns.length} {tr("townsWord")}</p>
+  {/if}
   {#each scopeGroups as g (g.key)}
     <Section title={g.key} startOpen={scopeGroups.length === 1}>
       <ul class="mt-1 grid list-none grid-cols-2 gap-2 p-0 sm:grid-cols-3 lg:grid-cols-4">
         {#each g.items as r (r.station)}
-          {@const [icon, label] = wmo(String(r.meta?.code))}
+          {@const [icon, label] = wmo(String(r.meta?.code), isNightNow(r.meta))}
           <li>
             <button class="glass flex w-full items-center gap-2 rounded-xl px-3 py-2 text-left" onclick={() => (app.picked = r.station)}>
               <span class="text-[20px]" aria-hidden="true">{icon}</span>

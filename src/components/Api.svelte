@@ -20,6 +20,8 @@
 
     let q = $state("");
     let open = $state(null);
+    let copied = $state("");
+    const copy = async (text) => { try { await navigator.clipboard?.writeText(text); copied = text; setTimeout(() => (copied = ""), 1300); } catch { /* noop */ } };
     const filtered = $derived(
       ENDPOINTS.filter((e) => `${e.m} ${e.p} ${e.d}`.toLowerCase().includes(q.trim().toLowerCase())),
     );
@@ -60,7 +62,8 @@ curl "${base}/api/flood?state=Johor"`;
             </button>
             <p class="px-2.5 pb-1 text-[13px] text-muted">{e.d}</p>
             {#if open === e.p}
-              <pre class="mx-2.5 mb-2.5 overflow-auto rounded-lg border border-line bg-panel p-2 text-[12px]">{curlOf(e.p)}</pre>
+              <pre class="mx-2.5 mb-1.5 overflow-auto rounded-lg border border-line bg-panel p-2 text-[12px]">{curlOf(e.p)}</pre>
+              <button class="pillfilter mx-2.5 mb-2.5" onclick={() => copy(curlOf(e.p))}>{copied === curlOf(e.p) ? "Copied ✓" : "Copy"}</button>
             {/if}
           </li>
         {/each}

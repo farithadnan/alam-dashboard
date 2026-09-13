@@ -1,7 +1,7 @@
   <script>
     import { app } from "../lib/store.svelte.js";
     import { numColor, atTown } from "../lib/flags.js";
-    import { wmo } from "../lib/weather-codes.js";
+    import { wmo, isNightNow } from "../lib/weather-codes.js";
     import { tr, trFmt, bandLabel } from "../lib/i18n.svelte.js";
     import WeatherBanner from "./ui/WeatherBanner.svelte";
     import { sharePayload } from "../lib/share.js";
@@ -24,7 +24,7 @@
     const newsCount = $derived(app.data?.news?.length ?? 0);
     const airBad = $derived(["Unhealthy", "Very Unhealthy", "Hazardous"].includes(townAir?.band?.label ?? ""));
 
-    const wmo2 = $derived.by(() => (now?.meta?.code != null ? wmo(String(now.meta.code)) : ["", ""]));
+    const wmo2 = $derived.by(() => (now?.meta?.code != null ? wmo(String(now.meta.code), isNightNow(now.meta)) : ["", ""]));
     const bannerAqi = $derived(
       townAir
         ? { value: townAir.value, band: bandLabel(townAir.band?.label), color: numColor(townAir.band?.label) }
