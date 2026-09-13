@@ -28,6 +28,9 @@
     {#if scene === "sunny" || scene === "partly"}
       <span class="sun" aria-hidden="true">☀️</span>
     {/if}
+    {#if scene === "partly"}
+      <span class="cloud isstatic" aria-hidden="true"></span>
+    {/if}
     {#if scene === "night"}
       <span class="moon" aria-hidden="true">🌙</span>
       {#each stars as s, i (i)}
@@ -88,6 +91,15 @@
     @keyframes pulse { 0%,100% { transform: scale(1); opacity:.85 } 50% { transform: scale(1.12); opacity:1 } }
 
     .sun { position: absolute; right: 14%; top: 10%; z-index: 0; font-size: 54px; filter: drop-shadow(0 0 14px rgba(255,220,120,.9)); animation: pulse 3.5s ease-in-out infinite; }
+
+    .cloud {
+      position: absolute; right: 34%; top: 13%; z-index: 0; width: 96px; height: 30px;
+      border-radius: 999px; background: #eef1f5; opacity: .92; box-shadow: inset -5px -8px 12px rgba(30,40,60,.18);
+    }
+    .cloud::before, .cloud::after { content: ''; position: absolute; border-radius: 50%; background: #eef1f5; box-shadow: inset 0 -6px 8px rgba(30,40,60,.12); }
+    .cloud::before { width: 46%; height: 46px; top: -28px; left: 8%; }
+    .cloud::after  { width: 32%; height: 32px; top: -18px; left: 56%; }
+    .cloud.isstatic { animation: none; }
 
     .moon { position: absolute; right: 12%; top: 12%; z-index: 0; font-size: 50px; filter: drop-shadow(0 0 12px rgba(255,240,180,.9)); animation: pulse 5s ease-in-out infinite; }
 
