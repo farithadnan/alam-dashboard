@@ -10,7 +10,7 @@
     /** Presentational: parent fetches and passes river/rain/loading/state/sevFilter.
      * state "" = all Malaysia (grouped by collapsible state); otherwise one state.
      * sevFilter "" = all severities, else only that severity. */
-    let { river = [], rain = [], loading = false, state = "", sevFilter = "" } = $props();
+    let { river = [], rain = [], loading = false, state = "", sevFilter = "", present = [], total = 0, highest = null, onSev = null } = $props();
 
     const PIN_COLOR = { Danger: "#a51110", Warning: "#e05d2b", Alert: "#b26a00", Heavy: "#3b6ea8", Moderate: "#6f8fb0" };
 
@@ -67,6 +67,27 @@
   {:else if hasData}
     {#if floodPts.length}
       <MapView pts={floodPts} class="mb-3 h-72 w-full rounded-xl lg:h-[52vh] lg:min-h-[400px]" fitMax={9} />
+    {/if}
+
+    <!-- Severity filter cards, below the map -->
+    {#if total}
+      <div class="mb-2 grid grid-cols-2 gap-2 sm:grid-cols-3">
+        <button type="button" class="glass rounded-xl px-1 py-2 text-center" onclick={() => onSev?.("")}
+          style={sevFilter === "" ? "border-color:#8a8277;background:#8a82771a;color:#8a8277" : "border-color:transparent"}>
+          <div class="font-mono text-[16px] font-bold leading-none">{total}</div>
+          <div class="mt-1 text-[11px] text-muted">{tr("floodSevAll")}</div>
+        </button>
+        {#each present as p (p.s)}
+          <button type="button" class="glass rounded-xl px-1 py-2 text-center" onclick={() => onSev?.(p.s)}
+            style={sevFilter === p.s ? `border-color:${p.c};background:${p.c}1a;color:${p.c}` : `border-color:${p.c}55`}>
+            <div class="font-mono text-[16px] font-bold leading-none" style="color:{p.c}">{p.n}</div>
+            <div class="mt-1 text-[11px]" style="color:{p.c}">{p.e} {p.label}</div>
+          </button>
+        {/each}
+      </div>
+      {#if highest}
+        <p class="caption mb-1">🔺 Highest {highest.level} m · {highest.district ?? highest.stationName}</p>
+      {/if}
     {/if}
     {#if state}
       <ul class="list-none m-0 border-t border-line p-0">
