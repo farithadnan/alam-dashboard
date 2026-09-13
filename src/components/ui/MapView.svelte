@@ -73,6 +73,11 @@ $effect(() => {
 
 <div class="relative">
   <div bind:this={el} class={cls} style="z-index:0" aria-label="Map"></div>
+  {#if !pts.length}
+    <div class="pointer-events-none absolute inset-0 z-[2] flex items-center justify-center rounded-xl animate-pulse" style="background:var(--color-line)">
+      <div class="h-10 w-10 rounded-full" style="background:var(--color-panel)"></div>
+    </div>
+  {/if}
   <button
     class="absolute right-2 top-2 z-[400] grid size-8 place-items-center rounded-lg border border-line bg-panel/90 text-[15px] shadow"
     onclick={() => { if (map && pts.length) map.fitBounds(L.latLngBounds(pts.map((p) => [p.lat, p.lon])).pad(0.25), { maxZoom: fitMax }); }}

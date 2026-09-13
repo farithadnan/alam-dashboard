@@ -15,43 +15,53 @@
       return "sunny";
     };
 
-    // --- cartoon character (SVG faces that differ per condition) ---
-    const THEME = {
-      sunny:    { body: "#ffca3a", edge: "#f2a900" },
-      partly:   { body: "#ffca3a", edge: "#f2a900" },
-      cloudy:   { body: "#d3dde6", edge: "#aab9c9" },
-      overcast: { body: "#cdd8e2", edge: "#aab9c9" },
-      rain:     { body: "#9fb6cd", edge: "#7d95ad" },
-      thunder:  { body: "#7d8aa0", edge: "#59677f" },
-      night:    { body: "#ffe9b0", edge: "#f2c94c" },
-      mist:     { body: "#d9dde3", edge: "#b0b6c0" },
-    };
-    const eyes = (k) => {
-      if (k === "sleepy") return `<path d="M42 44 q7 -8 14 0 M64 44 q7 -8 14 0" stroke="#3a332b" stroke-width="3.5" fill="none" stroke-linecap="round"/>`;
-      if (k === "shades") return `<rect x="40" y="42" width="14" height="10" rx="3.5" fill="#263238"/><rect x="66" y="42" width="14" height="10" rx="3.5" fill="#263238"/><path d="M54 47 h12" stroke="#263238" stroke-width="2"/>`;
-      if (k === "angry") return `<path d="M39 50 L55 45 M81 50 L65 45" stroke="#3a332b" stroke-width="3.5" stroke-linecap="round"/><circle cx="47" cy="53" r="3.2" fill="#3a332b"/><circle cx="73" cy="53" r="3.2" fill="#3a332b"/>`;
-      return `<circle cx="47" cy="49" r="6.5" fill="#fff"/><circle cx="73" cy="49" r="6.5" fill="#fff"/><circle cx="47" cy="49" r="3.2" fill="#3a332b"/><circle cx="73" cy="49" r="3.2" fill="#3a332b"/>`;
-    };
-    const mouth = (k) => {
-      if (k === "open") return `<ellipse cx="60" cy="78" rx="6" ry="8" fill="#9c4230"/>`;
-      if (k === "frown") return `<path d="M46 82 Q60 70 74 82" stroke="#3a332b" stroke-width="3.5" fill="none" stroke-linecap="round"/>`;
-      if (k === "flat") return `<path d="M48 76 H72" stroke="#3a332b" stroke-width="3.5" stroke-linecap="round"/>`;
-      return `<path d="M44 74 Q60 88 76 74" stroke="#3a332b" stroke-width="3.5" fill="none" stroke-linecap="round"/>`;
-    };
-    const cloudBody = (t) =>
-      `<g fill="${t.body}" stroke="${t.edge}" stroke-width="3" stroke-linejoin="round"><circle cx="38" cy="66" r="17"/><circle cx="57" cy="56" r="23"/><circle cx="77" cy="66" r="16"/><rect x="34" y="62" width="52" height="21" rx="10.5"/></g>`;
+    // --- cartoon humanoid: pose, clothes and props change with the condition ---
+    const SKIN = "#f6c89a", INK = "#3a3129";
     function characterSVG(scene) {
-      const t = THEME[scene];
-      if (scene === "sunny" || scene === "partly") {
-        return `<svg viewBox="0 0 120 120" width="104" height="104"><circle cx="60" cy="58" r="30" fill="${t.body}" stroke="${t.edge}" stroke-width="3"/>${eyes(scene === "sunny" ? "shades" : "open")}${mouth("smile")}</svg>`;
+      const shirt = scene === "rain" ? "#3f5f8a" : scene === "thunder" ? "#6d5a64" : scene === "night" ? "#4a5570" : scene === "mist" ? "#7a8f86" : "#f2f2f2";
+      let s = `<svg viewBox="0 0 150 170" width="118" height="134">`;
+      // scene props
+      if (scene === "sunny") {
+        s += `<circle cx="120" cy="30" r="16" fill="#ffca3a"/><circle cx="104" cy="150" r="16" fill="#eef4ff"/><path d="M120 12 a16 16 0 0 1 8 28" fill="#fff0c0"/>`;
+        s += `<rect x="118" y="40" width="22" height="4" rx="2" fill="#d34f2f"/><rect x="122" y="38" width="14" height="26" rx="6" fill="#f05b3a"/>`;
       }
-      if (scene === "night") {
-        return `<svg viewBox="0 0 120 120" width="104" height="104"><circle cx="60" cy="58" r="30" fill="${t.body}" stroke="${t.edge}" stroke-width="3"/>${eyes("sleepy")}${mouth("smile")}</svg>`;
+      if (scene === "thunder") {
+        s += `<rect x="14" y="26" width="42" height="48" rx="4" fill="#22304d" stroke="#dbe4ee" stroke-width="3"/>`;
+        s += `<line x1="20" y1="60" x2="20" y2="46" stroke="#fff" stroke-width="2"/><line x1="34" y1="60" x2="34" y2="32" stroke="#fff" stroke-width="2"/>`;
       }
-      // cloudy family: a cloud face
-      const e = scene === "thunder" ? "angry" : scene === "rain" ? "open" : "open";
-      const m = scene === "thunder" ? "frown" : scene === "rain" ? "frown" : scene === "mist" ? "flat" : "flat";
-      return `<svg viewBox="0 0 120 120" width="104" height="104">${cloudBody(t)}${eyes(e)}${mouth(m)}</svg>`;
+      if (scene === "night") s += `<path d="M110 24 a13 13 0 1 0 12 22 a13 13 0 0 1 -12 -22" fill="#ffe9b0"/>`;
+      // legs
+      s += `<rect x="60" y="128" width="13" height="26" rx="6" fill="${INK}" opacity=".85"/><rect x="79" y="128" width="13" height="26" rx="6" fill="${INK}" opacity=".85"/>`;
+      // torso
+      s += `<rect x="57" y="86" width="38" height="48" rx="16" fill="${shirt}" stroke="${INK}" stroke-width="2"/>`;
+      if (scene === "thunder") s += `<rect x="88" y="100" width="14" height="3" rx="1.5" fill="${SKIN}"/>`;
+      // head
+      s += `<circle cx="76" cy="42" r="20" fill="${SKIN}" stroke="${INK}" stroke-width="2"/>`;
+      s += `<path d="M56 36 a20 20 0 0 1 40 0 l4 -6 a24 24 0 0 0 -48 0z" fill="#4a3b2f"/>`;
+      // eyes
+      if (scene === "sunny") {
+        s += `<rect x="64" y="37" width="9" height="7" rx="2" fill="#263238"/><rect x="81" y="37" width="9" height="7" rx="2" fill="#263238"/><path d="M73 40 h7" stroke="#263238" stroke-width="2"/>`;
+      } else if (scene === "night") {
+        s += `<path d="M65 42 q5 -7 10 0 M80 42 q5 -7 10 0" stroke="${INK}" stroke-width="2.5" fill="none"/>`;
+      } else {
+        s += `<circle cx="69" cy="43" r="3.4" fill="${INK}"/><circle cx="85" cy="43" r="3.4" fill="${INK}"/>`;
+      }
+      // mouth
+      s += scene === "rain" || scene === "thunder"
+        ? `<path d="M69 55 q7 6 14 0" stroke="${INK}" stroke-width="2.5" fill="none"/>`
+        : `<path d="M67 54 q9 9 18 0" stroke="${INK}" stroke-width="2.5" fill="none"/>`;
+      // rain: umbrella above
+      if (scene === "rain") {
+        s += `<path d="M46 42 q30 -30 60 0" fill="#e05d2b" stroke="#b8491a" stroke-width="2"/><line x1="76" y1="42" x2="76" y2="20" stroke="#7a6a58" stroke-width="3"/>`;
+      }
+      // thunder: coffee mug in hand
+      if (scene === "thunder") {
+        s += `<rect x="87" y="97" width="18" height="20" rx="4" fill="#8d5a3c"/><path d="M105 102 h5 a4 4 0 0 1 0 9 h-5" fill="none" stroke="#8d5a3c" stroke-width="3"/>`;
+      }
+      // mist: scarf
+      if (scene === "mist") s += `<rect x="58" y="58" width="37" height="9" rx="4" fill="#5c8a6a"/>`;
+      s += `</svg>`;
+      return s;
     }
 
     let { icon = "☀️", label = "", temp = 0, feels = 0, townName = "", appState = "", aqi = null } = $props();
@@ -81,8 +91,8 @@
 
     <!-- top: condition tag + the alert actions -->
     <div class="relative z-10 flex items-start justify-between gap-2 px-4 pt-3 sm:px-5">
-      <span class="mt-1 rounded-full bg-black/30 px-2.5 py-0.5 text-[12px] font-medium backdrop-blur">{label}</span>
-      <div class="flex items-center gap-2">
+      <span class="mt-1 rounded-full bg-black/35 px-2.5 py-0.5 text-[12px] font-medium text-white backdrop-blur">{label}</span>
+      <div class="flex items-center gap-2 rounded-full bg-white/90 p-1 text-neutral-800 shadow backdrop-blur">
         <slot name="actions" />
       </div>
     </div>
@@ -97,8 +107,8 @@
         </div>
       </div>
       {#if aqi}
-        <div class="shrink-0 rounded-xl bg-black/40 px-3 py-1.5 text-center backdrop-blur">
-          <div class="text-[11px] opacity-90">Air now</div>
+        <div class="shrink-0 rounded-xl bg-black/45 px-3 py-1.5 text-center backdrop-blur">
+          <div class="text-[11px] font-medium text-white">Air now</div>
           <div class="font-mono text-[22px] font-bold leading-none" style="color:{aqi.color}">{aqi.value}</div>
           <div class="text-[11px] font-semibold" style="color:{aqi.color}">{aqi.band}</div>
         </div>
@@ -107,7 +117,7 @@
   </div>
 
   <style>
-    .banner { min-height: 200px; box-sizing: border-box; position: relative; overflow: hidden; }
+    .banner { min-height: 240px; box-sizing: border-box; position: relative; overflow: hidden; }
     .scene-icon {
       position: absolute; left: 50%; top: 43%; z-index: 1;
       transform: translate(-50%, -50%); filter: drop-shadow(0 8px 16px rgba(0,0,0,.35));

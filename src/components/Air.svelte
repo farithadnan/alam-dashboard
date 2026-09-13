@@ -21,11 +21,11 @@ const airTown = $derived(weather.find((r) => r.station === app.town && r.kind ==
 const heroAir = $derived(stations.find((s) => atTown(s, townName, app.town)) ?? stations[0] ?? null);
 
 const counts = $derived(bandCounts(stations));
-const allPts = $derived(airMapPoints(stations));
-const mapFocus = $derived(open ? (() => { const s = stations.find((x) => x.station === open); return s?.coords ? { lat: s.coords.lat, lon: s.coords.lon, zoom: 11 } : null; })() : null);
-const legend = $derived(legendOf(stations));
 let bandFilter = $state(""); // "" = all, else a band label
 const shownStations = $derived(bandFilter ? stations.filter((o) => o.band?.label === bandFilter) : stations);
+const allPts = $derived(airMapPoints(shownStations));
+const mapFocus = $derived(open ? (() => { const s = stations.find((x) => x.station === open); return s?.coords ? { lat: s.coords.lat, lon: s.coords.lon, zoom: 11 } : null; })() : null);
+const legend = $derived(legendOf(stations));
 const groups = $derived(groupBy(shownStations, (s) => s.meta?.state ?? ""));
 
 let range = $state(24);
@@ -99,7 +99,7 @@ async function nearestStation() {
 }
 </script>
 
-<MapView pts={allPts} class="h-72 w-full rounded-xl lg:h-[58vh] lg:min-h-[440px]" fitMax={app.scope === "near" ? 12 : app.scope === "state" ? 9 : 8} focus={mapFocus} />
+<MapView pts={allPts} class="h-72 w-full rounded-xl lg:h-[52vh] lg:min-h-[400px]" fitMax={app.scope === "near" ? 12 : app.scope === "state" ? 9 : 8} focus={mapFocus} />
 {#if legend.length}
   <ul class="mt-2 flex list-none flex-wrap gap-2 p-0 text-[12px]">
     {#each legend as [label, color] (label)}
@@ -112,17 +112,26 @@ async function nearestStation() {
   <h3 class="qh">{tr("catTitle")}</h3>
   <div class="mt-1 grid grid-cols-2 gap-2 sm:grid-cols-3">
     {#each counts as c (c.label)}
-      <button type="button" class="glass flex items-center justify-between rounded-xl px-3 py-2"
-        onclick={() => (bandFilter = bandFilter === c.label ? "" : c.label)}
-        style={bandFilter === c.label ? `border-color:${numColor(c.label)};background:${numColor(c.label)}1a` : ""}>
-        <span class="flex items-center gap-2 text-[13px]">
-          <span class="inline-block size-3 rounded-full" style="background:{numColor(c.label)}"></span>{bandLabel(c.label)}
-        </span>
-        <span class="font-mono text-[18px] font-bold" style="color:{numColor(c.label)}">{c.n}</span>
-      </button>
+      {#if counts.length > 1}
+        <button type="button" class="glass flex items-center justify-between rounded-xl px-3 py-2"
+          onclick={() => (bandFilter = bandFilter === c.label ? "" : c.label)}
+          style={bandFilter === c.label ? `border-color:${numColor(c.label)};background:${numColor(c.label)}1a` : ""}>
+          <span class="flex items-center gap-2 text-[13px]">
+            <span class="inline-block size-3 rounded-full" style="background:{numColor(c.label)}"></span>{bandLabel(c.label)}
+          </span>
+          <span class="font-mono text-[18px] font-bold" style="color:{numColor(c.label)}">{c.n}</span>
+        </button>
+      {:else}
+        <div class="glass flex items-center justify-between rounded-xl px-3 py-2">
+          <span class="flex items-center gap-2 text-[13px]">
+            <span class="inline-block size-3 rounded-full" style="background:{numColor(c.label)}"></span>{bandLabel(c.label)}
+          </span>
+          <span class="font-mono text-[18px] font-bold" style="color:{numColor(c.label)}">{c.n}</span>
+        </div>
+      {/if}
     {/each}
   </div>
-  {#if bandFilter}
+  {#if counts.length > 1 && bandFilter}
     <button class="caption mt-1 cursor-pointer underline hover:text-accent" onclick={() => (bandFilter = "")}>Clear filter ({shownStations.length})</button>
   {/if}
 {/if}

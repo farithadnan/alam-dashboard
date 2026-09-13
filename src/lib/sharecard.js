@@ -84,17 +84,28 @@ export function shareCaption(d) {
   const where = [d.town, d.state].filter(Boolean).join(", ");
   const bits = [];
   if (d.value != null) {
-    // Magnitudes carry a decimal, AQI does not.
     const shown = d.unit === "M" ? Number(d.value).toFixed(1) : Math.round(d.value);
     bits.push(`${d.unit ?? "AQI"} ${shown}${d.band ? ` ${d.band}` : ""}`);
   }
   if (d.temp != null) bits.push(`${d.temp}°${d.cond ? ` ${d.cond}` : ""}`);
-  // A quake has no temperature, so its condition line (depth, mag type) needs its own slot.
   else if (d.cond) bits.push(d.cond);
   if (d.advice) bits.push(d.advice);
   const link = SITE.url;
+  const date = new Date().toLocaleDateString(undefined, { day: "numeric", month: "short", year: "numeric" });
   const body = [where, bits.join(", ")].filter(Boolean).join(": ");
-  return link ? `${body}\n${link}` : body;
+  return link ? `${body}\n${date}\n${link}` : body;
+}
+
+/** A pre-filled social share intent (open in a new tab). */
+export function shareIntent(service, text) {
+  const t = encodeURIComponent(text || "").slice(0, 2000);
+  switch (service) {
+    case "wa": return `https://wa.me/?text=${t}`;
+    case "x": return `https://twitter.com/intent/tweet?text=${t}`;
+    case "fb": return `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(SITE.url)}&quote=${t}`;
+    case "t": return `https://t.me/share/url?url=${encodeURIComponent(SITE.url)}&text=${t}`;
+  }
+  return "";
 }
 
 /** Share just the message: right for a warning that is going into a family chat. */

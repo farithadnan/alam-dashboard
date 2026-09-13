@@ -5,6 +5,7 @@
     import MapView from "./MapView.svelte";
     import Section from "./Section.svelte";
     import FloodRow from "./FloodRow.svelte";
+    import Skeleton from "./Skeleton.svelte";
 
     /** Presentational: parent fetches and passes river/rain/loading/state/sevFilter.
      * state "" = all Malaysia (grouped by collapsible state); otherwise one state.
@@ -57,10 +58,15 @@
   </script>
 
   {#if loading && !hasData}
-    <p class="caption">{tr("updating")}</p>
+    <div class="space-y-2">
+      <Skeleton h={288} class="!rounded-xl" />
+      <Skeleton h={54} />
+      <Skeleton h={54} />
+      <Skeleton h={54} />
+    </div>
   {:else if hasData}
     {#if floodPts.length}
-      <MapView pts={floodPts} class="mb-3 h-52 w-full rounded-xl" fitMax={9} />
+      <MapView pts={floodPts} class="mb-3 h-72 w-full rounded-xl lg:h-[52vh] lg:min-h-[400px]" fitMax={9} />
     {/if}
     {#if state}
       <ul class="list-none m-0 border-t border-line p-0">

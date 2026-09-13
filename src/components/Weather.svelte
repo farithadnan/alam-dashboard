@@ -52,7 +52,7 @@ const picked = $derived(app.picked);
     </div>
   {:else}
     {#if weatherPts.length}
-      <MapView pts={weatherPts} onPick={(id) => (app.picked = id)} class="h-64 w-full rounded-xl lg:h-[46vh]" fitMax={app.scope === "state" ? 9 : 8} />
+      <MapView pts={weatherPts} onPick={(id) => (app.picked = id)} class="h-72 w-full rounded-xl lg:h-[52vh] lg:min-h-[400px]" fitMax={app.scope === "state" ? 9 : 8} />
     {/if}
   {#each scopeGroups as g (g.key)}
     <Section title={g.key} startOpen={scopeGroups.length === 1}>
