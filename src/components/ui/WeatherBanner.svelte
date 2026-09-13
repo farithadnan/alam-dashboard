@@ -18,51 +18,25 @@
     let { icon = "☀️", label = "", temp = 0, feels = 0, townName = "", appState = "", aqi = null } = $props();
     const scene = $derived(sceneOf(icon));
     const drops = $derived(Array.from({ length: 30 }, (_, i) => ({ left: (i * 41) % 100, delay: (i * 0.7) % 2.4, dur: 0.9 + ((i * 13) % 10) / 10 })));
-    const stars = $derived(Array.from({ length: 30 }, (_, i) => ({ left: (i * 53) % 96 + 2, top: (i * 31) % 90, delay: (i % 5) * 0.7, size: 2 + (i % 3) })));
+    const stars = $derived(Array.from({ length: 10 }, (_, i) => ({ left: (i * 37) % 96 + 2, top: (i * 29) % 50, delay: (i % 4) * 0.8 })));
   </script>
 
   <div class="banner scene-{scene} relative flex flex-col justify-between overflow-hidden rounded-2xl text-white" role="img" aria-label={label}>
     <div class="sun-glow" aria-hidden="true"></div>
-
-    <!-- Sunny / partly: a visible sun (+ a cloud for partly) -->
     {#if scene === "sunny" || scene === "partly"}
       <div class="rays" aria-hidden="true"></div>
-      <span class="sun" aria-hidden="true">☀️</span>
-      {#if scene === "partly"}
-        <span class="cloud isstatic" style="top:18%;right:12%;width:96px"></span>
-      {/if}
     {/if}
-
-    <!-- Cloudy family: natural fluffy CSS clouds -->
-    {#if scene === "overcast" || scene === "rain" || scene === "thunder" || scene === "mist"}
-      <span class="cloud" style="top:10%;width:128px;animation-duration:24s"></span>
-      <span class="cloud" style="top:32%;width:78px;animation-duration:36s;animation-delay:-16s"></span>
-      <span class="cloud" style="top:-6%;width:160px;animation-duration:46s;animation-delay:-9s"></span>
+    {#if scene === "night"}
+      {#each stars as s, i (i)}
+        <span class="star" style="left:{s.left}%;top:{s.top}%;animation-delay:{s.delay}s" aria-hidden="true"></span>
+      {/each}
     {/if}
-
-    <!-- Rain falls for both rain and thunder -->
-    {#if scene === "rain" || scene === "thunder"}
+    {#if scene === "rain"}
       {#each drops as d, i (i)}
         <span class="drop" style="left:{d.left}%;animation-delay:{d.delay}s;animation-duration:{d.dur}s" aria-hidden="true"></span>
       {/each}
     {/if}
     <div class="thunder-flash" aria-hidden="true"></div>
-
-    <!-- Night: moon, more stars, a shooting star -->
-    {#if scene === "night"}
-      <span class="moon" aria-hidden="true">🌙</span>
-      {#each stars as s, i (i)}
-        <span class="star" style="left:{s.left}%;top:{s.top}%;animation-delay:{s.delay}s;width:{s.size}px;height:{s.size}px" aria-hidden="true"></span>
-      {/each}
-      <span class="shooting" aria-hidden="true"></span>
-    {/if}
-
-    <!-- Mist / haze: soft drifting fog -->
-    {#if scene === "mist"}
-      <span class="fog" style="top:34%"></span>
-      <span class="fog" style="top:58%;animation-delay:-9s"></span>
-      <span class="fog" style="top:13%;animation-delay:-17s"></span>
-    {/if}
 
     <!-- top: condition tag -->
     <div class="relative z-10 flex items-start justify-between gap-2 px-4 pt-3 sm:px-5">
@@ -118,39 +92,6 @@
       animation: spin 16s linear infinite;
     }
     @keyframes spin { to { transform: translate(-50%, -50%) rotate(360deg) } }
-
-    .sun {
-      position: absolute; left: 50%; top: 43%; z-index: 0;
-      transform: translate(-50%, -50%); font-size: 66px; line-height: 1;
-      filter: drop-shadow(0 0 18px rgba(255,220,120,.95));
-      animation: pulse 3.5s ease-in-out infinite;
-    }
-    .cloud {
-      position: absolute; z-index: 0; height: 34px; border-radius: 999px;
-      background: #eef1f5; opacity: .92; box-shadow: inset -5px -8px 12px rgba(30,40,60,.18);
-      animation: drift linear infinite;
-    }
-    .cloud::before, .cloud::after { content: ''; position: absolute; border-radius: 50%; background: #eef1f5; box-shadow: inset 0 -6px 8px rgba(30,40,60,.12); }
-    .cloud::before { width: 46%; height: 52px; top: -30px; left: 7%; }
-    .cloud::after  { width: 32%; height: 36px; top: -20px; left: 54%; }
-    .cloud.isstatic { animation: none; }
-    @keyframes drift { from { left: -12% } to { left: 108% } }
-
-    .moon { position: absolute; right: 12%; top: 12%; z-index: 0; font-size: 54px; filter: drop-shadow(0 0 14px rgba(255,240,180,.95)); animation: pulse 5s ease-in-out infinite; }
-
-    .shooting {
-      position: absolute; top: 16%; right: -90px; width: 80px; height: 2px; z-index: 0;
-      background: linear-gradient(90deg, #fff, transparent); border-radius: 999px;
-      transform: rotate(-28deg); opacity: 0; animation: shoot 8s ease-in infinite;
-    }
-    @keyframes shoot { 0%,93%,100% { opacity:0; transform: translate(0,0) rotate(-28deg) } 95% { opacity:.95 } 98.5% { opacity:0; transform: translate(-150px, 70px) rotate(-28deg) } }
-
-    .fog {
-      position: absolute; z-index: 0; width: 220px; height: 72px;
-      background: radial-gradient(ellipse at center, rgba(255,255,255,.5), transparent 70%);
-      border-radius: 50%; filter: blur(7px); animation: fogdrift 22s ease-in-out infinite;
-    }
-    @keyframes fogdrift { 0%,100% { transform: translateX(-3%) scale(1); opacity:.3 } 50% { transform: translateX(5%) scale(1.18); opacity:.6 } }
 
     .star { position: absolute; width: 3px; height: 3px; border-radius: 50%; background: #fff; opacity:.9; animation: twinkle 2.4s ease-in-out infinite; }
     @keyframes twinkle { 0%,100% { opacity:.25 } 50% { opacity:1 } }
