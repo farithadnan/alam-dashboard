@@ -1,5 +1,6 @@
   <script>
     import FloodAlerts from "./ui/FloodAlerts.svelte";
+    import PageHeader from "./ui/PageHeader.svelte";
     import { app } from "../lib/store.svelte.js";
     import { getFlood } from "../lib/api.js";
     import { tr } from "../lib/i18n.svelte.js";
@@ -38,8 +39,7 @@
     const toggleSev = (s) => { sevFilter = sevFilter === s ? "" : s; };
   </script>
 
-  <h3 class="qh">{tr("floodTitle")}</h3>
+  <PageHeader title={tr("floodTitle")} updated={updatedAt ? new Date(updatedAt).toLocaleTimeString() : ""} />
   <p class="caption -mt-1 mb-1">{tr("floodNote")} · <a class="underline hover:text-accent" href="https://publicinfobanjir.water.gov.my/" target="_blank" rel="noopener">{tr("floodOpen")}</a></p>
-  {#if updatedAt}<p class="caption -mt-1 mb-1 text-muted">{tr("updated")} {new Date(updatedAt).toLocaleTimeString()}</p>{/if}
 
   <FloodAlerts river={data.river} rain={data.rain} loading={loading} state={state} sevFilter={sevFilter} onSev={toggleSev} present={present} total={total} highest={summary.highest} />

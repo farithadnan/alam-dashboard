@@ -24,7 +24,7 @@
       aria-expanded={open}
     >
       <span aria-hidden="true">↗</span>
-      <span class="text-[12px] font-medium {pill ? "" : "hidden sm:inline"}">{tr("share")}</span>
+      <span class="text-[12px] font-medium hidden sm:inline">{tr("share")}</span>
     </button>
 
     {#if open}

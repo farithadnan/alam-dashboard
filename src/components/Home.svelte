@@ -65,7 +65,6 @@
     {@const payload = sharePayload({ town: townName, state: app.state, now, townAir, air })}
     <div class="mt-1">
       <WeatherBanner icon={wmo2[0]} label={wmo2[1] || tr("weather")} temp={now.value} feels={now.meta?.apparentTemp ?? now.value} townName={townName} appState={app.state || ""} aqi={bannerAqi} town={app.town} state={app.state} share={payload} />
-      <p class="caption mt-1.5 text-muted">{tr("homeIntro")}{#if app.updated} · {tr("updated")} {app.updated}{/if}</p>
     </div>
   {:else if app.loading}
     <div class="glass mt-1 h-[190px] rounded-2xl p-4">
@@ -110,6 +109,8 @@
       </button>
     {/if}
   </div>
+
+  <p class="caption text-muted">{tr("homeIntro")}</p>
 
   <h3 class="qh" id="advisories" class:text-accent={flash}>{tr("advisories")}</h3>
   <Warnings />

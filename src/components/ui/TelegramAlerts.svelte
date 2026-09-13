@@ -17,6 +17,6 @@
       title={tr("alertsTelegram")}
     >
       <span aria-hidden="true">🔔</span>
-      <span class="text-[12px] font-medium {pill ? "" : "hidden sm:inline"}">{tr("alertsTelegram")}</span>
+      <span class="text-[12px] font-medium hidden sm:inline">{tr("alertsTelegram")}</span>
     </a>
   {/if}

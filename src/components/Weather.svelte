@@ -1,4 +1,5 @@
 <script>
+  import PageHeader from "./ui/PageHeader.svelte";
 import { app } from "../lib/store.svelte.js";
 import { groupBy } from "../lib/flags.js";
 import { wmo } from "../lib/weather-codes.js";
@@ -39,8 +40,7 @@ const picked = $derived(app.picked);
   <WeatherDetail station={app.town} />
 {:else}
   {@const scopeLabel = app.scope === "malaysia" ? "Malaysia" : app.state}
-  <h3 class="qh">{tr("navWeather")} · {scopeLabel}</h3>
-  {#if app.updated}<p class="caption -mt-1 text-muted">{tr("updated")} {app.updated}</p>{/if}
+  <PageHeader title={`${tr("navWeather")} · ${scopeLabel}`} updated={app.updated} />
   {#if avg != null}
     <p class="caption -mt-1">{tr("avgLine")} {Math.round(avg)}° · {tr("high")} {Math.round(hi)}° · {tr("low")} {Math.round(lo)}° · {towns.length} {tr("townsWord")}</p>
   {/if}

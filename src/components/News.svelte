@@ -3,6 +3,7 @@
     import { timeAgo } from "../lib/flags.js";
     import { tr } from "../lib/i18n.svelte.js";
     import SearchInput from "./ui/SearchInput.svelte";
+    import PageHeader from "./ui/PageHeader.svelte";
 
     const news = $derived(app.data?.news ?? []);
     let newsQ = $state("");
@@ -18,7 +19,7 @@
     );
   </script>
 
-  <h3 class="qh">{tr("newsTitle")}</h3>
+  <PageHeader title={tr("newsTitle")} updated={app.updated} />
   {#if news.length}
     <p class="caption -mt-1 mb-1 text-[10.5px] text-muted">{news.length} {tr("newsCount")}</p>
     <SearchInput bind:value={newsQ} placeholder={tr("searchNews")} ariaLabel={tr("searchNews")} />
