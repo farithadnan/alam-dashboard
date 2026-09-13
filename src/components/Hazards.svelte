@@ -6,6 +6,7 @@
     import MapView from "./ui/MapView.svelte";
     import PageHeader from "./ui/PageHeader.svelte";
     import Section from "./ui/Section.svelte";
+    import FilterPills from "./ui/FilterPills.svelte";
 
     const quakes = $derived(app.data?.hazards?.earthquakes ?? []);
     let magFilter = $state("all"); // all | strong | moderate | light
@@ -45,12 +46,7 @@
     <MapView pts={quakePts} class="h-72 w-full rounded-xl lg:h-[52vh] lg:min-h-[400px]" fitMax={8} />
   {/if}
 
-  <div class="mt-2 mb-1 flex flex-wrap gap-1.5">
-    {#each MATCARDS as c (c.id)}
-      <button type="button" class="pillfilter" onclick={() => (magFilter = c.id)}
-        style={magFilter === c.id ? `border-color:${c.color};color:${c.color};background:${c.color}1a` : ""}>{c.label} <span class="font-mono font-semibold">{c.n}</span></button>
-    {/each}
-  </div>
+  <FilterPills pills={MATCARDS.map((c) => ({ key: c.id, label: c.label, count: c.n, color: c.color }))} value={magFilter} onPick={(k) => (magFilter = k)} class="mt-2 mb-1" />
   <p class="caption -mt-1 mb-1 text-muted">{tr("quakeCountHint")}</p>
   {#if magFilter !== "all"}<button class="caption mb-1 cursor-pointer underline hover:text-accent" onclick={() => (magFilter = "all")}>Clear filter ({shown.length})</button>{/if}
   {#each groups as g (g.key)}

@@ -6,6 +6,7 @@
     import { locate } from "../lib/location.js";
     import ShareButton from "./ui/ShareButton.svelte";
     import PageHeader from "./ui/PageHeader.svelte";
+    import FilterPills from "./ui/FilterPills.svelte";
     import { airSharePayload } from "../lib/share.js";
     import { createLoader } from "../lib/async.js";
     import { tr, bandLabel, bandAdvice } from "../lib/i18n.svelte.js";
@@ -110,27 +111,7 @@
 
   {#if app.scope !== "near" && counts.length}
     <h3 class="qh">{tr("catTitle")}</h3>
-    <div class="mt-1 grid grid-cols-2 gap-2 sm:grid-cols-3">
-      {#each counts as c (c.label)}
-        {#if counts.length > 1}
-          <button type="button" class="glass flex items-center justify-between rounded-xl px-3 py-2"
-            onclick={() => (bandFilter = bandFilter === c.label ? "" : c.label)}
-            style={bandFilter === c.label ? `border-color:${numColor(c.label)};background:${numColor(c.label)}1a` : ""}>
-            <span class="flex items-center gap-2 text-[13px]">
-              <span class="inline-block size-3 rounded-full" style="background:{numColor(c.label)}"></span>{bandLabel(c.label)}
-            </span>
-            <span class="font-mono text-[18px] font-bold" style="color:{numColor(c.label)}">{c.n}</span>
-          </button>
-        {:else}
-          <div class="glass flex items-center justify-between rounded-xl px-3 py-2">
-            <span class="flex items-center gap-2 text-[13px]">
-              <span class="inline-block size-3 rounded-full" style="background:{numColor(c.label)}"></span>{bandLabel(c.label)}
-            </span>
-            <span class="font-mono text-[18px] font-bold" style="color:{numColor(c.label)}">{c.n}</span>
-          </div>
-        {/if}
-      {/each}
-    </div>
+    <FilterPills pills={counts.map((c) => ({ key: c.label, label: bandLabel(c.label), count: c.n, color: numColor(c.label) }))} value={bandFilter} onPick={(k) => (bandFilter = bandFilter === k ? "" : k)} class="mt-1" />
     {#if counts.length > 1 && bandFilter}
       <button class="caption mt-1 cursor-pointer underline hover:text-accent" onclick={() => (bandFilter = "")}>Clear filter ({shownStations.length})</button>
     {/if}

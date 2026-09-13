@@ -4,6 +4,7 @@
     import { mapPopup } from "../../lib/popup.js";
     import MapView from "./MapView.svelte";
     import Section from "./Section.svelte";
+    import FilterPills from "./FilterPills.svelte";
     import FloodRow from "./FloodRow.svelte";
     import Skeleton from "./Skeleton.svelte";
 
@@ -83,13 +84,7 @@
 
     <!-- Severity filter: compact pills (the old cards read as unexplained counts) -->
     {#if total}
-      <div class="mb-1 flex flex-wrap gap-1.5">
-        <button type="button" class="pillfilter" class:on={sevFilter === ""} onclick={() => onSev?.("")}>{tr("floodSevAll")} · {total}</button>
-        {#each present as p (p.s)}
-          <button type="button" class="pillfilter" onclick={() => onSev?.(p.s)}
-            style={sevFilter === p.s ? `border-color:${p.c};background:${p.c}1a;color:${p.c}` : ""}>{p.e} {p.label} · {p.n}</button>
-        {/each}
-      </div>
+      <FilterPills pills={[{ key: "", label: tr("floodSevAll"), count: total, color: "#8a8277" }, ...present.map((p) => ({ key: p.s, label: `${p.e} ${p.label}`, count: p.n, color: p.c }))]} value={sevFilter} onPick={(k) => onSev?.(k)} class="mb-1" />
       <p class="caption -mt-1 mb-2 text-muted">{tr("floodSevHint")}</p>
     {/if}
     {#if highest}

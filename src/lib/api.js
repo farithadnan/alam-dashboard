@@ -1,4 +1,6 @@
-const B = "./api";
+import { SITE } from "./config.js";
+// Single API base so a host migration is one config value, not a repo-wide search.
+const B = SITE.api || "./api";
 
 export async function j(url) {
   const r = await fetch(url);
