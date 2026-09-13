@@ -13,12 +13,13 @@
 
     let data = $state({ river: [], rain: [] });
     let loading = $state(false);
+    let updatedAt = $state("");
     let seq = 0;
     $effect(() => {
       const id = ++seq;
       loading = true;
       getFlood(state || undefined)
-        .then((r) => { if (id === seq) data = r ?? { river: [], rain: [] }; })
+        .then((r) => { if (id === seq) { data = r ?? { river: [], rain: [] }; updatedAt = r?.timestamp || ""; } })
         .catch(() => { if (id === seq) data = { river: [], rain: [] }; })
         .finally(() => { if (id === seq) loading = false; });
     });
@@ -39,5 +40,6 @@
 
   <h3 class="qh">{tr("floodTitle")}</h3>
   <p class="caption -mt-1 mb-1">{tr("floodNote")} · <a class="underline hover:text-accent" href="https://publicinfobanjir.water.gov.my/" target="_blank" rel="noopener">{tr("floodOpen")}</a></p>
+  {#if updatedAt}<p class="caption -mt-1 mb-1 text-muted">{tr("updated")} {new Date(updatedAt).toLocaleTimeString()}</p>{/if}
 
   <FloodAlerts river={data.river} rain={data.rain} loading={loading} state={state} sevFilter={sevFilter} onSev={toggleSev} present={present} total={total} highest={summary.highest} />

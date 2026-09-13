@@ -41,6 +41,7 @@ let open = $state(null);
 <h3 class="qh">{tr("quakeTitle")}</h3>
 <p class="caption -mt-1">{tr("quakeCap")}</p>
 
+{#if app.updated}<p class="caption -mt-1 text-muted">{tr("updated")} {app.updated}</p>{/if}
 {#if quakePts.length}
   <MapView pts={quakePts} class="h-72 w-full rounded-xl lg:h-[52vh] lg:min-h-[400px]" fitMax={8} />
 {/if}

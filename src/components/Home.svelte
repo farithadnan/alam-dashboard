@@ -72,7 +72,7 @@
         <TelegramAlerts town={app.town} state={app.state} />
         <ShareButton payload={payload} />
       </div>
-      <p class="caption mt-1.5 text-muted">{tr("homeIntro")}</p>
+      <p class="caption mt-1.5 text-muted">{tr("homeIntro")}{#if app.updated} · {tr("updated")} {app.updated}{/if}</p>
     </div>
   {:else if app.loading}
     <div class="glass mt-1 h-[190px] rounded-2xl p-4">

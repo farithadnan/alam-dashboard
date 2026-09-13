@@ -99,6 +99,7 @@ async function nearestStation() {
 }
 </script>
 
+{#if app.updated}<p class="caption mb-1 text-muted">{tr("updated")} {app.updated}</p>{/if}
 <MapView pts={allPts} class="h-72 w-full rounded-xl lg:h-[52vh] lg:min-h-[400px]" fitMax={app.scope === "near" ? 12 : app.scope === "state" ? 9 : 8} focus={mapFocus} />
 {#if legend.length}
   <ul class="mt-2 flex list-none flex-wrap gap-2 p-0 text-[12px]">

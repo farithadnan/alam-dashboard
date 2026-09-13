@@ -17,7 +17,18 @@ import News from "./components/News.svelte";
 import About from "./components/About.svelte";
 import Api from "./components/Api.svelte";
 
-let view = $state("home");
+const HASH_TO_VIEW = { "": "home", weather: "weather", air: "air", flood: "flood", earthquakes: "hazards", news: "news", about: "about", api: "api" };
+const VIEW_TO_HASH = { home: "", weather: "weather", air: "air", flood: "flood", hazards: "earthquakes", news: "news", about: "about", api: "api" };
+function readHash() {
+  const h = (typeof location !== "undefined" ? location.hash : "").replace(/^#\/?/, "");
+  return HASH_TO_VIEW[h] ?? "home";
+}
+let view = $state(readHash());
+$effect(() => {
+  // Keep the URL in sync (replaceState avoids a hashchange loop) so deep links work.
+  const want = VIEW_TO_HASH[view] ? `#/${VIEW_TO_HASH[view]}` : "#/";
+  if (typeof location !== "undefined" && location.hash !== want) history.replaceState(null, "", want);
+});
 let locOpen = $state(false);
 let settingsOpen = $state(false);
 let locBusy = $state(false);
@@ -44,7 +55,8 @@ onMount(() => {
   load();
   applyTheme();
   const t = setInterval(() => { if (!document.hidden) load(); }, 300000); // 5 min, paused when tab hidden
-  return () => clearInterval(t);
+  window.addEventListener("hashchange", () => { const v = readHash(); if (v !== view) view = v; });
+  return () => { clearInterval(t); window.removeEventListener("hashchange", () => {}); };
 });
 function onStatePick(e) {
   // Move the town with the state right away, so we never request a town that

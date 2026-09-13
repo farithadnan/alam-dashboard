@@ -40,6 +40,7 @@ const picked = $derived(app.picked);
 {:else}
   {@const scopeLabel = app.scope === "malaysia" ? "Malaysia" : app.state}
   <h3 class="qh">{tr("navWeather")} · {scopeLabel}</h3>
+  {#if app.updated}<p class="caption -mt-1 text-muted">{tr("updated")} {app.updated}</p>{/if}
   {#if avg != null}
     <p class="caption -mt-1">{tr("avgLine")} {Math.round(avg)}° · {tr("high")} {Math.round(hi)}° · {tr("low")} {Math.round(lo)}° · {towns.length} {tr("townsWord")}</p>
   {/if}
