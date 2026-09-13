@@ -28,6 +28,9 @@
     {#if scene === "sunny" || scene === "partly"}
       <span class="sun" aria-hidden="true">☀️</span>
     {/if}
+    {#if scene === "partly"}
+      <span class="cloud" aria-hidden="true"></span>
+    {/if}
     {#if scene === "night"}
       <span class="moon" aria-hidden="true">🌙</span>
       {#each stars as s, i (i)}
@@ -88,6 +91,17 @@
     @keyframes pulse { 0%,100% { transform: scale(1); opacity:.85 } 50% { transform: scale(1.12); opacity:1 } }
 
     .sun { position: absolute; right: 14%; top: 10%; z-index: 0; font-size: 54px; filter: drop-shadow(0 0 14px rgba(255,220,120,.9)); animation: pulse 3.5s ease-in-out infinite; }
+
+    .cloud {
+      position: absolute; right: 30%; top: 7%; z-index: 0; width: 120px; height: 40px;
+      background:
+        radial-gradient(circle 15px at 30px 12px, #fff 94%, rgba(255,255,255,0)),
+        radial-gradient(circle 21px at 62px 5px, #fff 94%, rgba(255,255,255,0)),
+        radial-gradient(circle 13px at 94px 16px, #fff 94%, rgba(255,255,255,0)),
+        #fff;
+      border-radius: 999px; opacity: .95;
+      filter: drop-shadow(0 2px 4px rgba(30,40,60,.18));
+    }
 
     .moon { position: absolute; right: 12%; top: 12%; z-index: 0; font-size: 50px; filter: drop-shadow(0 0 12px rgba(255,240,180,.9)); animation: pulse 5s ease-in-out infinite; }
 
