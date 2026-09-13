@@ -3,8 +3,6 @@
     import { numColor, atTown } from "../lib/flags.js";
     import { wmo } from "../lib/weather-codes.js";
     import { tr, trFmt, bandLabel } from "../lib/i18n.svelte.js";
-    import ShareButton from "./ui/ShareButton.svelte";
-    import TelegramAlerts from "./ui/TelegramAlerts.svelte";
     import WeatherBanner from "./ui/WeatherBanner.svelte";
     import { sharePayload } from "../lib/share.js";
     import { activeWarnings } from "../lib/warnings.js";
@@ -66,12 +64,7 @@
   {#if now}
     {@const payload = sharePayload({ town: townName, state: app.state, now, townAir, air })}
     <div class="mt-1">
-      <WeatherBanner icon={wmo2[0]} label={wmo2[1] || tr("weather")} temp={now.value} feels={now.meta?.apparentTemp ?? now.value} townName={townName} appState={app.state || ""} aqi={bannerAqi} />
-      <!-- Actions live outside the banner, aligned right -->
-      <div class="mt-2 flex justify-end gap-1.5">
-        <TelegramAlerts town={app.town} state={app.state} />
-        <ShareButton payload={payload} />
-      </div>
+      <WeatherBanner icon={wmo2[0]} label={wmo2[1] || tr("weather")} temp={now.value} feels={now.meta?.apparentTemp ?? now.value} townName={townName} appState={app.state || ""} aqi={bannerAqi} town={app.town} state={app.state} share={payload} />
       <p class="caption mt-1.5 text-muted">{tr("homeIntro")}{#if app.updated} · {tr("updated")} {app.updated}{/if}</p>
     </div>
   {:else if app.loading}

@@ -3,7 +3,7 @@
     import { shareCard, shareText, shareCaption, shareIntent } from "../../lib/sharecard.js";
 
     /** `payload` comes from lib/share.js so every share entry point is identical. */
-    let { payload, textOnly = false, class: cls = "" } = $props();
+    let { payload, textOnly = false, class: cls = "", pill = false } = $props();
     let open = $state(false);
     const msg = $derived(textOnly ? payload?.text || shareCaption(payload) : shareCaption(payload));
     const items = $derived([
@@ -16,7 +16,7 @@
 
   <div class="relative inline-flex">
     <button
-      class="iconbtn shrink-0 gap-1.5 {cls}"
+      class="{(pill ? "pillbtn" : "iconbtn") + " shrink-0 gap-1.5 " + cls}"
       onclick={() => (open = !open)}
       aria-label={tr("share")}
       title={tr("share")}
@@ -24,7 +24,7 @@
       aria-expanded={open}
     >
       <span aria-hidden="true">↗</span>
-      <span class="hidden text-[12px] font-medium sm:inline">{tr("share")}</span>
+      <span class="text-[12px] font-medium {pill ? "" : "hidden sm:inline"}">{tr("share")}</span>
     </button>
 
     {#if open}

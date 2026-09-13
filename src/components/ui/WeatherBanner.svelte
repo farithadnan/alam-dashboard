@@ -12,9 +12,10 @@
     import Rain from "./weatherbanner/Rain.svelte";
     import ThunderFlash from "./weatherbanner/ThunderFlash.svelte";
     import Overlay from "./weatherbanner/Overlay.svelte";
+    import Actions from "./weatherbanner/Actions.svelte";
     import { sceneOf } from "./weatherbanner/scene.js";
 
-    let { icon = "☀️", label = "", temp = 0, feels = 0, townName = "", appState = "", aqi = null } = $props();
+    let { icon = "☀️", label = "", temp = 0, feels = 0, townName = "", appState = "", aqi = null, town = "", state = "", share = null, showTelegram = true, showShare = true } = $props();
     const scene = $derived(sceneOf(icon));
   </script>
 
@@ -26,7 +27,9 @@
     {#if scene === "rain" || scene === "thunder"}<Rain heavy={scene === "thunder"} />{/if}
     {#if scene === "thunder"}<ThunderFlash />{/if}
 
-    <Overlay {label} {townName} {appState} {temp} {feels} {aqi} />
+    <Overlay {label} {townName} {appState} {temp} {feels} {aqi}>
+      <svelte:fragment slot="actions"><Actions {town} {state} {share} {showTelegram} {showShare} /></svelte:fragment>
+    </Overlay>
   </div>
 
   <style>
