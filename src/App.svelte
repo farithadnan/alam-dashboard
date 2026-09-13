@@ -90,7 +90,7 @@ function toggleLang() {
     </nav>
 
     <div class="ml-auto flex items-center gap-1.5">
-      {#if (view === "weather" || view === "air") && !app.picked}
+      {#if (view === "weather" || view === "air" || view === "flood") && !app.picked}
         <div class="seg" role="group" aria-label="Scope">
           {#each SCOPES as s (s.value)}
             <button class:on={app.scope === s.value} class="segbtn" onclick={() => (app.scope = s.value)}>{tr(s.key)}</button>
