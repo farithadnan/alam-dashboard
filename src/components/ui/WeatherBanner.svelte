@@ -23,7 +23,7 @@
     <div class="sun-glow" aria-hidden="true"></div>
 
     {#if scene === "sunny" || scene === "partly"}<Sun />{/if}
-    {#if scene === "partly"}<Cloud style="right:27%;top:3%;width:130px;height:58px" kind="cloudy" />{/if}
+    {#if scene === "partly"}<Cloud style="right:24%;top:4%" scale={0.4} tone={0} />{/if}
     {#if scene === "night"}<Moon /><Stars count={18} /><ShootingStar />{/if}
     {#if scene === "rain" || scene === "thunder"}<Rain heavy={scene === "thunder"} />{/if}
     {#if scene === "thunder"}<ThunderFlash />{/if}
