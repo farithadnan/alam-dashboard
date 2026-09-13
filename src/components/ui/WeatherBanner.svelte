@@ -29,7 +29,16 @@
       <span class="sun" aria-hidden="true">☀️</span>
     {/if}
     {#if scene === "partly"}
-      <span class="cloud" aria-hidden="true"></span>
+      <svg class="partlycloud" viewBox="0 0 130 52" aria-hidden="true" focusable="false">
+        <filter id="alamcloudfractal" x="-40%" y="-60%" width="180%" height="240%">
+          <feTurbulence type="fractalNoise" baseFrequency=".02" numOctaves="6" seed="7" />
+          <feDisplacementMap in="SourceGraphic" scale="26" />
+        </filter>
+        <g filter="url(#alamcloudfractal)">
+          <ellipse cx="48" cy="20" rx="32" ry="17" class="cloudpuff" />
+          <ellipse cx="82" cy="28" rx="27" ry="14" class="cloudpuff" />
+        </g>
+      </svg>
     {/if}
     {#if scene === "night"}
       <span class="moon" aria-hidden="true">🌙</span>
@@ -92,16 +101,8 @@
 
     .sun { position: absolute; right: 14%; top: 10%; z-index: 0; font-size: 54px; filter: drop-shadow(0 0 14px rgba(255,220,120,.9)); animation: pulse 3.5s ease-in-out infinite; }
 
-    .cloud {
-      position: absolute; right: 30%; top: 7%; z-index: 0; width: 120px; height: 40px;
-      background:
-        radial-gradient(circle 15px at 30px 12px, #fff 94%, rgba(255,255,255,0)),
-        radial-gradient(circle 21px at 62px 5px, #fff 94%, rgba(255,255,255,0)),
-        radial-gradient(circle 13px at 94px 16px, #fff 94%, rgba(255,255,255,0)),
-        #fff;
-      border-radius: 999px; opacity: .95;
-      filter: drop-shadow(0 2px 4px rgba(30,40,60,.18));
-    }
+    .partlycloud { position: absolute; right: 27%; top: 4%; z-index: 0; width: 130px; height: 52px; }
+    .cloudpuff { fill: #fff; opacity: .88; }
 
     .moon { position: absolute; right: 12%; top: 12%; z-index: 0; font-size: 50px; filter: drop-shadow(0 0 12px rgba(255,240,180,.9)); animation: pulse 5s ease-in-out infinite; }
 
