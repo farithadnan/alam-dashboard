@@ -66,12 +66,12 @@
   {#if now}
     {@const payload = sharePayload({ town: townName, state: app.state, now, townAir, air })}
     <div class="mt-1">
-      <WeatherBanner icon={wmo2[0]} label={wmo2[1] || tr("weather")} temp={now.value} feels={now.meta?.apparentTemp ?? now.value} townName={townName} appState={app.state || ""} aqi={bannerAqi}>
-        <svelte:fragment slot="actions">
-          <TelegramAlerts town={app.town} state={app.state} />
-          <ShareButton payload={payload} />
-        </svelte:fragment>
-      </WeatherBanner>
+      <WeatherBanner icon={wmo2[0]} label={wmo2[1] || tr("weather")} temp={now.value} feels={now.meta?.apparentTemp ?? now.value} townName={townName} appState={app.state || ""} aqi={bannerAqi} />
+      <!-- Actions live outside the banner, aligned right -->
+      <div class="mt-2 flex justify-end gap-1.5">
+        <TelegramAlerts town={app.town} state={app.state} />
+        <ShareButton payload={payload} />
+      </div>
       <p class="caption mt-1.5 text-muted">{tr("homeIntro")}</p>
     </div>
   {:else if app.loading}
