@@ -1,6 +1,7 @@
 <script>
 import { onMount } from "svelte";
 import { app, load, initLoc } from "./lib/store.svelte.js";
+import { checkNotifications } from "./lib/notify.js";
 import { theme, toggleTheme, applyTheme } from "./lib/theme.svelte.js";
 import { lang, setLang, tr, trFmt } from "./lib/i18n.svelte.js";
 import { nearestState } from "./lib/flags.js";
@@ -49,6 +50,10 @@ $effect(() => {
   void app.town;
   void app.picked;
   if (app.state) load();
+});
+$effect(() => {
+  // Notify on each successful data refresh (once per change, one compiled alert).
+  if (app.updated) void checkNotifications({ app });
 });
 onMount(() => {
   initLoc();
