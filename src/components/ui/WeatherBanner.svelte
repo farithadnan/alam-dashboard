@@ -17,21 +17,22 @@
 
     let { icon = "☀️", label = "", temp = 0, feels = 0, townName = "", appState = "", aqi = null } = $props();
     const scene = $derived(sceneOf(icon));
-    const drops = $derived(Array.from({ length: 30 }, (_, i) => ({ left: (i * 41) % 100, delay: (i * 0.7) % 2.4, dur: 0.9 + ((i * 13) % 10) / 10 })));
-    const stars = $derived(Array.from({ length: 10 }, (_, i) => ({ left: (i * 37) % 96 + 2, top: (i * 29) % 50, delay: (i % 4) * 0.8 })));
+    const drops = $derived(scene === "thunder"
+      ? Array.from({ length: 48 }, (_, i) => ({ left: (i * 27) % 100, delay: (i * 0.32) % 1.7, dur: 0.5 + ((i * 11) % 7) / 10 }))
+      : Array.from({ length: 30 }, (_, i) => ({ left: (i * 41) % 100, delay: (i * 0.7) % 2.4, dur: 0.9 + ((i * 13) % 10) / 10 })));
+    const stars = $derived(Array.from({ length: 16 }, (_, i) => ({ left: (i * 43) % 94 + 2, top: (i * 29) % 72, delay: (i % 5) * 0.7 })));
   </script>
 
   <div class="banner scene-{scene} relative flex flex-col justify-between overflow-hidden rounded-2xl text-white" role="img" aria-label={label}>
     <div class="sun-glow" aria-hidden="true"></div>
-    {#if scene === "sunny" || scene === "partly"}
-      <div class="rays" aria-hidden="true"></div>
-    {/if}
     {#if scene === "night"}
+      <span class="moon" aria-hidden="true">🌙</span>
       {#each stars as s, i (i)}
         <span class="star" style="left:{s.left}%;top:{s.top}%;animation-delay:{s.delay}s" aria-hidden="true"></span>
       {/each}
+      <span class="shooting" aria-hidden="true"></span>
     {/if}
-    {#if scene === "rain"}
+    {#if scene === "rain" || scene === "thunder"}
       {#each drops as d, i (i)}
         <span class="drop" style="left:{d.left}%;animation-delay:{d.delay}s;animation-duration:{d.dur}s" aria-hidden="true"></span>
       {/each}
@@ -83,15 +84,14 @@
     }
     @keyframes pulse { 0%,100% { transform: scale(1); opacity:.85 } 50% { transform: scale(1.12); opacity:1 } }
 
-    .rays {
-      position: absolute; left: 50%; top: 43%; width: 150px; height: 150px;
-      transform: translate(-50%, -50%);
-      background: repeating-conic-gradient(from 0deg, rgba(255,255,255,.35) 0deg 6deg, transparent 6deg 22deg);
-      -webkit-mask: radial-gradient(circle, transparent 52%, #000 53%, #000 62%, transparent 63%);
-      mask: radial-gradient(circle, transparent 52%, #000 53%, #000 62%, transparent 63%);
-      animation: spin 16s linear infinite;
+    .moon { position: absolute; right: 12%; top: 12%; z-index: 0; font-size: 50px; filter: drop-shadow(0 0 12px rgba(255,240,180,.9)); animation: pulse 5s ease-in-out infinite; }
+
+    .shooting {
+      position: absolute; top: 15%; right: -90px; width: 80px; height: 2px; z-index: 0;
+      background: linear-gradient(90deg, #fff, transparent); border-radius: 999px;
+      transform: rotate(-28deg); opacity: 0; animation: shoot 8s ease-in infinite;
     }
-    @keyframes spin { to { transform: translate(-50%, -50%) rotate(360deg) } }
+    @keyframes shoot { 0%,93%,100% { opacity:0; transform: translate(0,0) rotate(-28deg) } 95% { opacity:.95 } 98.5% { opacity:0; transform: translate(-150px, 70px) rotate(-28deg) } }
 
     .star { position: absolute; width: 3px; height: 3px; border-radius: 50%; background: #fff; opacity:.9; animation: twinkle 2.4s ease-in-out infinite; }
     @keyframes twinkle { 0%,100% { opacity:.25 } 50% { opacity:1 } }
