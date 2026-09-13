@@ -3,22 +3,24 @@
     import { tr, trFmt } from "../../lib/i18n.svelte.js";
     import { mapPopup } from "../../lib/popup.js";
     import MapView from "./MapView.svelte";
+    import Section from "./Section.svelte";
+    import FloodRow from "./FloodRow.svelte";
 
-    /** Presentational: parent fetches and passes {river, rain, loading, state}.
-     * state "" = all Malaysia (grouped by state); otherwise a single state. */
-    let { river = [], rain = [], loading = false, state = "" } = $props();
+    /** Presentational: parent fetches and passes river/rain/loading/state/sevFilter.
+     * state "" = all Malaysia (grouped by collapsible state); otherwise one state.
+     * sevFilter "" = all severities, else only that severity. */
+    let { river = [], rain = [], loading = false, state = "", sevFilter = "" } = $props();
 
-    const sevColor = (s) =>
-      ({ Danger: "var(--color-vunhealthy)", Warning: "var(--color-unhealthy)", Alert: "var(--color-moderate)", Heavy: "var(--color-unhealthy)", Moderate: "var(--color-moderate)" })[s] ?? "var(--color-muted)";
     const PIN_COLOR = { Danger: "#a51110", Warning: "#e05d2b", Alert: "#b26a00", Heavy: "#3b6ea8", Moderate: "#6f8fb0" };
 
+    const friver = $derived(sevFilter ? river.filter((a) => a.severity === sevFilter) : river);
+    const frain = $derived(sevFilter ? rain.filter((a) => a.severity === sevFilter) : rain);
+    const hasData = $derived(friver.length > 0 || frain.length > 0);
     const displayState = $derived(state || app.state || "Malaysia");
-    const grouped = $derived(!state);
 
-    // Pins for the map: every shown station, coloured by severity.
     const floodPts = $derived.by(() => {
       const out = [];
-      for (const a of river) {
+      for (const a of friver) {
         if (typeof a.lat === "number" && typeof a.lon === "number") {
           out.push({
             lat: a.lat, lon: a.lon, color: PIN_COLOR[a.severity] ?? "#8a8277", num: Number(a.level).toFixed(1), size: 24, ripple: true,
@@ -26,7 +28,7 @@
           });
         }
       }
-      for (const a of rain) {
+      for (const a of frain) {
         if (typeof a.lat === "number" && typeof a.lon === "number") {
           out.push({
             lat: a.lat, lon: a.lon, color: PIN_COLOR[a.severity] ?? "#6f8fb0", num: String(Math.round(a.mmHour)), size: 20, ripple: true,
@@ -37,60 +39,66 @@
       return out;
     });
 
-    // Flatten both alert lists into one renderable sequence (real headers, state
-    // group labels, and rows) so a single each renders everything, snippet-free.
-    const rows = $derived.by(() => {
-      const out = [];
+    // All-Malaysia view: one collapsible section per state (river + rain rows inside).
+    const sections = $derived.by(() => {
+      const map = new Map();
       const add = (list, isRain) => {
-        if (!list.length) return;
-        out.push({ kind: "head", isRain, title: isRain ? tr("floodRain") : tr("floodRiver") });
-        if (grouped) {
-          for (const st of [...new Set(list.map((a) => a.state).filter(Boolean))].sort()) {
-            out.push({ kind: "sub", isRain, title: st });
-            for (const a of list.filter((x) => x.state === st)) out.push({ kind: "row", isRain, a });
-          }
-        } else {
-          for (const a of list) out.push({ kind: "row", isRain, a });
+        for (const a of list) {
+          const k = a.state || "Other";
+          let g = map.get(k);
+          if (!g) { g = { state: k, river: [], rain: [] }; map.set(k, g); }
+          (isRain ? g.rain : g.river).push(a);
         }
       };
-      add(river, false);
-      add(rain, true);
-      return out;
+      add(friver, false);
+      add(frain, true);
+      return [...map.values()].sort((a, b) => a.state.localeCompare(b.state));
     });
   </script>
 
-  {#if loading && !river.length && !rain.length}
+  {#if loading && !hasData}
     <p class="caption">{tr("updating")}</p>
-  {:else if rows.length}
+  {:else if hasData}
     {#if floodPts.length}
       <MapView pts={floodPts} class="mb-3 h-52 w-full rounded-xl" fitMax={9} />
     {/if}
-    <ul class="list-none m-0 border-t border-line p-0">
-      {#each rows as it, i (i)}
-        {#if it.kind === "head"}
-          <li class="caption mb-0.5 mt-2 list-none pl-2.5 pr-2.5 text-[12.5px] first:mt-1">{it.title}</li>
-        {:else if it.kind === "sub"}
-          <li class="caption mb-0.5 mt-1.5 list-none pl-2.5 pr-2.5 text-[12px] font-semibold">{it.title}</li>
-        {:else}
-          <li class="flex items-center gap-3 border-b border-line px-2.5 py-2 text-[13px]">
-            <span class="w-1.5 shrink-0 self-stretch rounded" style="background:{sevColor(it.a.severity)}" aria-hidden="true"></span>
-            <div class="min-w-0 flex-1">
-              <div class="truncate font-medium">{it.a.stationName}</div>
-              <div class="text-[12px] text-muted">{it.a.district}, {it.a.state}</div>
-            </div>
-            <div class="shrink-0 text-right">
-              {#if it.isRain}
-                <div class="font-mono text-[13px] font-semibold">{it.a.mmHour} mm/hr</div>
-                <div class="text-[11px]" style="color:{sevColor(it.a.severity)}">{it.a.severity}</div>
-              {:else}
-                <div class="font-mono text-[13px] font-semibold">{it.a.level} m</div>
-                <div class="text-[11px]" style="color:{sevColor(it.a.severity)}">{it.a.severity}{#if it.a.trend} · {it.a.trend}{/if}</div>
-              {/if}
-            </div>
-          </li>
+    {#if state}
+      <ul class="list-none m-0 border-t border-line p-0">
+        {#if friver.length}
+        <li class="caption mb-0.5 mt-1 list-none pl-2.5 pr-2.5 text-[12.5px]">{tr("floodRiver")}</li>
+        {#each friver as a, i (i)}
+          <FloodRow {a} />
+        {/each}
         {/if}
+        {#if frain.length}
+        <li class="caption mb-0.5 mt-2 list-none pl-2.5 pr-2.5 text-[12.5px]">{tr("floodRain")}</li>
+        {#each frain as a, i1 (i1)}
+          <FloodRow {a} isRain />
+        {/each}
+        {/if}
+      </ul>
+    {:else}
+      {#each sections as sec (sec.state)}
+        <Section title={sec.state} startOpen={false}>
+          {#if sec.river.length}
+            <div class="caption mb-0.5 mt-1 px-2.5 text-[12px] text-muted">{tr("floodRiver")}</div>
+            <ul class="list-none m-0 p-0">
+              {#each sec.river as a, i (i)}
+                <FloodRow {a} />
+              {/each}
+            </ul>
+          {/if}
+          {#if sec.rain.length}
+            <div class="caption mb-0.5 mt-1 px-2.5 text-[12px] text-muted">{tr("floodRain")}</div>
+            <ul class="list-none m-0 p-0">
+              {#each sec.rain as a, i1 (i1)}
+                <FloodRow {a} isRain />
+              {/each}
+            </ul>
+          {/if}
+        </Section>
       {/each}
-    </ul>
+    {/if}
   {:else}
     <p class="caption">{trFmt("floodNone", { state: displayState })}</p>
     <p class="caption mt-0.5">{tr("floodMonitor")}</p>

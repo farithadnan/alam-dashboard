@@ -80,6 +80,7 @@ const wkLo = $derived(wkDays.length ? Math.min(...wkDays.map((d) => d.tmin ?? 0)
 const wkHi = $derived(wkDays.length ? Math.max(...wkDays.map((d) => d.tmax ?? 0)) : 1);
 const wkSpan = $derived(Math.max(1, wkHi - wkLo));
 const barPct = (v) => Math.max(0, Math.min(100, ((v - wkLo) / wkSpan) * 100));
+let selDay = $state(0);
 // MET's district forecast is Malay free-text; pick a stand-in icon from the wording.
 const metIcon = (text) => {
   const t = (text || "").toLowerCase();
@@ -181,20 +182,24 @@ function hourLabel(t) {
     <p class="caption -mt-0.5 mb-1">{tr("forecastLegend")}</p>
     {#if wkDays.length}
       <div class="grid grid-cols-7 gap-1 overflow-x-auto">
-        {#each wkDays as d (d.date)}
+        {#each wkDays as d, i (d.date)}
           {@const w = barPct(d.tmin ?? 0)}
           {@const h = Math.max(2, barPct(d.tmax ?? 0) - w)}
-          <div class="flex min-w-[48px] flex-col items-center gap-1 pb-1">
+          <button type="button" class="flex min-w-[48px] cursor-pointer flex-col items-center gap-1 pb-1" onclick={() => (selDay = i)}
+            style={selDay === i ? "color:var(--color-accent)" : ""}>
             <span class="text-[11px] text-muted">{dayName(d.date)}</span>
             <span class="text-[17px] leading-none" aria-hidden="true">{metIcon(d.summary)}</span>
-            <div class="relative h-16 w-2.5 rounded-full bg-line">
-              <div class="absolute left-0 right-0 rounded-full" style="bottom:{w}%;height:{h}%;background:#e05d2b"></div>
-            </div>
+            <span class="relative h-16 w-2.5 rounded-full bg-line">
+              <span class="absolute left-0 right-0 rounded-full" style="bottom:{w}%;height:{h}%;background:#e05d2b"></span>
+            </span>
             <span class="text-[11.5px] font-semibold">{d.tmax}°</span>
             <span class="-mt-0.5 text-[10.5px] text-muted">{d.tmin}°</span>
-          </div>
+          </button>
         {/each}
       </div>
+      {#if wkDays[selDay]}
+        <p class="caption mt-2">{wkDays[selDay].summary}{#if wkDays[selDay].when}<span class="text-muted"> · {wkDays[selDay].when}</span>{/if}</p>
+      {/if}
     {/if}
   {/if}
 
