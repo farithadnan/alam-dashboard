@@ -14,8 +14,20 @@
 
     const PIN_COLOR = { Danger: "#a51110", Warning: "#e05d2b", Alert: "#b26a00", Heavy: "#3b6ea8", Moderate: "#6f8fb0" };
 
-    const friver = $derived(sevFilter ? river.filter((a) => a.severity === sevFilter) : river);
-    const frain = $derived(sevFilter ? rain.filter((a) => a.severity === sevFilter) : rain);
+    // The feed can list a station more than once — show each station once (worst severity).
+    const RANK = { Danger: 0, Warning: 1, Alert: 2, Moderate: 3, Heavy: 3 };
+    const dedupe = (list) => {
+      const m = new Map();
+      for (const a of list) {
+        const cur = m.get(a.station);
+        const rk = RANK[a.severity] ?? 9;
+        if (!cur || rk < (RANK[cur.severity] ?? 9)) m.set(a.station, a);
+      }
+      return [...m.values()];
+    };
+
+    const friver = $derived(dedupe(sevFilter ? river.filter((a) => a.severity === sevFilter) : river));
+    const frain = $derived(dedupe(sevFilter ? rain.filter((a) => a.severity === sevFilter) : rain));
     const hasData = $derived(friver.length > 0 || frain.length > 0);
     const displayState = $derived(state || app.state || "Malaysia");
 
