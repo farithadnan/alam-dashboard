@@ -25,6 +25,9 @@
 
   <div class="banner scene-{scene} relative flex flex-col justify-between overflow-hidden rounded-2xl text-white" role="img" aria-label={label}>
     <div class="sun-glow" aria-hidden="true"></div>
+    {#if scene === "sunny" || scene === "partly"}
+      <span class="sun" aria-hidden="true">☀️</span>
+    {/if}
     {#if scene === "night"}
       <span class="moon" aria-hidden="true">🌙</span>
       {#each stars as s, i (i)}
@@ -83,6 +86,8 @@
       background: radial-gradient(circle, rgba(255,255,220,.28), transparent 65%);
     }
     @keyframes pulse { 0%,100% { transform: scale(1); opacity:.85 } 50% { transform: scale(1.12); opacity:1 } }
+
+    .sun { position: absolute; right: 14%; top: 10%; z-index: 0; font-size: 54px; filter: drop-shadow(0 0 14px rgba(255,220,120,.9)); animation: pulse 3.5s ease-in-out infinite; }
 
     .moon { position: absolute; right: 12%; top: 12%; z-index: 0; font-size: 50px; filter: drop-shadow(0 0 12px rgba(255,240,180,.9)); animation: pulse 5s ease-in-out infinite; }
 
