@@ -16,10 +16,9 @@ import Hazards from "./components/Hazards.svelte";
 import News from "./components/News.svelte";
 import About from "./components/About.svelte";
 import Api from "./components/Api.svelte";
-import Banners from "./components/Banners.svelte";
 
-const HASH_TO_VIEW = { "": "home", weather: "weather", air: "air", flood: "flood", earthquakes: "hazards", news: "news", about: "about", api: "api", banners: "banners" };
-const VIEW_TO_HASH = { home: "", weather: "weather", air: "air", flood: "flood", hazards: "earthquakes", news: "news", about: "about", api: "api", banners: "banners" };
+const HASH_TO_VIEW = { "": "home", weather: "weather", air: "air", flood: "flood", earthquakes: "hazards", news: "news", about: "about", api: "api" };
+const VIEW_TO_HASH = { home: "", weather: "weather", air: "air", flood: "flood", hazards: "earthquakes", news: "news", about: "about", api: "api" };
 function readHash() {
   const h = (typeof location !== "undefined" ? location.hash : "").replace(/^#\/?/, "");
   return HASH_TO_VIEW[h] ?? "home";
@@ -216,8 +215,6 @@ function toggleLang() {
     <News />
   {:else if view === "api"}
     <Api />
-  {:else if view === "banners"}
-    <Banners />
   {:else}
     <About />
   {/if}
