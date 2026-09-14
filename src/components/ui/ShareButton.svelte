@@ -28,8 +28,8 @@
     </button>
 
     {#if open}
-      <button class="fixed inset-0 z-40 cursor-default" onclick={() => (open = false)} aria-label="Close share menu"></button>
-      <div class="absolute right-0 top-full z-50 mt-1 w-56 rounded-xl border border-line bg-panel p-1 text-[13px] shadow-xl" role="menu">
+      <button class="fixed inset-0 z-40 cursor-default bg-black/30" onclick={() => (open = false)} aria-label="Close share menu"></button>
+      <div class="fixed left-1/2 top-1/2 z-50 w-56 max-h-[70vh] -translate-x-1/2 -translate-y-1/2 overflow-y-auto rounded-xl border border-line bg-panel p-1 text-[13px] shadow-xl" role="menu">
         <button class="shareitem" role="menuitem" onclick={() => { open = false; void (textOnly ? shareText(payload) : shareCard(payload)); }}>
           <span aria-hidden="true">🖼</span>{tr("shareCardBtn")}
         </button>

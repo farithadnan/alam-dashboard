@@ -9,7 +9,7 @@ const pptr = require("puppeteer-core");
   let errs = [];
   p.on("pageerror", (e) => errs.push("pageerror: " + String(e)));
   p.on("console", (m) => { if (m.type() === "error") errs.push("console: " + m.text()); });
-  await p.goto("http://localhost:8080/#/", { waitUntil: "domcontentloaded", timeout: 30000 });
+  await p.goto("https://app.oh-alam.my/#/", { waitUntil: "domcontentloaded", timeout: 40000 });
   await new Promise((r) => setTimeout(r, 2500));
   const text = await p.evaluate(() => document.body.innerText);
   const checks = {
