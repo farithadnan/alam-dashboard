@@ -7,7 +7,7 @@ describe("SITE config — one source for identity", () => {
     expect(SITE.url.endsWith("/")).toBe(false);
   });
   it("exposes the name and contact address once", () => {
-    expect(SITE.name).toBe("Alam");
+    expect(SITE.name).toBe("OhAlam");
     expect(SITE.email).toContain("@");
   });
   it("defaults the map key rather than leaving it undefined", () => {

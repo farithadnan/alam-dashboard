@@ -37,9 +37,9 @@ export function drawCard(d) {
   x.textBaseline = "alphabetic";
   x.fillStyle = "#242628";
   x.font = "800 46px system-ui, -apple-system, Segoe UI, sans-serif";
-  x.fillText("Alam", 72, 130);
+  x.fillText("OhAlam", 72, 130);
   x.fillStyle = "#c14a1f";
-  x.fillText(".", 72 + x.measureText("Alam").width, 130);
+  x.fillText(".", 72 + x.measureText("OhAlam").width, 130);
 
   x.fillStyle = "#6b6258";
   x.font = "400 42px system-ui, sans-serif";
@@ -68,7 +68,7 @@ export function drawCard(d) {
 
   x.fillStyle = "#b9b0a4";
   x.font = "400 32px system-ui, sans-serif";
-  x.fillText(d.footnote || "Alam · Malaysia air, weather & hazards", 72, H - 56);
+  x.fillText(d.footnote || "OhAlam · Malaysia air, weather & hazards", 72, H - 56);
   return c;
 }
 
@@ -111,7 +111,7 @@ export function shareIntent(service, text) {
 /** Share just the message: right for a warning that is going into a family chat. */
 export async function shareText(d) {
   const text = d.text || shareCaption(d);
-  const title = `Alam — ${d.town ?? "Malaysia"}`;
+  const title = `OhAlam — ${d.town ?? "Malaysia"}`;
   if (typeof navigator !== "undefined" && navigator.share) {
     try { await navigator.share({ title, text }); return; } catch { /* dismissed */ }
   }
@@ -126,7 +126,7 @@ export async function shareCard(d) {
   if (navigator.canShare?.({ files: [file] }) && navigator.share) {
     try {
       // A share with no message is just an image; always carry the numbers.
-      await navigator.share({ files: [file], title: `Alam — ${d.town ?? "Malaysia"}`, text: d.text || shareCaption(d) });
+      await navigator.share({ files: [file], title: `OhAlam — ${d.town ?? "Malaysia"}`, text: d.text || shareCaption(d) });
       return "shared";
     } catch (e) {
       if (e?.name === "AbortError") return "cancelled";

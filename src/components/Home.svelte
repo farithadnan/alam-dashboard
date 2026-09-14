@@ -6,7 +6,6 @@
     import WeatherBanner from "./ui/WeatherBanner.svelte";
     import { sharePayload } from "../lib/share.js";
     import { activeWarnings } from "../lib/warnings.js";
-    import { ensureNotifications, notificationsAvailable, notificationGranted, notificationDenied } from "../lib/notify.js";
     import { getFlood } from "../lib/api.js";
     import Skeleton from "./ui/Skeleton.svelte";
     import Warnings from "./Warnings.svelte";
@@ -75,12 +74,6 @@
         <Skeleton h={54} w="92px" class="!rounded-xl" />
       </div>
     </div>
-  {/if}
-
-  {#if notificationsAvailable() && !notificationGranted() && !notificationDenied()}
-    <button type="button" class="glass chip mb-1 inline-flex cursor-pointer items-center gap-1.5 rounded-full px-3 py-1 hover:border-accent" onclick={() => ensureNotifications()}>
-      🔔 {tr("enableAlerts")}
-    </button>
   {/if}
 
   <!-- Status + live counts: what to care about right now. -->

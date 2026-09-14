@@ -1,6 +1,6 @@
 {
-  "name": "Alam · Malaysia air, weather & hazards",
-  "short_name": "Alam",
+  "name": "OhAlam · Malaysia air, weather & hazards",
+  "short_name": "OhAlam",
   "description": "Free dashboard for air quality, weather and hazards across Malaysia.",
   "start_url": "/",
   "scope": "/",

@@ -17,7 +17,7 @@ export const ENV =
 
 export const SITE = {
   /** Shown in share titles and the document title. */
-  name: "Alam",
+  name: "OhAlam",
   env: ENV,
   /**
    * Where a shared link points. Set VITE_SITE_URL at build time once the app has its

@@ -1,4 +1,4 @@
-// Alam service worker — offline support for the app shell + last-seen data.
+// OhAlam service worker — offline support for the app shell + last-seen data.
 // API responses are network-first (always fresh when online) and fall back to
 // the last cached copy offline; static assets are cache-first.
 const VERSION = "alam-v1";

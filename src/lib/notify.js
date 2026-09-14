@@ -57,7 +57,7 @@
       const key = items.join("|");
       if (key === lastKey) return; // same set of alerts = already notified
       lastKey = key;
-      notify({ title: "Alam alerts", body: items.join("\n"), tag: "alam-alerts" });
+      notify({ title: "OhAlam alerts", body: items.join("\n"), tag: "alam-alerts" });
     } finally {
       busy = false;
     }
