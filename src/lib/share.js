@@ -2,6 +2,7 @@ import { numColor } from "./flags.js";
 import { wmo } from "./weather-codes.js";
 import { tr, bandLabel, bandAdvice, wmoLabel } from "./i18n.svelte.js";
 import { SITE } from "./config.js";
+import { shareCaption, shareIntent } from "./sharecard.js";
 
 /**
  * Build the share payload from the rows every view already holds.
@@ -50,4 +51,24 @@ export function telegramAlertsUrl(town, state) {
   const st = slug(state);
   if (!town || !st) return "";
   return `https://t.me/alamalerts_bot?start=loc_${town}_${st}`;
+}
+
+/**
+ * Every share angle with the EXACT output that would be sent, so the sharing value can be
+ * reviewed end-to-end (the "don't skip anything" table). One source of truth with the share
+ * popover: same caption, same intents, same card.
+ */
+export function shareOutlook(payload) {
+  const msg = payload?.text || shareCaption(payload);
+  const cardNote = payload?.text
+    ? "Plain-text bulletin (no card)"
+    : `Card PNG (1080×1080). Caption it carries: ${msg}`;
+  return [
+    { channel: "Share image", icon: "🖼", message: cardNote, link: null },
+    { channel: "WhatsApp", icon: "💬", message: msg, link: `https://wa.me/?text=${encodeURIComponent(msg)}` },
+    { channel: "X (Twitter)", icon: "𝕏", message: msg, link: shareIntent("x", msg) },
+    { channel: "Facebook", icon: "📘", message: msg, link: shareIntent("fb", msg) },
+    { channel: "Telegram", icon: "✈️", message: msg, link: shareIntent("t", msg) },
+    { channel: "Copy text", icon: "📋", message: msg, link: null },
+  ];
 }

@@ -64,6 +64,9 @@
         <button class="shareitem" role="menuitem" onclick={() => { open = false; void navigator.clipboard?.writeText(msg).catch(() => {}); }}>
           <span aria-hidden="true">📋</span>{tr("copyText")}
         </button>
+        <button class="shareitem border-t border-line mt-1 pt-1 text-muted" role="menuitem" onclick={() => { open = false; location.hash = "#/share"; }}>
+          <span aria-hidden="true">📊</span>{tr("sharePreview")}
+        </button>
       </div>
     {/if}
   </div>
