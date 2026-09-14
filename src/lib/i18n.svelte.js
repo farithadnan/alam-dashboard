@@ -1,7 +1,7 @@
 // Minimal BM/EN i18n as a shared runes store. Strings keyed; components call tr('key').
 const en = {
   navWeather: "Weather", navAQI: "AQI", navHazards: "Earthquakes", navAbout: "About", changeLoc: "Change location",
-  navHome: "Home", navFlood: "Flood", navNews: "News", homeIntro: "Live weather, air quality and hazard alerts for Malaysia — built on open official data.", homeIntroMore: "More", homeFlood: "{n} flood alerts", homeNews: "{n} hazard stories", searchEndpoints: "Search endpoints…", enableAlerts: "Enable device alerts", srcTitle: "Official sources", srcHint: "Straight from the issuing agencies — trusted, not re-sold.", weatherTip: "Current conditions and the official 7-day forecast across Malaysia.", aqiTip: "Real-time air quality from Malaysia's monitoring stations.", floodSevHint: "A river at Danger or Warning is above the alert level - act early.", quakeCountHint: "Earthquakes in the past week within each magnitude band.", floodHighest: "Highest water level", advisories: "Advisories", newsTitle: "Weather & hazard news", explore: "Explore", noNews: "No recent stories.", newsCount: "recent stories", warningsInForce: "{n} warnings in force", quakesWeek: "{n} quakes this week",
+  navHome: "Home", navFlood: "Flood", navNews: "News", homeIntro: "Live weather, air quality and hazard alerts for Malaysia.", homeIntroMore: "More", homeFlood: "{n} flood alerts", homeNews: "{n} hazard stories", searchEndpoints: "Search endpoints…", enableAlerts: "Enable device alerts", srcTitle: "Official sources", srcHint: "Data from the issuing agencies.", weatherTip: "Current conditions and the official 7-day forecast across Malaysia.", aqiTip: "Real-time air quality from Malaysia's monitoring stations.", floodSevHint: "A river at Danger or Warning is above the alert level - act early.", quakeCountHint: "Earthquakes in the past week within each magnitude band.", floodHighest: "Highest water level", advisories: "Advisories", newsTitle: "Weather & hazard news", explore: "Explore", noNews: "No recent stories.", newsCount: "recent stories", warningsInForce: "{n} warnings in force", quakesWeek: "{n} quakes this week",
   scopeNear: "Near me", scopeState: "State", scopeMalaysia: "Malaysia",
   state: "State", town: "Town", useLoc: "Use my location", locating: "Locating…", location: "Location",
   feels: "Feels like", humidity: "humidity", wind: "wind", uv: "UV",
@@ -14,10 +14,10 @@ const en = {
   validUntil: "Valid until", readFull: "Read full advisory", hideFull: "Hide",
   quakeTitle: "Recent earthquakes · 4.5+ · past week", quakeCap: "SE Asia, grouped by region · Magnitude 4.5 and above.",
   noQuakes: "No quakes at 4.5+ in the last week around the region.",
-  climateHead: "Climate context", climateEl: "El Niño is active — a warmer Pacific often shifts rainfall around Malaysia.",
+  climateHead: "Climate context", climateEl: "El Niño is active and expected to strengthen. MetMalaysia's outlook points to a strong to very strong event from September 2026 into January 2027.",
   climateLa: "La Niña is active — a cooler Pacific often brings wetter, stormier conditions to Malaysia.",
   climateNeutral: "Neutral — the equatorial Pacific is near its normal state.",
-  climateElEffect: "Typically drier and warmer for Malaysia, with a higher risk of haze and water shortages.",
+  climateElEffect: "For Malaysia, this can mean reduced rainfall and hotter, drier weather, with a higher risk of haze and water stress, especially later in the year.",
   climateLaEffect: "Typically wetter for Malaysia, with more flooding and storms.",
   climateNeutralEffect: "Near-normal rainfall patterns for Malaysia.",
   alertsTitle: "Weather alerts", noAlerts: "No active weather alerts.",
@@ -85,7 +85,7 @@ const en = {
 };
 const ms = {
   navWeather: "Cuaca", navAQI: "AQI", navHazards: "Gempa bumi", navAbout: "Tentang", changeLoc: "Tukar lokasi",
-  navHome: "Utama", navFlood: "Banjir", navNews: "Berita", homeIntro: "Cuaca, kualiti udara dan amaran bahaya secara langsung untuk Malaysia — dibina atas data rasmi terbuka.", homeIntroMore: "Lagi", homeFlood: "{n} amaran banjir", homeNews: "{n} berita bahaya", searchEndpoints: "Cari endpoint…", enableAlerts: "Aktifkan makluman peranti", srcTitle: "Sumber rasmi", srcHint: "Terus daripada agensi pengeluar — dipercayai, bukan jualan semula.", weatherTip: "Keadaan semasa dan ramalan rasmi 7 hari merentasi Malaysia.", aqiTip: "Kualiti udara masa nyata dari stesen pemantauan seluruh Malaysia.", floodSevHint: "Sungai pada tahap Danger atau Warning melebihi paras amaran - bertindak awal.", quakeCountHint: "Gempa bumi minggu lalu bagi setiap julat magnitud.", floodHighest: "Paras air tertinggi", advisories: "Nasihat", newsTitle: "Berita cuaca & bahaya", explore: "Terokai", noNews: "Tiada berita terkini.", newsCount: "berita terkini", warningsInForce: "{n} amaran aktif", quakesWeek: "{n} gempa minggu ini",
+  navHome: "Utama", navFlood: "Banjir", navNews: "Berita", homeIntro: "Cuaca, kualiti udara dan amaran bahaya secara langsung untuk Malaysia.", homeIntroMore: "Lagi", homeFlood: "{n} amaran banjir", homeNews: "{n} berita bahaya", searchEndpoints: "Cari endpoint…", enableAlerts: "Aktifkan makluman peranti", srcTitle: "Sumber rasmi", srcHint: "Data daripada agensi pengeluar.", weatherTip: "Keadaan semasa dan ramalan rasmi 7 hari merentasi Malaysia.", aqiTip: "Kualiti udara masa nyata dari stesen pemantauan seluruh Malaysia.", floodSevHint: "Sungai pada tahap Danger atau Warning melebihi paras amaran - bertindak awal.", quakeCountHint: "Gempa bumi minggu lalu bagi setiap julat magnitud.", floodHighest: "Paras air tertinggi", advisories: "Nasihat", newsTitle: "Berita cuaca & bahaya", explore: "Terokai", noNews: "Tiada berita terkini.", newsCount: "berita terkini", warningsInForce: "{n} amaran aktif", quakesWeek: "{n} gempa minggu ini",
   scopeNear: "Berdekatan", scopeState: "Negeri", scopeMalaysia: "Malaysia",
   state: "Negeri", town: "Bandar", useLoc: "Guna lokasi saya", locating: "Mengesan…", location: "Lokasi",
   feels: "Terasa seperti", humidity: "kelembapan", wind: "angin", uv: "UV",
@@ -99,10 +99,10 @@ const ms = {
   quakeTitle: "Gempa bumi terkini · 4.5+ · minggu lalu", quakeCap: "Asia Tenggara, dikumpul ikut rantau · Magnitud 4.5 dan ke atas.",
   noQuakes: "Tiada gempa 4.5+ dalam minggu lalu di rantau ini.",
   climateHead: "Konteks iklim",
-  climateEl: "El Niño aktif — Pasifik lebih panas lazimnya mengubah corak hujan di Malaysia.",
+  climateEl: "El Niño aktif dan dijangka bertambah kuat. Tinjauan MetMalaysia menunjukkan keadaan kuat hingga sangat kuat dari September 2026 hingga Januari 2027.",
   climateLa: "La Niña aktif — Pasifik lebih sejuk lazimnya membawa keadaan lebih basah ke Malaysia.",
   climateNeutral: "Neutral — Pasifik khatulistiwa hampir normal.",
-  climateElEffect: "Lazimnya lebih kering dan panas untuk Malaysia, dengan risiko jerebu dan kekurangan air lebih tinggi.",
+  climateElEffect: "Bagi Malaysia, ini boleh bermakna hujan kurang dan cuaca lebih panas dan kering, dengan risiko jerebu dan tekanan air lebih tinggi, terutama kemudian tahun ini.",
   climateLaEffect: "Lazimnya lebih basah untuk Malaysia, dengan lebih banyak banjir dan ribut.",
   climateNeutralEffect: "Corak hujan hampir normal untuk Malaysia.",
   alertsTitle: "Amaran cuaca", noAlerts: "Tiada amaran cuaca aktif.",

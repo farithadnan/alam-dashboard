@@ -110,6 +110,10 @@
     {/if}
   </div>
 
+  {#if app.updated}
+    <p class="caption text-muted mt-1">{tr("updated")} {app.updated}</p>
+  {/if}
+
   <p class="caption text-muted">{tr("homeIntro")}</p>
 
   <h3 class="qh" id="advisories" class:text-accent={flash}>{tr("advisories")}</h3>
