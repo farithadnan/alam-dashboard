@@ -61,6 +61,6 @@
   </div>
 
   <style>
-    .shareitem { display: flex; align-items: center; gap: 0.5rem; width: 100%; border-radius: 0.5rem; padding: 0.45rem 0.6rem; text-align: left; cursor: pointer; }
+    .shareitem { display: flex; align-items: center; gap: 0.5rem; width: 100%; border-radius: 0.5rem; padding: 0.45rem 0.6rem; text-align: left; cursor: pointer; color: var(--color-fg); }
     .shareitem:hover { background: var(--color-line); }
   </style>
