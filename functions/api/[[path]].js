@@ -9,7 +9,8 @@ function proxyError(message) {
 }
 
 export async function onRequest(context) {
-  const origin = context.env.UDARA_API_ORIGIN || "https://helen-tiger-miss-shield.trycloudflare.com";
+  const origin = context.env.UDARA_API_ORIGIN || "";
+  if (!origin) return proxyError("set the UDARA_API_ORIGIN environment variable (Pages → Settings → Environment variables)");
   const url = new URL(context.request.url);
   const target = origin + url.pathname + url.search;
   try {
