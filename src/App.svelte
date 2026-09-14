@@ -1,7 +1,7 @@
 <script>
 import { onMount } from "svelte";
 import { app, load, initLoc } from "./lib/store.svelte.js";
-import { checkNotifications } from "./lib/notify.js";
+import { SITE } from "./lib/config.js";
 import { theme, toggleTheme, applyTheme } from "./lib/theme.svelte.js";
 import { lang, setLang, tr, trFmt } from "./lib/i18n.svelte.js";
 import { nearestState } from "./lib/flags.js";
@@ -51,10 +51,6 @@ $effect(() => {
   void app.picked;
   if (app.state) load();
 });
-$effect(() => {
-  // Notify on each successful data refresh (once per change, one compiled alert).
-  if (app.updated) void checkNotifications({ app });
-});
 onMount(() => {
   initLoc();
   load();
@@ -96,7 +92,7 @@ function toggleLang() {
 
 <header class="sticky top-0 z-40 border-b border-line bg-bg/80 backdrop-blur">
   <div class="mx-auto flex w-full max-w-[1280px] items-center gap-1.5 px-4 py-1.5">
-    <button class="mr-1 text-[16px] font-bold tracking-wide" onclick={() => (view = "home")} aria-label="Home">Alam<span class="text-accent">.</span></button>
+    <button class="mr-1 text-[16px] font-bold tracking-wide" onclick={() => (view = "home")} aria-label="Home">{SITE.name}<span class="text-accent">.</span></button>
 
     <nav class="hidden items-center gap-0.5 sm:flex">
       {#each NAV as n (n.view)}
@@ -231,7 +227,7 @@ function toggleLang() {
     <span>·</span>
     <button class="hover:text-fg" onclick={() => (view = "api")}>API</button>
     <span>·</span>
-    <span>© 2026 Alam</span>
+    <span>© {new Date().getFullYear()} {SITE.name}</span>
   </div>
 </footer>
 

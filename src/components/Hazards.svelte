@@ -46,9 +46,8 @@
     <MapView pts={quakePts} class="h-72 w-full rounded-xl lg:h-[52vh] lg:min-h-[400px]" fitMax={8} />
   {/if}
 
-  <FilterPills pills={MATCARDS.map((c) => ({ key: c.id, label: c.label, count: c.n, color: c.color }))} value={magFilter} onPick={(k) => (magFilter = k)} class="mt-2 mb-1" />
+  <FilterPills allLabel="All" allValue="all" pills={MATCARDS.filter((c) => c.id !== "all").map((c) => ({ key: c.id, label: c.label, count: c.n, color: c.color }))} value={magFilter} onPick={(k) => (magFilter = k)} class="mt-2 mb-1" />
   <p class="caption -mt-1 mb-1 text-muted">{tr("quakeCountHint")}</p>
-  {#if magFilter !== "all"}<button class="caption mb-1 cursor-pointer underline hover:text-accent" onclick={() => (magFilter = "all")}>Clear filter ({shown.length})</button>{/if}
   {#each groups as g (g.key)}
     <Section title={g.key} startOpen={groups.length === 1}>
       <ul class="list-none m-0 p-0">

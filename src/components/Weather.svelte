@@ -54,7 +54,7 @@ const picked = $derived(app.picked);
       <MapView pts={weatherPts} onPick={(id) => (app.picked = id)} class="h-72 w-full rounded-xl lg:h-[52vh] lg:min-h-[400px]" fitMax={app.scope === "state" ? 9 : 8} />
     {/if}
   {#if avg != null}
-    <div class="mb-2 flex flex-wrap gap-1.5">
+    <div class="mt-3 mb-2 flex flex-wrap gap-1.5">
       <span class="statbadge">{tr("avg")} <b>{Math.round(avg)}°</b></span>
       <span class="statbadge">{tr("high")} <b>{Math.round(hi)}°</b></span>
       <span class="statbadge">{tr("low")} <b>{Math.round(lo)}°</b></span>

@@ -33,6 +33,8 @@ export const SITE = {
   api: (typeof import.meta !== "undefined" && import.meta.env?.VITE_API_URL) || "",
   /** Contact address used by the About page. */
   email: "dev@farithadnan.net",
+  /** Owner shown in the page footer. */
+  author: "Farith Adnan",
   /** Project GitHub (About page). */
   github: "https://github.com/farithadnan",
   /** CARTO basemap key (inlined at build time by Vite). */

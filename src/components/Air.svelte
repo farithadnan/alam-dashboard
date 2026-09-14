@@ -111,10 +111,7 @@
 
   {#if app.scope !== "near" && counts.length}
     <h3 class="qh">{tr("catTitle")}</h3>
-    <FilterPills pills={counts.map((c) => ({ key: c.label, label: bandLabel(c.label), count: c.n, color: numColor(c.label) }))} value={bandFilter} onPick={(k) => (bandFilter = bandFilter === k ? "" : k)} class="mt-1" />
-    {#if counts.length > 1 && bandFilter}
-      <button class="caption mt-1 cursor-pointer underline hover:text-accent" onclick={() => (bandFilter = "")}>Clear filter ({shownStations.length})</button>
-    {/if}
+    <FilterPills allLabel="All" allValue="" pills={counts.map((c) => ({ key: c.label, label: bandLabel(c.label), count: c.n, color: numColor(c.label) }))} value={bandFilter} onPick={(k) => (bandFilter = bandFilter === k ? "" : k)} class="mt-1" />
   {/if}
 
   {#if app.scope !== "near" && stations.length > 3}
