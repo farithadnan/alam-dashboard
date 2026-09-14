@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { shareCaption } from "../src/lib/sharecard.js";
-import { airSharePayload, warningSharePayload, telegramAlertsUrl } from "../src/lib/share.js";
+import { airSharePayload, homeSharePayload, weatherSharePayload, floodSharePayload, quakeSharePayload, warningSharePayload, telegramAlertsUrl } from "../src/lib/share.js";
 
 describe("shareCaption — the message that travels with the card", () => {
   it("leads with the place, then the numbers", () => {
@@ -32,13 +32,62 @@ describe("shareCaption — the message that travels with the card", () => {
 });
 
 describe("share payloads for the other views", () => {
-  it("captions an AQI station with its band and place", () => {
-    const c = shareCaption(airSharePayload({ station: "Pasir Gudang", state: "Johor", value: 128, band: "Unhealthy", color: "#8f5c00", advice: "Limit outdoor activity" }));
-    expect(c).toContain("Pasir Gudang, Johor");
-    expect(c).toContain("AQI 128 Unhealthy");
+  it("air: friendly text leads with the place and carries the AQI", () => {
+    const p = airSharePayload({ station: "Pasir Gudang", state: "Johor", value: 128, band: "Unhealthy", color: "#8f5c00", advice: "Limit outdoor activity" });
+    expect(p.text).toContain("Pasir Gudang, Johor");
+    expect(p.text).toContain("AQI 128");
+    expect(p.text).toContain("the unhealthy range");
+    expect(p.place).toBe("Pasir Gudang, Johor");
+    expect(p.valueLabel).toBe("AQI 128");
   });
 
+  it("home: overall read includes air, weather and nearby alerts", () => {
+    const now = { value: 28, meta: { code: 3, apparentTemp: 30 } };
+    const townAir = { value: 170, band: { label: "Unhealthy", advice: "Reduce prolonged outdoor exertion." } };
+    const p = homeSharePayload({ town: "Pasir Gudang", state: "Johor", now, townAir, warnings: [{ id: "a" }, { id: "b" }], floodCount: 3 });
+    expect(p.text).toContain("Pasir Gudang, Johor");
+    expect(p.text).toContain("AQI 170");
+    expect(p.text).toContain("2 weather warnings");
+    expect(p.text).toContain("3 flood alerts");
+    expect(p.band).toBe("Unhealthy");
+  });
 
+  it("weather: conditions + forecast link, no AQI", () => {
+    const now = { value: 28, meta: { code: 3, apparentTemp: 30, humidity: 75, wind: 12 } };
+    const p = weatherSharePayload({ town: "Pasir Gudang", state: "Johor", now });
+    expect(p.text).toContain("Pasir Gudang, Johor");
+    expect(p.text).toContain("28°");
+    expect(p.text).toContain("humidity at 75%");
+    expect(p.text).not.toContain("AQI");
+    expect(p.footer).toContain("#/weather");
+  });
+
+  it("flood: sums river + rain, reassures when there is none", () => {
+    const river = [{ stationName: "Sungai Johor", level: 3.4, severity: "Alert" }, { stationName: "Sungai X", level: 2.1, severity: "Warning" }];
+    const p = floodSharePayload({ scope: "state", state: "Johor", river, rain: [{ severity: "Heavy" }] });
+    expect(p.text).toContain("Johor");
+    expect(p.text).toContain("2 river sites at alert");
+    expect(p.text).toContain("3.4 m");
+    const clear = floodSharePayload({ scope: "state", state: "Johor", river: [], rain: [] });
+    expect(clear.text).toContain("All clear");
+  });
+
+  it("earthquake: leads with the strongest event and reassures", () => {
+    const quakes = [{ magnitude: 5.1, stationName: "Sibolga" }, { magnitude: 4.6, stationName: "Elsewhere" }];
+    const p = quakeSharePayload({ quakes, scope: "malaysia" });
+    expect(p.text).toContain("M5.1");
+    expect(p.text).toContain("near Sibolga");
+    expect(p.valueLabel).toBe("M5.1");
+  });
+
+  it("every note carries a working link", () => {
+    for (const p of [
+      homeSharePayload({ town: "Arau", state: "Perlis", now: null, townAir: null }),
+      airSharePayload({ station: "Arau", state: "Perlis", value: 42, band: "Good" }),
+      floodSharePayload({ scope: "state", state: "Perlis" }),
+      quakeSharePayload({ quakes: [], scope: "state" }),
+    ]) expect(p.text).toMatch(/https?:\/\/\S+/);
+  });
 });
 
 describe("warning payload — the forwardable one", () => {

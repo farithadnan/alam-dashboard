@@ -14,7 +14,7 @@ import TrendChart from "./ui/TrendChart.svelte";
 import Spinner from "./ui/Spinner.svelte";
 import Skeleton from "./ui/Skeleton.svelte";
 import ShareButton from "./ui/ShareButton.svelte";
-import { sharePayload } from "../lib/share.js";
+import { weatherSharePayload } from "../lib/share.js";
 
 /** Full detail for ONE town — reused by "near me" and by tapping a card anywhere. */
 let { station = "", onClose = null } = $props();
@@ -108,7 +108,7 @@ function hourLabel(t) {
       </div>
       <div class="flex shrink-0 gap-1.5">
         {#if onClose}<button class="iconbtn" onclick={onClose} aria-label={tr("back")}>← {tr("back")}</button>{/if}
-        <ShareButton payload={sharePayload({ town: townName, state: stateName, now, townAir, air })} />
+        <ShareButton payload={weatherSharePayload({ town: townName, state: stateName, now, humidity: now.meta?.humidity, wind: now.meta?.wind })} />
       </div>
     </div>
     <div class="mt-1 flex items-end gap-3 sm:gap-4">

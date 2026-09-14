@@ -5,8 +5,10 @@
     import { mapPopup } from "../lib/popup.js";
     import MapView from "./ui/MapView.svelte";
     import PageHeader from "./ui/PageHeader.svelte";
+    import ShareButton from "./ui/ShareButton.svelte";
     import Section from "./ui/Section.svelte";
     import FilterPills from "./ui/FilterPills.svelte";
+    import { quakeSharePayload } from "../lib/share.js";
 
     const quakes = $derived(app.data?.hazards?.earthquakes ?? []);
     let magFilter = $state("all"); // all | strong | moderate | light
@@ -40,7 +42,10 @@
     let open = $state(null);
   </script>
 
-  <PageHeader title={tr("quakeTitle")} updated={app.updated} />
+  <div class="flex items-start justify-between gap-2">
+    <PageHeader title={tr("quakeTitle")} updated={app.updated} />
+    <ShareButton payload={quakeSharePayload({ quakes, scope: app.scope })} class="mt-1" />
+  </div>
   <p class="caption -mt-1">{tr("quakeCap")}</p>
   {#if quakePts.length}
     <MapView pts={quakePts} class="h-72 w-full rounded-xl lg:h-[52vh] lg:min-h-[400px]" fitMax={8} />

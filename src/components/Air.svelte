@@ -151,7 +151,7 @@
   {#if app.scope === "near" && heroAir}
     <div class="flex items-center justify-between gap-2">
       <h3 class="qh">{cityOf(heroAir.stationName)}</h3>
-      <ShareButton payload={airSharePayload({ station: cityOf(heroAir.stationName), state: app.state, value: heroAir.value, band: bandLabel(heroAir.band?.label), color: numColor(heroAir.band?.label), advice: bandAdvice(heroAir.band?.label) || heroAir.band?.advice || "" })} />
+      <ShareButton payload={airSharePayload({ station: cityOf(heroAir.stationName), state: app.state, value: heroAir.value, band: bandLabel(heroAir.band?.label), color: numColor(heroAir.band?.label), advice: bandAdvice(heroAir.band?.label) || heroAir.band?.advice || "", worst: app.scope === "malaysia" && stations[0] ? `The worst spot today is ${cityOf(stations[0].stationName)} at AQI ${Math.round(stations[0].value)}, for context.` : "" })} />
     </div>
     <div class="glass mt-1 rounded-2xl p-4">
       <div class="flex items-center justify-between gap-4">

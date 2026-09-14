@@ -7,7 +7,7 @@
     let open = $state(false);
     let el;
     let pos = { left: 0, top: 0 };
-    const msg = $derived(textOnly ? payload?.text || shareCaption(payload) : shareCaption(payload));
+    const msg = $derived(payload?.text || shareCaption(payload));
     const items = $derived([
       { label: "WhatsApp", href: shareIntent("wa", msg) },
       { label: "X (Twitter)", href: shareIntent("x", msg) },
@@ -63,9 +63,6 @@
         </a>
         <button class="shareitem" role="menuitem" onclick={() => { open = false; void navigator.clipboard?.writeText(msg).catch(() => {}); }}>
           <span aria-hidden="true">📋</span>{tr("copyText")}
-        </button>
-        <button class="shareitem border-t border-line mt-1 pt-1 text-muted" role="menuitem" onclick={() => { open = false; location.hash = "#/share"; }}>
-          <span aria-hidden="true">📊</span>{tr("sharePreview")}
         </button>
       </div>
     {/if}

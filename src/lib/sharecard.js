@@ -21,7 +21,11 @@ function wrap(ctx, text, x, y, maxW, lineH) {
   return y;
 }
 
-/** Draw the summary card and return the canvas. `d` = { town, state, value, unit, band, color, temp, cond, advice, footnote }. */
+/**
+ * Draw the share card and return the canvas. `d` is any lib/share.js paylod:
+ * { place, headline, valueLabel, band, tip, extra, footer, color }. Same payload drives
+ * both the friendly text and the image, so what you preview is what sends.
+ */
 export function drawCard(d) {
   const c = document.createElement("canvas");
   c.width = W;
@@ -41,34 +45,49 @@ export function drawCard(d) {
   x.fillStyle = "#c14a1f";
   x.fillText(".", 72 + x.measureText("OhAlam").width, 130);
 
+  // Place (top left, under the wordmark).
   x.fillStyle = "#6b6258";
   x.font = "400 42px system-ui, sans-serif";
-  x.fillText(`${d.town}${d.state ? ", " + d.state : ""}`.slice(0, 40), 72, 214);
+  let y = wrap(x, d.place || "", 72, 196, W - 144, 56);
 
-  if (d.value != null) {
-    x.fillStyle = "#8a8277";
-    x.font = "600 30px system-ui, sans-serif";
-    x.fillText("AIR QUALITY", 74, 300);
+  // The headline number/statement.
+  const big = d.valueLabel || d.headline || "";
+  x.fillStyle = color;
+  x.font = "800 92px system-ui, sans-serif";
+  y = wrap(x, String(big).slice(0, 18), 72, y + 90, W - 144, 96) + 8;
+
+  // Band under the number, e.g. "Unhealthy" / "Warning".
+  if (d.band) {
     x.fillStyle = color;
-    x.font = "800 230px system-ui, sans-serif";
-    x.fillText(String(d.value), 68, 470);
-    x.font = "700 62px system-ui, sans-serif";
-    x.fillText(d.band || "", 76, 556);
+    x.font = "700 54px system-ui, sans-serif";
+    y = wrap(x, String(d.band), 72, y, W - 144, 62) + 14;
   }
 
-  if (d.temp != null) {
+  // Context headline when a separate value is shown (e.g. "Overcast, 28°" on the air card).
+  if (d.valueLabel && d.headline) {
     x.fillStyle = "#242628";
-    x.font = "600 76px system-ui, sans-serif";
-    x.fillText(`${d.temp}°${d.cond ? "  " + d.cond : ""}`, 72, 676);
+    x.font = "600 46px system-ui, sans-serif";
+    y = wrap(x, String(d.headline), 72, y + 10, W - 144, 58);
   }
 
-  x.fillStyle = "#6b6258";
-  x.font = "400 42px system-ui, sans-serif";
-  wrap(x, d.advice, 72, 792, W - 144, 58);
+  // The gentle tip / guidance.
+  if (d.tip) {
+    x.fillStyle = "#6b6258";
+    x.font = "400 40px system-ui, sans-serif";
+    y = wrap(x, String(d.tip), 72, y + 46, W - 144, 54);
+  }
 
+  // Extra context (worst spot, event count, etc.).
+  if (d.extra) {
+    x.fillStyle = "#8a8277";
+    x.font = "400 34px system-ui, sans-serif";
+    wrap(x, String(d.extra), 72, 824, W - 144, 44);
+  }
+
+  // Footer link.
   x.fillStyle = "#b9b0a4";
-  x.font = "400 32px system-ui, sans-serif";
-  x.fillText(d.footnote || "OhAlam · Malaysia air, weather & hazards", 72, H - 56);
+  x.font = "400 30px system-ui, sans-serif";
+  wrap(x, d.footer || "OhAlam · Malaysia air, weather & hazards", 72, H - 60, W - 144, 40);
   return c;
 }
 

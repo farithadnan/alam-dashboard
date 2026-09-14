@@ -62,7 +62,7 @@
   </script>
 
   {#if now}
-    {@const payload = sharePayload({ town: townName, state: app.state, now, townAir, air })}
+    {@const payload = sharePayload({ town: townName, state: app.state, now, townAir, air, warnings, floodCount })}
     <div class="mt-1">
       <WeatherBanner icon={wmo2[0]} label={wmo2[1] || tr("weather")} temp={now.value} feels={now.meta?.apparentTemp ?? now.value} townName={townName} appState={app.state || ""} aqi={bannerAqi} town={app.town} state={app.state} share={payload} />
     </div>
