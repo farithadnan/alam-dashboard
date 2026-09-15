@@ -84,7 +84,7 @@
 
     <!-- Severity filter: compact pills (the old cards read as unexplained counts) -->
     {#if total}
-      <FilterPills pills={[{ key: "", label: tr("floodSevAll"), count: total, color: "#8a8277" }, ...present.map((p) => ({ key: p.s, label: `${p.e} ${p.label}`, count: p.n, color: p.c }))]} value={sevFilter} onPick={(k) => onSev?.(k)} class="mb-1" />
+      <FilterPills pills={[{ key: "", label: tr("floodSevAll"), count: total, color: "#8a8277" }, ...present.map((p) => ({ key: p.s, label: p.label, count: p.n, color: p.c }))]} value={sevFilter} onPick={(k) => onSev?.(k)} class="mb-1" />
       <p class="caption -mt-1 mb-2 text-muted">{tr("floodSevHint")}</p>
     {/if}
     {#if present.length}
