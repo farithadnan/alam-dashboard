@@ -81,7 +81,7 @@ const en = {
   apiTitle: "API",
   apiIntro: "OhAlam serves a small JSON API — the same one powering this site. It is open, free, and requires no key.",
   apiNote: "Be kind: the API is backed by cached public data. Versioned at /v1 (an alias of /api), rate-limited to 120 requests/min per IP — please cache responses.",
-  apiTry: "Try an endpoint",
+  apiTry: "Try an endpoint", apiConventions: "No auth or API key required. Responses are JSON (application/json).",
   apiMethods: { summary: "Current + forecast + hazards bundle (optionally per state)", stations: "Known monitoring stations", history: "24h/7d history for a station", hazards: "Warnings, earthquakes and climate" },
 };
 const ms = {
@@ -125,6 +125,7 @@ const ms = {
   aboutText: "OhAlam ialah papan pemuka percuma dan bukan komersial untuk kualiti udara, cuaca dan amaran bahaya di seluruh Malaysia, menggunakan data awam daripada DOE APIMS, MET Malaysia, USGS, NOAA dan Open-Meteo. Data tidak dijamin; sahkan sumber rasmi sebelum bertindak. Bukan gabungan mana-mana badan kerajaan.",
   copyright: "© 2026 Farith Adnan",
   aboutTitle: "Tentang OhAlam", sourcesTitle: "Sumber data", sourcesCredit: "MET Malaysia, APIMS JAS, JPS InfoBanjir, NADMA dan USGS.",
+  apiTitle: "API", apiIntro: "OhAlam menyediakan API JSON yang kecil — sama seperti yang menggerakkan laman ini. Ia terbuka, percuma, dan tanpa kunci.", apiNote: "Bersikap sopan: API disandarkan pada data awam terkini. Versi di /v1 (alias kepada /api), had 120 permintaan/min bagi setiap IP — sila cache respons.", apiTry: "Cuba endpoint", apiConventions: "Tiada kunci atau log masuk diperlukan. Respons ialah JSON (application/json).",
   expectedOver: "Dijangka di {p} — sehingga {t} {m}",
   onLand: "(di darat)", onSea: "(kawasan laut)",
   band_good: "Baik", band_moderate: "Sederhana", band_unhealthy: "Tidak Sihat", band_very: "Sangat Tidak Sihat", band_hazardous: "Berbahaya",

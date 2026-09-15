@@ -26,6 +26,7 @@
     const copy = async (text) => { try { await navigator.clipboard?.writeText(text); copied = text; setTimeout(() => (copied = ""), 1300); } catch { /* noop */ } };
     const filtered = $derived(ENDPOINTS.filter((e) => `${e.m} ${e.p} ${e.cat} ${e.d}`.toLowerCase().includes(q.trim().toLowerCase())));
     const curlOf = (p) => `curl "${base}${p.replace(/<[^>]+>/g, "{value}")}"`;
+    const urlOf = (e) => (e.p.includes("<") ? "" : `${base}${e.p}`); // openable live sample (no placeholders)
     const QS = `# whole Malaysia bundle\ncurl ${base}/api/summary\n\n# a state's water and rain alerts\ncurl "${base}/api/flood?state=Johor"`;
   </script>
 
@@ -37,7 +38,7 @@
       <code class="rounded-lg border border-line bg-panel px-2 py-1 font-mono text-[12.5px]">{base}</code>
       <button class="pillfilter" onclick={() => copy(base)}>{copied === base ? "Copied ✓" : "Copy base URL"}</button>
     </div>
-    <p class="caption mt-2">{tr("apiNote")} {tr("apiLimit")}</p>
+    <p class="caption mt-2">{tr("apiNote")}<br class="sm:hidden" /> {tr("apiConventions")}</p>
 
     <h3 class="mt-6 text-[15px] font-bold">{tr("apiTry")}</h3>
     <pre class="mt-2 overflow-auto rounded-xl border border-line bg-panel p-3 text-[12px] leading-relaxed">{QS}</pre>
@@ -64,7 +65,12 @@
                   <p class="px-2.5 pb-1 text-[13px] text-muted">{e.d}</p>
                   {#if open === e.p}
                     <pre class="mx-2.5 mb-1.5 overflow-auto rounded-lg border border-line bg-panel p-2 text-[12px]">{curlOf(e.p)}</pre>
-                    <button class="pillfilter mx-2.5 mb-2.5" onclick={() => copy(curlOf(e.p))}>{copied === curlOf(e.p) ? "Copied ✓" : "Copy"}</button>
+                    <div class="mx-2.5 mb-2.5 flex gap-2">
+                      <button class="pillfilter" onclick={() => copy(curlOf(e.p))}>{copied === curlOf(e.p) ? "Copied ✓" : "Copy"}</button>
+                      {#if urlOf(e)}
+                        <a class="pillfilter" href={urlOf(e)} target="_blank" rel="noopener">Open in browser ↗</a>
+                      {/if}
+                    </div>
                   {/if}
                 </li>
               {/each}
