@@ -7,6 +7,7 @@
     import FilterPills from "./FilterPills.svelte";
     import FloodRow from "./FloodRow.svelte";
     import Skeleton from "./Skeleton.svelte";
+    import EmptyState from "./EmptyState.svelte";
 
     /** Presentational: parent fetches and passes river/rain/loading/state/sevFilter.
      * state "" = all Malaysia (grouped by collapsible state); otherwise one state.
@@ -145,6 +146,10 @@
       {/each}
     {/if}
   {:else}
-    <p class="caption">{trFmt("floodNone", { state: displayState })}</p>
-    <p class="caption mt-0.5">{tr("floodMonitor")}</p>
+    <EmptyState
+      icon="💧"
+      title={trFmt("floodNone", { state: displayState })}
+      desc={tr("floodMonitor")}
+      action={state ? { label: tr("viewMalaysia"), onClick: () => (app.scope = "malaysia") } : null}
+    />
   {/if}

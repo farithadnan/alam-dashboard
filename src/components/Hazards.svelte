@@ -8,6 +8,7 @@
     import ShareButton from "./ui/ShareButton.svelte";
     import Section from "./ui/Section.svelte";
     import FilterPills from "./ui/FilterPills.svelte";
+    import EmptyState from "./ui/EmptyState.svelte";
     import { quakeSharePayload } from "../lib/share.js";
 
     const quakes = $derived(app.data?.hazards?.earthquakes ?? []);
@@ -106,3 +107,6 @@
       </ul>
     </Section>
   {/each}
+  {#if !shown.length}
+    <EmptyState icon="🌐" title={tr("noQuakesFilter")} desc={tr("noQuakesHint")} action={{ label: tr("viewAllQuakes"), onClick: () => (magFilter = "all") }} />
+  {/if}
