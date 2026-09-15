@@ -98,6 +98,7 @@
             <li class="flex items-start gap-1.5"><span class="mt-1.5 size-2 shrink-0 rounded-full" style="background:#b26a00"></span>{tr("floodMeanAlert")}</li>
             <li class="flex items-start gap-1.5"><span class="mt-1.5 size-2 shrink-0 rounded-full" style="background:#e05d2b"></span>{tr("floodMeanWarning")}</li>
             <li class="flex items-start gap-1.5"><span class="mt-1.5 size-2 shrink-0 rounded-full" style="background:#a51110"></span>{tr("floodMeanDanger")}</li>
+            <li class="flex items-start gap-1.5"><span class="mt-1.5 size-2 shrink-0 rounded-full" style="background:#3b6ea8"></span>{tr("floodMeanHeavy")}</li>
           </ul>
         </div>
       {/if}

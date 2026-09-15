@@ -84,7 +84,7 @@ const en = {
   apiTry: "Try an endpoint", apiConventions: "No auth or API key required. Responses are JSON (application/json).",
   quakeGuide: "Earthquake size", quakeGuideLight: "4.5–4.9 Light · felt by many, little damage", quakeGuideMod: "5.0–5.9 Moderate · can damage weak buildings", quakeGuideStrong: "6.0+ Strong · can damage populated areas",
   aqiScaleToggle: "What do the numbers mean?", aqiMeanGood: "Good 0–50 · safe for everyone", aqiMeanModerate: "Moderate 51–100 · fine for most people", aqiMeanUnhealthy: "Unhealthy 101–200 · sensitive groups ease off outdoors", aqiMeanVery: "Very Unhealthy 201–300 · everyone limits outdoor time", aqiMeanHazardous: "Hazardous 301+ · avoid outdoor activity",
-  floodLevelTitle: "River level meaning", floodMeanAlert: "Alert · rising, keep an eye on it", floodMeanWarning: "Warning · high, be ready to move if needed", floodMeanDanger: "Danger · very high, follow official instructions",
+  floodLevelTitle: "River level meaning", floodMeanAlert: "Alert · rising, keep an eye on it", floodMeanWarning: "Warning · high, be ready to move if needed", floodMeanDanger: "Danger · very high, follow official instructions", floodMeanHeavy: "Heavy rain · flash-flood risk, keep an eye on it",
   apiMethods: { summary: "Current + forecast + hazards bundle (optionally per state)", stations: "Known monitoring stations", history: "24h/7d history for a station", hazards: "Warnings, earthquakes and climate" },
 };
 const ms = {
@@ -131,7 +131,7 @@ const ms = {
   apiTitle: "API", apiIntro: "OhAlam menyediakan API JSON yang kecil — sama seperti yang menggerakkan laman ini. Ia terbuka, percuma, dan tanpa kunci.", apiNote: "Bersikap sopan: API disandarkan pada data awam terkini. Versi di /v1 (alias kepada /api), had 120 permintaan/min bagi setiap IP — sila cache respons.", apiTry: "Cuba endpoint", apiConventions: "Tiada kunci atau log masuk diperlukan. Respons ialah JSON (application/json).",
   quakeGuide: "Saiz gempa bumi", quakeGuideLight: "4.5–4.9 Ringan · dirasai ramai, kerosakan kecil", quakeGuideMod: "5.0–5.9 Sederhana · boleh merosakkan bangunan rapuh", quakeGuideStrong: "6.0+ Kuat · boleh merosakkan kawasan berpenduduk",
   aqiScaleToggle: "Apa maksud nombor ini?", aqiMeanGood: "Baik 0–50 · selamat untuk semua", aqiMeanModerate: "Sederhana 51–100 · baik untuk kebanyakan orang", aqiMeanUnhealthy: "Tidak Sihat 101–200 · kumpulan sensitif kurangkan aktiviti luar", aqiMeanVery: "Sangat Tidak Sihat 201–300 · semua hadkan masa di luar", aqiMeanHazardous: "Berbahaya 301+ · elakkan aktiviti luar",
-  floodLevelTitle: "Maksud paras sungai", floodMeanAlert: "Amaran awal · naik, pantau", floodMeanWarning: "Amaran · tinggi, sedia berpindah jika perlu", floodMeanDanger: "Bahaya · sangat tinggi, ikut arahan rasmi",
+  floodLevelTitle: "Maksud paras sungai", floodMeanAlert: "Amaran awal · naik, pantau", floodMeanWarning: "Amaran · tinggi, sedia berpindah jika perlu", floodMeanDanger: "Bahaya · sangat tinggi, ikut arahan rasmi", floodMeanHeavy: "Hujan lebat · risiko banjir kilat, berhati-hati",
   expectedOver: "Dijangka di {p} — sehingga {t} {m}",
   onLand: "(di darat)", onSea: "(kawasan laut)",
   band_good: "Baik", band_moderate: "Sederhana", band_unhealthy: "Tidak Sihat", band_very: "Sangat Tidak Sihat", band_hazardous: "Berbahaya",
