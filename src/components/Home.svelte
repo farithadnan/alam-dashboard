@@ -1,11 +1,12 @@
   <script>
-    import { app } from "../lib/store.svelte.js";
+    import { app, load } from "../lib/store.svelte.js";
     import { numColor, atTown, severityColor, apiBandOf } from "../lib/flags.js";
     import { wmo, isNightNow } from "../lib/weather-codes.js";
     import { tr, bandLabel } from "../lib/i18n.svelte.js";
     import WeatherBanner from "./ui/WeatherBanner.svelte";
     import HazardAlerts from "./ui/HazardAlerts.svelte";
     import AtAGlance from "./ui/AtAGlance.svelte";
+    import EmptyState from "./ui/EmptyState.svelte";
     import { sharePayload } from "../lib/share.js";
     import { activeWarnings } from "../lib/warnings.js";
     import { getFlood } from "../lib/api.js";
@@ -40,12 +41,13 @@
     // shows when tapped (Malaysia = whole country; Near/State = that state).
     let floodCount = $state(0);
     let floodLoaded = $state(false);
+    let floodErrored = $state(false);
     $effect(() => {
       let on = true;
       const scopeState = app.scope === "malaysia" ? undefined : app.state || undefined;
       getFlood(scopeState)
-        .then((r) => { if (on) { floodCount = (r?.river?.length ?? 0) + (r?.rain?.length ?? 0); floodLoaded = true; } })
-        .catch(() => { if (on) floodLoaded = true; });
+        .then((r) => { if (on) { floodCount = (r?.river?.length ?? 0) + (r?.rain?.length ?? 0); floodLoaded = true; floodErrored = false; } })
+        .catch(() => { if (on) { floodLoaded = true; floodErrored = true; } });
       return () => (on = false);
     });
 
@@ -81,22 +83,26 @@
     </div>
   {/if}
 
-  <!-- Primary answer first: active alerts, then a compact at-a-glance. -->
-  <HazardAlerts warnings={warnings} onRead={() => jump("advisories", true)} onAll={() => jump("advisories")} />
+  {#if !app.data && !app.loading}
+    <EmptyState icon="⚠️" title={tr("loadFailed")} action={{ label: tr("retry"), onClick: () => load() }} class="mt-2" />
+  {:else}
+    <!-- Primary answer first: active alerts, then a compact at-a-glance. -->
+    <HazardAlerts warnings={warnings} onRead={() => jump("advisories", true)} onAll={() => jump("advisories")} />
 
-  <h3 class="qh">{tr("atAGlance")}</h3>
-  <AtAGlance
-    onTap={(k) => (k === "floods" ? onNavigate("flood") : k === "quakes" ? onNavigate("hazards") : jump("advisories", k === "warnings"))}
-    items={[
-      { key: "warnings", icon: "⚠️", label: tr("glanceWarnings"), value: `${warnings.length}`, color: warnings.length ? severityColor(warnings[0].severity) : "var(--color-muted)" },
-      { key: "floods", icon: "🌊", label: tr("glanceFloods"), value: floodLoaded ? `${floodCount}` : "…", color: floodCount ? "var(--color-unhealthy)" : "var(--color-muted)" },
-      { key: "quakes", icon: "🌐", label: tr("glanceQuakes"), value: `${quakes.length}`, color: quakes.length ? "#8e24aa" : "var(--color-muted)" },
-      { key: "climate", icon: "🌡️", label: tr("glanceClimate"), value: climate?.meta?.phase || "", color: climate ? "#b26a00" : "var(--color-muted)" },
-    ]}
-  />
+    <h3 class="qh">{tr("atAGlance")}</h3>
+    <AtAGlance
+      onTap={(k) => (k === "floods" ? onNavigate("flood") : k === "quakes" ? onNavigate("hazards") : jump("advisories", k === "warnings"))}
+      items={[
+        { key: "warnings", icon: "⚠️", label: tr("glanceWarnings"), value: `${warnings.length}`, color: warnings.length ? severityColor(warnings[0].severity) : "var(--color-muted)" },
+        { key: "floods", icon: "🌊", label: tr("glanceFloods"), value: floodLoaded ? (floodErrored ? "—" : `${floodCount}`) : "…", color: floodCount ? "var(--color-unhealthy)" : "var(--color-muted)" },
+        { key: "quakes", icon: "🌐", label: tr("glanceQuakes"), value: `${quakes.length}`, color: quakes.length ? "#8e24aa" : "var(--color-muted)" },
+        { key: "climate", icon: "🌡️", label: tr("glanceClimate"), value: climate?.meta?.phase || "", color: climate ? "#b26a00" : "var(--color-muted)" },
+      ]}
+    />
 
-  {#if app.updated}
-    <p class="caption text-muted mt-1">{tr("updated")} {app.updated}</p>
+    {#if app.updated}
+      <p class="caption text-muted mt-1">{tr("updated")} {app.updated}</p>
+    {/if}
   {/if}
 
   <h3 class="qh" id="advisories" class:text-accent={flash}>{tr("advisories")}</h3>

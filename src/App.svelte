@@ -187,6 +187,11 @@ function toggleLang() {
       </span>
     </div>
   {/if}
+  {#if app.error && app.data}
+    <p class="caption mb-2 flex items-center gap-2 rounded-lg border border-line bg-panel px-3 py-1.5 text-[12.5px]">
+      <span aria-hidden="true">⚠️</span>{trFmt("staleData", { t: app.updated || "earlier" })}
+    </p>
+  {/if}
   {#if !app.data && app.loading}
     <div class="mt-2 space-y-3">
       <Skeleton h={104} class="!rounded-2xl" />

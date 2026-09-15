@@ -4,6 +4,7 @@
     import { tr } from "../lib/i18n.svelte.js";
     import SearchInput from "./ui/SearchInput.svelte";
     import PageHeader from "./ui/PageHeader.svelte";
+    import EmptyState from "./ui/EmptyState.svelte";
 
     const news = $derived(app.data?.news ?? []);
     let newsQ = $state("");
@@ -39,8 +40,8 @@
         <button class="ghostbtn mt-3 w-full justify-center" onclick={() => (showAll = !showAll)}>{showAll ? tr("showLess") : tr("showMore")}</button>
       {/if}
     {:else}
-      <p class="caption">{tr("noMatches")}</p>
+      <EmptyState icon="🔍" title={tr("noMatches")} desc="" action={{ label: tr("clearSearch"), onClick: () => (newsQ = "") }} />
     {/if}
   {:else}
-    <p class="caption">{tr("noNews")}</p>
+    <EmptyState icon="📰" title={tr("noNews")} />
   {/if}

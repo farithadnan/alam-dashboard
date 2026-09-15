@@ -9,10 +9,11 @@
     import FilterPills from "./ui/FilterPills.svelte";
     import { airSharePayload } from "../lib/share.js";
     import { createLoader } from "../lib/async.js";
-    import { tr, bandLabel, bandAdvice } from "../lib/i18n.svelte.js";
+    import { tr, trFmt, bandLabel, bandAdvice } from "../lib/i18n.svelte.js";
     import TrendChart from "./ui/TrendChart.svelte";
     import Spinner from "./ui/Spinner.svelte";
     import Skeleton from "./ui/Skeleton.svelte";
+    import EmptyState from "./ui/EmptyState.svelte";
     import MapView from "./ui/MapView.svelte";
     import Section from "./ui/Section.svelte";
 
@@ -199,6 +200,8 @@
         <Skeleton h={52} class="!rounded-xl" />
         <Skeleton h={52} class="!rounded-xl" />
       </div>
+    {:else if !stations.length}
+      <EmptyState icon="🌫️" title={trFmt("noAirNow", { scope: app.scope === "malaysia" ? "Malaysia" : app.state || "your area" })} desc={tr("noAirHint")} />
     {:else}
     {#each groups as g (g.key)}
       <Section title={g.key} startOpen={groups.length === 1}>

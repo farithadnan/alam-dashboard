@@ -14,6 +14,7 @@ import TrendChart from "./ui/TrendChart.svelte";
 import Spinner from "./ui/Spinner.svelte";
 import Skeleton from "./ui/Skeleton.svelte";
 import ShareButton from "./ui/ShareButton.svelte";
+import EmptyState from "./ui/EmptyState.svelte";
 import { weatherSharePayload } from "../lib/share.js";
 
 /** Full detail for ONE town — reused by "near me" and by tapping a card anywhere. */
@@ -226,7 +227,5 @@ function hourLabel(t) {
     </div>
   </div>
 {:else}
-  <div class="flex min-h-[45vh] items-center justify-center">
-    <p class="caption">{tr("noData")}</p>
-  </div>
+  <EmptyState icon="⛅" title={tr("noData")} desc={tr("noWeatherHint")} />
 {/if}

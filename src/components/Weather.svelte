@@ -4,11 +4,12 @@ import { app } from "../lib/store.svelte.js";
 import { groupBy } from "../lib/flags.js";
 import { wmo, isNightNow } from "../lib/weather-codes.js";
 import { mapPopup } from "../lib/popup.js";
-import { tr, wmoLabel } from "../lib/i18n.svelte.js";
+import { tr, trFmt, wmoLabel } from "../lib/i18n.svelte.js";
 import MapView from "./ui/MapView.svelte";
 import Section from "./ui/Section.svelte";
 import WeatherDetail from "./WeatherDetail.svelte";
 import Skeleton from "./ui/Skeleton.svelte";
+import EmptyState from "./ui/EmptyState.svelte";
 
 const weather = $derived(app.data?.weather ?? []);
 const towns = $derived(weather.filter((r) => r.kind === "weather"));
@@ -49,6 +50,8 @@ const picked = $derived(app.picked);
       <Skeleton h={56} class="!rounded-xl" />
       <Skeleton h={56} class="!rounded-xl" />
     </div>
+  {:else if towns.length === 0}
+    <EmptyState icon="⛅" title={trFmt("noWeatherAny", { scope: scopeLabel })} desc={tr("noWeatherHint")} />
   {:else}
     {#if weatherPts.length}
       <MapView pts={weatherPts} onPick={(id) => (app.picked = id)} class="h-72 w-full rounded-xl lg:h-[52vh] lg:min-h-[400px]" fitMax={app.scope === "state" ? 9 : 8} />
