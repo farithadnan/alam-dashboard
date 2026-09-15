@@ -1,7 +1,7 @@
 <script>
 import { app } from "../lib/store.svelte.js";
 import { getOfficial, getHistory } from "../lib/api.js";
-import { moonPhase, numColor } from "../lib/flags.js";
+import { moonPhase, numColor, uvWord } from "../lib/flags.js";
 import { wmo, isNightNow } from "../lib/weather-codes.js";
 import { mapPopup } from "../lib/popup.js";
 import { tr, wmoLabel, bandLabel, bandAdvice } from "../lib/i18n.svelte.js";
@@ -146,7 +146,7 @@ function hourLabel(t) {
     <StatCard label={`❄️ ${tr("dewPoint")}`} value={now.meta?.dewPoint != null ? `${Math.round(now.meta.dewPoint)}°` : "–"} />
     <StatCard label={`🧭 ${tr("pressure")}`} value={now.meta?.pressure != null ? `${Math.round(now.meta.pressure)} hPa` : "–"} />
     <StatCard label={`👁 ${tr("visibility")}`} value={now.meta?.visibility != null ? `${(now.meta.visibility / 1000).toFixed(1)} km` : "–"} />
-    <StatCard label={`☀️ ${tr("uv")}`} value={air?.meta?.uv ?? "–"} />
+    <StatCard label={`☀️ ${tr("uv")}`} value={air?.meta?.uv ?? "–"} sub={air?.meta?.uv != null ? tr(uvWord(air.meta.uv)) : ""} />
     <StatCard label={`🌅 ${tr("sunrise")}`} value={hm(now.meta?.sunrise)} />
     <StatCard label={`🌇 ${tr("sunset")}`} value={hm(now.meta?.sunset)} />
     <div class="glass flex items-center gap-2 rounded-xl px-3 py-2"><span class="text-[20px]">{moon.emoji}</span><div><div class="caption text-[11px]">{tr("moon")}</div><div class="text-[14px] font-semibold">{moon.name}</div></div></div>

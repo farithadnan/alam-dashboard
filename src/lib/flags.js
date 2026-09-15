@@ -20,6 +20,16 @@ export const STATES = [
 /** WCAG-compliant text colours (>=4.5 on cream); vivid band colours are for dots/borders. */
 export const NUM = { Good: "#2e7d32", Moderate: "#8f5c00", Unhealthy: "#b3491a", "Very Unhealthy": "#a51612", Hazardous: "#6a1b9a" };
 export const numColor = (l) => NUM[l] || l;
+/** UV category key (tr() it): 0-2 lo, 3-5 mod, 6-7 hi, 8-10 vhi, 11+ ext. */
+export const uvWord = (v) => {
+  const n = Number(v);
+  if (!Number.isFinite(n)) return "";
+  if (n <= 2) return "uv_lo";
+  if (n <= 5) return "uv_mod";
+  if (n <= 7) return "uv_hi";
+  if (n <= 10) return "uv_vhi";
+  return "uv_ext";
+};
 
 export const MAG_BORDER = (m) => (m >= 6 ? "#d3342f" : m >= 5 ? "#e05d2b" : "#8a8277");
 export const MAG_TEXT = { Light: "#6b6258", Moderate: "#b3491a", Strong: "#a51612" };

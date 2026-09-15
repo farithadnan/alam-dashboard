@@ -1,7 +1,7 @@
   <script>
     import { app } from "../lib/store.svelte.js";
     import { getHistory, getHaze } from "../lib/api.js";
-    import { numColor, cityOf, groupBy, atTown } from "../lib/flags.js";
+    import { numColor, cityOf, groupBy, atTown, uvWord } from "../lib/flags.js";
     import { bandCounts, seriesStats, legendOf, airMapPoints, nearestBy } from "../lib/air.js";
     import { locate } from "../lib/location.js";
     import ShareButton from "./ui/ShareButton.svelte";
@@ -175,7 +175,7 @@
         <div class="flex gap-2 rounded-xl border border-line p-2 text-[12.5px]">
           <div class="text-center"><div class="caption text-[10px]">PM2.5</div><div class="font-mono font-semibold">{airTown?.meta?.pm2_5 ?? "—"}</div></div>
           <div class="text-center"><div class="caption text-[10px]">PM10</div><div class="font-mono font-semibold">{airTown?.meta?.pm10 ?? "—"}</div></div>
-          <div class="text-center"><div class="caption text-[10px]">UV</div><div class="font-mono font-semibold">{airTown?.meta?.uv ?? "—"}</div></div>
+          <div class="text-center"><div class="caption text-[10px]">UV</div><div class="font-mono font-semibold">{airTown?.meta?.uv ?? "—"}{#if airTown?.meta?.uv != null}<span class="ml-0.5 text-[10px] font-normal text-muted">{tr(uvWord(airTown.meta.uv))}</span>{/if}</div></div>
         </div>
       </div>
       <p class="mt-2 text-[13px] text-muted">{bandAdvice(heroAir.band?.label) || heroAir.band?.advice}</p>
