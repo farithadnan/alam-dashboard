@@ -96,7 +96,7 @@ select { min-height: 44px; border: 1px solid var(--color-ctrl); border-radius: 1
 .skip-link:focus { transform: none; }
 
 /* iOS safe-area insets for the fixed bottom nav + the content that clears it. */
-@media (max-width: 639px) {
+@media (max-width: 1023px) {
   nav.fixed.bottom-0 { padding-bottom: max(0.25rem, env(safe-area-inset-bottom, 0px)); }
   main.pb-24 { padding-bottom: calc(6rem + env(safe-area-inset-bottom, 0px)); }
   footer.pb-20 { padding-bottom: calc(5rem + env(safe-area-inset-bottom, 0px)); }

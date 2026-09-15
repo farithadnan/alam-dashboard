@@ -112,7 +112,7 @@ function toggleLang() {
   <div class="mx-auto flex w-full max-w-[1280px] items-center gap-1.5 px-4 py-1.5">
     <button class="mr-1 text-[16px] font-bold tracking-wide" onclick={() => (view = "home")} aria-label="Home">{SITE.name}<span class="text-accent">.</span></button>
 
-    <nav class="hidden items-center gap-0.5 sm:flex">
+    <nav class="hidden items-center gap-0.5 lg:flex">
       {#each NAV as n (n.view)}
         <button class:on={view === n.view} class="navbtn inline-flex items-center gap-1.5" onclick={() => (view = n.view)}>
           <Icon name={n.icon} size={16} />{tr(n.key)}
@@ -129,9 +129,9 @@ function toggleLang() {
         </div>
       {/if}
       <button class="iconbtn" onclick={openLoc} aria-haspopup="dialog" aria-expanded={locOpen}>📍 <span class="hidden sm:inline">{townName || tr("changeLoc")}</span></button>
-      <button class="iconbtn hidden sm:inline-flex" onclick={toggleLang} aria-label="Language">{lang.code === "en" ? "BM" : "EN"}</button>
-      <button class="iconbtn hidden sm:inline-flex" onclick={toggleTheme} aria-label="Toggle dark mode">{theme.dark ? "☀" : "☾"}</button>
-      <button class="iconbtn relative sm:hidden" onclick={() => (settingsOpen = !settingsOpen)} aria-label="Settings" aria-expanded={settingsOpen}>⚙</button>
+      <button class="iconbtn hidden lg:inline-flex" onclick={toggleLang} aria-label="Language">{lang.code === "en" ? "BM" : "EN"}</button>
+      <button class="iconbtn hidden lg:inline-flex" onclick={toggleTheme} aria-label="Toggle dark mode">{theme.dark ? "☀" : "☾"}</button>
+      <button class="iconbtn relative lg:hidden" onclick={() => (settingsOpen = !settingsOpen)} aria-label="Settings" aria-expanded={settingsOpen}>⚙</button>
     </div>
   </div>
 
@@ -193,7 +193,7 @@ function toggleLang() {
 {/if}
 
 <a class="skip-link" href="#main-content">{tr("skipToContent")}</a>
-<main id="main-content" class="mx-auto w-full max-w-[1280px] px-4 pt-3 pb-24 sm:pb-10">
+<main id="main-content" class="mx-auto w-full max-w-[1280px] px-4 pt-3 pb-24 lg:pb-10">
   {#if !claimed && view !== "about" && view !== "api" && view !== "hazards" && view !== "news"}
     <!-- Slim, quiet location nudge: the hero owns the first screen. -->
     <div class="caption mb-3 flex items-center justify-between gap-2 rounded-lg border border-line bg-panel px-3 py-1.5 text-[12.5px]">
@@ -241,7 +241,7 @@ function toggleLang() {
   {/if}
 </main>
 
-<footer class="border-t border-line px-4 pt-4 pb-20 text-center text-[12.5px] text-muted sm:pb-5">
+<footer class="border-t border-line px-4 pt-4 pb-20 text-center text-[12.5px] text-muted lg:pb-5">
   <div class="flex items-center justify-center gap-2.5">
     <button class="hover:text-fg" onclick={() => (view = "about")}>{tr("navAbout")}</button>
     <span>·</span>
@@ -251,7 +251,7 @@ function toggleLang() {
   </div>
 </footer>
 
-<nav class="fixed bottom-0 left-0 right-0 z-40 border-t border-line bg-bg/90 pt-1 backdrop-blur sm:hidden" aria-label="Main">
+<nav class="fixed bottom-0 left-0 right-0 z-40 border-t border-line bg-bg/90 pt-1 backdrop-blur lg:hidden" aria-label="Main">
   <div class="flex">
     {#each NAV as n (n.view)}
       <button
