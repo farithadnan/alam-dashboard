@@ -177,7 +177,7 @@ function toggleLang() {
 {/if}
 
 <main class="mx-auto w-full max-w-[1280px] px-4 pt-3 pb-24 sm:pb-10">
-  {#if !claimed && view !== "about" && view !== "api"}
+  {#if !claimed && view !== "about" && view !== "api" && view !== "hazards" && view !== "news"}
     <!-- Slim, quiet location nudge: the hero owns the first screen. -->
     <div class="caption mb-3 flex items-center justify-between gap-2 rounded-lg border border-line bg-panel px-3 py-1.5 text-[12.5px]">
       <span>{trFmt("locationPrompt", { place: app.state || "Malaysia" })}</span>

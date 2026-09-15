@@ -40,7 +40,7 @@
     ]);
     const alertColor = (a) => ({ green: "#2e7d32", yellow: "#b26a00", orange: "#e05d2b", red: "#d32f2f" }[a] || "#6b6258");
     let open = $state(null);
-    let showGuide = $state(false);
+    let showGuide = $state(true); // explanation stays visible (do not hide risk meaning)
   </script>
 
   <div class="flex items-start justify-between gap-2">

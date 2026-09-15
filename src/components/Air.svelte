@@ -33,7 +33,7 @@
     let range = $state(24);
     let open = $state(null);
     let nearInfo = $state("");
-    let showScale = $state(false);
+    let showScale = $state(true); // air-quality scale visible by default (answers "what does this mean")
 
     /** The station currently being charted: the expanded row, or the "near me" hero. */
     const target = $derived(open ? stations.find((s) => s.station === open) ?? null : app.scope === "near" ? heroAir : null);

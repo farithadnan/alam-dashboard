@@ -3,7 +3,7 @@
     let { items = [], onTap = () => {} } = $props();
   </script>
 
-  <ul class="mt-1 list-none m-0 overflow-hidden rounded-xl border border-line p-0">
+  <ul class="mt-1 list-none m-0 max-w-[520px] overflow-hidden rounded-xl border border-line p-0">
     {#each items as it (it.key)}
       <li class="border-b border-line last:border-0">
         <button class="flex w-full min-h-[46px] items-center gap-3 px-3 text-left" onclick={() => onTap(it.key)}>

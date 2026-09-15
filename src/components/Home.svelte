@@ -36,11 +36,14 @@
     );
 
     // Lightweight live flood count for the homepage chip (independent of the Flood tab).
+    // Scoped to the current view scope so the number always matches what the Flood page
+    // shows when tapped (Malaysia = whole country; Near/State = that state).
     let floodCount = $state(0);
     let floodLoaded = $state(false);
     $effect(() => {
       let on = true;
-      getFlood()
+      const scopeState = app.scope === "malaysia" ? undefined : app.state || undefined;
+      getFlood(scopeState)
         .then((r) => { if (on) { floodCount = (r?.river?.length ?? 0) + (r?.rain?.length ?? 0); floodLoaded = true; } })
         .catch(() => { if (on) floodLoaded = true; });
       return () => (on = false);
