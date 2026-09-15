@@ -11,10 +11,9 @@
     /** Presentational: parent fetches and passes river/rain/loading/state/sevFilter.
      * state "" = all Malaysia (grouped by collapsible state); otherwise one state.
      * sevFilter "" = all severities, else only that severity. */
-    let { river = [], rain = [], loading = false, state = "", sevFilter = "", present = [], total = 0, highest = null, onSev = null } = $props();
+    let { river = [], rain = [], loading = false, state = "", sevFilter = "", present = [], total = 0, highest = null, onSev = null, showLevel = false, onToggle = null } = $props();
 
     const PIN_COLOR = { Danger: "#a51110", Warning: "#e05d2b", Alert: "#b26a00", Heavy: "#3b6ea8", Moderate: "#6f8fb0" };
-    let showLevel = $state(false);
 
     // The feed can list a station more than once — show each station once (worst severity).
     const RANK = { Danger: 0, Warning: 1, Alert: 2, Moderate: 3, Heavy: 3 };
@@ -89,7 +88,7 @@
       <p class="caption -mt-1 mb-2 text-muted">{tr("floodSevHint")}</p>
     {/if}
     {#if present.length}
-      <button class="mb-1 text-[12.5px] text-muted underline" onclick={() => (showLevel = !showLevel)} aria-expanded={showLevel}>
+      <button class="mb-1 text-[12.5px] text-muted underline" onclick={() => onToggle?.()} aria-expanded={showLevel}>
         {showLevel ? "−" : "+"} {tr("floodLevelTitle")}
       </button>
       {#if showLevel}

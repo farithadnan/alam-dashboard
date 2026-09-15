@@ -11,6 +11,7 @@
     // Weather & AQI). Flood is state-level data, so Near and State both resolve to
     // the user's declared state; Malaysia shows every state.
     let sevFilter = $state(""); // "" = all, else one severity
+    let showLevel = $state(false); // river-level meaning guide (collapsed by default)
     const state = $derived(app.scope === "malaysia" ? "" : app.state || "");
     const SEV = { Danger: { c: "var(--color-vunhealthy)", e: "🔴" }, Warning: { c: "var(--color-unhealthy)", e: "🟠" }, Alert: { c: "var(--color-moderate)", e: "🟡" }, Heavy: { c: "#3b6ea8", e: "🌧" } };
 
@@ -47,4 +48,4 @@
   </div>
   <p class="caption -mt-1 mb-1">{tr("floodNote")} · <a class="underline hover:text-accent" href="https://publicinfobanjir.water.gov.my/" target="_blank" rel="noopener">{tr("floodOpen")}</a></p>
 
-  <FloodAlerts river={data.river} rain={data.rain} loading={loading} state={state} sevFilter={sevFilter} onSev={toggleSev} present={present} total={total} highest={summary.highest} />
+  <FloodAlerts river={data.river} rain={data.rain} loading={loading} state={state} sevFilter={sevFilter} onSev={toggleSev} present={present} total={total} highest={summary.highest} showLevel={showLevel} onToggle={() => (showLevel = !showLevel)} />
