@@ -13,18 +13,28 @@
 
     function openReport(evt) {
       reportTrigger = evt?.currentTarget ?? null;
+      lockScroll();
       reportOpen = true;
+      requestAnimationFrame(() => reportDialog?.querySelector("select, textarea, input, button")?.focus());
     }
     function closeReport() {
       reportOpen = false;
+      unlockScroll();
       if (reportTrigger) { reportTrigger.focus?.(); reportTrigger = null; }
     }
+    // ESC closes; Tab is trapped inside so keyboard focus can't escape to the page behind.
     function onReportKey(e) {
-      if (e.key === "Escape") closeReport();
+      if (e.key === "Escape") { closeReport(); return; }
+      if (e.key !== "Tab" || !reportDialog) return;
+      const f = [...reportDialog.querySelectorAll('button, [href], select, input, textarea, [tabindex]:not([tabindex="-1"])')].filter((el) => !el.disabled);
+      if (!f.length) return;
+      const first = f[0], last = f[f.length - 1];
+      if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+      else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
     }
-    $effect(() => {
-      if (reportOpen && reportDialog) (reportDialog.querySelector("select, textarea, input, button")?.focus?.());
-    });
+    let prevOverflow = "";
+    function lockScroll() { prevOverflow = document.body.style.overflow; document.body.style.overflow = "hidden"; }
+    function unlockScroll() { document.body.style.overflow = prevOverflow; prevOverflow = ""; }
 
     function sendReport() {
       const subj = encodeURIComponent(`[Alam report] ${rtype}`);

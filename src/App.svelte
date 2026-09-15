@@ -75,19 +75,29 @@ function markClaimed() {
 }
 function openLoc(evt) {
   locTrigger = evt?.currentTarget ?? null;
+  lockScroll();
   locOpen = true;
+  // Focus the first control once the dialog has mounted (bind:this may lag a frame).
+  requestAnimationFrame(() => locDialog?.querySelector("select, button")?.focus());
 }
 function closeLoc() {
   locOpen = false;
+  unlockScroll();
   if (locTrigger) { locTrigger.focus?.(); locTrigger = null; }
 }
+// ESC closes; Tab is trapped inside so keyboard focus can't fall through to the page behind.
 function onLocKey(e) {
-  if (e.key === "Escape") closeLoc();
+  if (e.key === "Escape") { closeLoc(); return; }
+  if (e.key !== "Tab" || !locDialog) return;
+  const f = [...locDialog.querySelectorAll('button, [href], select, input, textarea, [tabindex]:not([tabindex="-1"])')].filter((el) => !el.disabled);
+  if (!f.length) return;
+  const first = f[0], last = f[f.length - 1];
+  if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+  else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
 }
-// Move focus into the dialog the moment it opens.
-$effect(() => {
-  if (locOpen && locDialog) (locDialog.querySelector("select, button")?.focus?.());
-});
+let prevOverflow = "";
+function lockScroll() { prevOverflow = document.body.style.overflow; document.body.style.overflow = "hidden"; }
+function unlockScroll() { document.body.style.overflow = prevOverflow; prevOverflow = ""; }
 
 async function useLocation() {
   markClaimed();
@@ -157,9 +167,9 @@ function toggleLang() {
     </div>
   {/if}
 
-  {#if app.error}
+  {#if app.error && app.data}
     <div class="flex items-center justify-center gap-3 border-t border-line bg-panel px-4 py-2 text-[12.5px]">
-      <span class="text-muted">{app.data ? tr("staleData") : tr("loadFailed")}</span>
+      <span class="text-muted">{tr("staleData")}</span>
       <button class="ghostbtn !min-h-0 !py-1 text-[12px]" onclick={load}>{tr("retry")}</button>
     </div>
   {/if}
@@ -203,11 +213,6 @@ function toggleLang() {
         <button type="button" class="ghostbtn !min-h-0 !px-3 !py-1 text-[12px]" onclick={markClaimed}>{tr("dismiss")}</button>
       </span>
     </div>
-  {/if}
-  {#if app.error && app.data}
-    <p class="caption mb-2 flex items-center gap-2 rounded-lg border border-line bg-panel px-3 py-1.5 text-[12.5px]">
-      <span aria-hidden="true">⚠️</span>{trFmt("staleData", { t: app.updated || "earlier" })}
-    </p>
   {/if}
   {#if !app.data && app.loading}
     <div class="mt-2 space-y-3">
