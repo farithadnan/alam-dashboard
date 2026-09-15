@@ -128,10 +128,10 @@ function toggleLang() {
           {/each}
         </div>
       {/if}
-      <button class="iconbtn" onclick={openLoc} aria-haspopup="dialog" aria-expanded={locOpen}>📍 <span class="hidden sm:inline">{townName || tr("changeLoc")}</span></button>
+      <button class="iconbtn" onclick={openLoc} aria-haspopup="dialog" aria-expanded={locOpen}><Icon name="pin" size={16} /> <span class="hidden sm:inline">{townName || tr("changeLoc")}</span></button>
       <button class="iconbtn hidden lg:inline-flex" onclick={toggleLang} aria-label="Language">{lang.code === "en" ? "BM" : "EN"}</button>
-      <button class="iconbtn hidden lg:inline-flex" onclick={toggleTheme} aria-label="Toggle dark mode">{theme.dark ? "☀" : "☾"}</button>
-      <button class="iconbtn relative lg:hidden" onclick={() => (settingsOpen = !settingsOpen)} aria-label="Settings" aria-expanded={settingsOpen}>⚙</button>
+      <button class="iconbtn hidden lg:inline-flex" onclick={toggleTheme} aria-label="Toggle dark mode"><Icon name={theme.dark ? "sun" : "moon"} size={18} /></button>
+      <button class="iconbtn relative lg:hidden" onclick={() => (settingsOpen = !settingsOpen)} aria-label="Settings" aria-expanded={settingsOpen}><Icon name="gear" size={18} /></button>
     </div>
   </div>
 
@@ -145,8 +145,8 @@ function toggleLang() {
       </div>
       <div class="caption mb-1.5 mt-4 text-[12px] font-semibold">Theme</div>
       <div class="seg flex w-full">
-        <button class:on={!theme.dark} class="segbtn flex-1 py-1.5" onclick={() => { if (theme.dark) toggleTheme(); }}>☀ Light</button>
-        <button class:on={theme.dark} class="segbtn flex-1 py-1.5" onclick={() => { if (!theme.dark) toggleTheme(); }}>☾ Dark</button>
+        <button class:on={!theme.dark} class="segbtn flex-1 py-1.5" onclick={() => { if (theme.dark) toggleTheme(); }}><span class="inline-flex items-center justify-center gap-1"><Icon name="sun" size={14} /> Light</span></button>
+        <button class:on={theme.dark} class="segbtn flex-1 py-1.5" onclick={() => { if (!theme.dark) toggleTheme(); }}><span class="inline-flex items-center justify-center gap-1"><Icon name="moon" size={14} /> Dark</span></button>
       </div>
     </div>
   {/if}

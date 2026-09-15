@@ -1,6 +1,7 @@
   <script>
     import { tr } from "../../lib/i18n.svelte.js";
     import { shareCard, shareText, shareCaption, shareIntent } from "../../lib/sharecard.js";
+    import Icon from "./Icon.svelte";
 
     /** `payload` comes from lib/share.js so every share entry point is identical. */
     let { payload, textOnly = false, class: cls = "", pill = false } = $props();
@@ -39,7 +40,7 @@
       aria-haspopup="menu"
       aria-expanded={open}
     >
-      <span aria-hidden="true">↗</span>
+      <span aria-hidden="true" class="inline-flex"><Icon name="share" size={16} /></span>
       <span class="text-[12px] font-medium hidden sm:inline">{tr("share")}</span>
     </button>
 
