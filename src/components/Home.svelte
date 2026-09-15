@@ -1,9 +1,11 @@
   <script>
     import { app } from "../lib/store.svelte.js";
-    import { numColor, atTown } from "../lib/flags.js";
+    import { numColor, atTown, severityColor } from "../lib/flags.js";
     import { wmo, isNightNow } from "../lib/weather-codes.js";
-    import { tr, trFmt, bandLabel } from "../lib/i18n.svelte.js";
+    import { tr, bandLabel } from "../lib/i18n.svelte.js";
     import WeatherBanner from "./ui/WeatherBanner.svelte";
+    import HazardAlerts from "./ui/HazardAlerts.svelte";
+    import AtAGlance from "./ui/AtAGlance.svelte";
     import { sharePayload } from "../lib/share.js";
     import { activeWarnings } from "../lib/warnings.js";
     import { getFlood } from "../lib/api.js";
@@ -76,45 +78,23 @@
     </div>
   {/if}
 
-  <!-- Status + live counts: what to care about right now. -->
-  <div class="mt-2 flex flex-wrap gap-2 text-[13px]">
-    {#if warnings.length > 0}
-      <button type="button" class="glass chip cursor-pointer rounded-full px-3 py-1 hover:border-accent"
-        aria-label={trFmt("warningsInForce", { n: warnings.length })} onclick={() => jump("advisories", true)}>
-        {trFmt("warningsInForce", { n: warnings.length })}
-      </button>
-    {/if}
-    {#if quakes.length > 0}
-      <button type="button" class="glass chip cursor-pointer rounded-full px-3 py-1 hover:border-accent"
-        aria-label={trFmt("quakesWeek", { n: quakes.length })} onclick={() => onNavigate("hazards")}>
-        {trFmt("quakesWeek", { n: quakes.length })}
-      </button>
-    {/if}
-    {#if climate}
-      <button type="button" class="glass chip cursor-pointer rounded-full px-3 py-1 hover:border-accent"
-        onclick={() => jump("advisories")}>{climate.meta?.phase || "Neutral"}</button>
-    {/if}
-    {#if floodLoaded && floodCount > 0}
-      <button type="button" class="glass chip cursor-pointer rounded-full px-3 py-1 hover:border-accent"
-        onclick={() => onNavigate("flood")}>{trFmt("homeFlood", { n: floodCount })}</button>
-    {/if}
-    {#if newsCount > 0}
-      <button type="button" class="glass chip cursor-pointer rounded-full px-3 py-1 hover:border-accent"
-        onclick={() => onNavigate("news")}>{trFmt("homeNews", { n: newsCount })}</button>
-    {/if}
-    {#if airBad}
-      <button type="button" class="glass chip cursor-pointer rounded-full px-3 py-1 hover:border-accent"
-        style="border-color:var(--color-unhealthy);color:var(--color-unhealthy)" onclick={() => onNavigate("air")}>
-        ⚠️ {bandLabel(townAir.band?.label)} air
-      </button>
-    {/if}
-  </div>
+  <!-- Primary answer first: active alerts, then a compact at-a-glance. -->
+  <HazardAlerts warnings={warnings} onRead={() => jump("advisories", true)} onAll={() => jump("advisories")} />
+
+  <h3 class="qh">{tr("atAGlance")}</h3>
+  <AtAGlance
+    onTap={(k) => (k === "floods" ? onNavigate("flood") : k === "quakes" ? onNavigate("hazards") : jump("advisories", k === "warnings"))}
+    items={[
+      { key: "warnings", icon: "⚠️", label: tr("glanceWarnings"), value: `${warnings.length}`, color: warnings.length ? severityColor(warnings[0].severity) : "var(--color-muted)" },
+      { key: "floods", icon: "🌊", label: tr("glanceFloods"), value: floodLoaded ? `${floodCount}` : "…", color: floodCount ? "var(--color-unhealthy)" : "var(--color-muted)" },
+      { key: "quakes", icon: "🌐", label: tr("glanceQuakes"), value: `${quakes.length}`, color: quakes.length ? "#8e24aa" : "var(--color-muted)" },
+      { key: "climate", icon: "🌡️", label: tr("glanceClimate"), value: climate?.meta?.phase || "", color: climate ? "#b26a00" : "var(--color-muted)" },
+    ]}
+  />
 
   {#if app.updated}
     <p class="caption text-muted mt-1">{tr("updated")} {app.updated}</p>
   {/if}
-
-  <p class="caption text-muted">{tr("homeIntro")}</p>
 
   <h3 class="qh" id="advisories" class:text-accent={flash}>{tr("advisories")}</h3>
   <Warnings />
@@ -127,6 +107,8 @@
     </p>
     <p class="caption">{phase.includes("El Niño") ? tr("climateElEffect") : phase.includes("La Niña") ? tr("climateLaEffect") : tr("climateNeutralEffect")}</p>
   {/if}
+
+  <p class="caption text-muted mt-4">{tr("homeIntro")}</p>
 
   <h3 class="qh">{tr("srcTitle")}</h3>
   <p class="caption -mt-1 mb-1">{tr("srcHint")}</p>
