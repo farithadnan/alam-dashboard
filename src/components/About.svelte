@@ -2,6 +2,7 @@
     import { SITE } from "../lib/config.js";
     import { tr } from "../lib/i18n.svelte.js";
 
+    const FEAT_ICONS = ["🌬️", "⛅", "📅", "⚠️", "🌐", "🌗"];
     const feats = $derived([tr("feat1"), tr("feat2"), tr("feat3"), tr("feat4"), tr("feat5"), tr("feat6")]);
     let reportOpen = $state(false);
     let rtype = $state("data");
@@ -20,11 +21,17 @@
     <p class="mt-2 leading-relaxed">{tr("aboutWhat")}</p>
 
     <h3 class="mt-6 text-[15px] font-bold">{tr("featTitle")}</h3>
-    <ul class="mt-2 flex list-none flex-wrap gap-1.5 p-0">
-      {#each feats as f (f)}
-        <li class="rounded-full border border-line px-3 py-1 text-[12.5px] text-muted">{f}</li>
+    <ul class="mt-2 list-none m-0 border-t border-line p-0">
+      {#each feats as f, i (f)}
+        <li class="flex items-center gap-2.5 border-b border-line px-1 py-2 text-[13.5px]">
+          <span class="shrink-0 text-[16px] leading-none" aria-hidden="true">{FEAT_ICONS[i]}</span>
+          <span class="min-w-0">{f}</span>
+        </li>
       {/each}
     </ul>
+
+    <h3 class="mt-6 text-[15px] font-bold">{tr("sourcesTitle")}</h3>
+    <p class="mt-1 leading-relaxed text-muted">{tr("sourcesCredit")}</p>
 
     <h3 class="mt-6 text-[15px] font-bold">{tr("privTitle")}</h3>
     <p class="mt-1 leading-relaxed text-muted">{tr("privText")}</p>
