@@ -6,13 +6,15 @@
 
   <div class="flex flex-wrap gap-1.5 {cls}">
     {#if allLabel}
-      <button type="button" class="pillfilter" onclick={() => onPick?.(allValue)}
-        style={value === allValue ? "border-color:#8a8277;color:#8a8277;background:#8a82771a" : ""}>{allLabel}</button>
+      <button type="button" class="pillfilter inline-flex items-center gap-1.5" onclick={() => onPick?.(allValue)}
+        style={value === allValue ? "border-color:#8a8277;color:#8a8277;background:#8a82771a" : ""}>
+        <span class="size-2 shrink-0 rounded-full" style="background:#8a8277"></span>{allLabel}
+      </button>
     {/if}
     {#each pills as p (p.key)}
-      <button type="button" class="pillfilter" onclick={() => onPick?.(p.key)}
+      <button type="button" class="pillfilter inline-flex items-center gap-1.5" onclick={() => onPick?.(p.key)}
         style={value === p.key ? `border-color:${p.color || "#8a8277"};color:${p.color || "#8a8277"};background:${(p.color || "#8a8277")}1a` : ""}>
-        {p.label}{#if p.count != null} <span class="font-mono font-semibold">{p.count}</span>{/if}
+        {#if p.color}<span class="size-2 shrink-0 rounded-full" style="background:{p.color}"></span>{/if}{p.label}{#if p.count != null} <span class="font-mono font-semibold">{p.count}</span>{/if}
       </button>
     {/each}
   </div>
