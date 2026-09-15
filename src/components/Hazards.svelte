@@ -40,6 +40,7 @@
     ]);
     const alertColor = (a) => ({ green: "#2e7d32", yellow: "#b26a00", orange: "#e05d2b", red: "#d32f2f" }[a] || "#6b6258");
     let open = $state(null);
+    let showGuide = $state(false);
   </script>
 
   <div class="flex items-start justify-between gap-2">
@@ -52,14 +53,18 @@
   {/if}
 
   <FilterPills allLabel="All" allValue="all" pills={MATCARDS.filter((c) => c.id !== "all").map((c) => ({ key: c.id, label: c.label, count: c.n, color: c.color }))} value={magFilter} onPick={(k) => (magFilter = k)} class="mt-2 mb-1" />
-  <div class="mb-1 rounded-xl border border-line px-3 py-2 text-[12.5px] text-muted">
-    <div class="font-semibold text-fg">{tr("quakeGuide")}</div>
-    <ul class="mt-1 list-none m-0 space-y-0.5 p-0">
-      <li class="flex items-start gap-1.5"><span class="mt-1.5 size-2 shrink-0 rounded-full" style="background:#6b6258"></span>{tr("quakeGuideLight")}</li>
-      <li class="flex items-start gap-1.5"><span class="mt-1.5 size-2 shrink-0 rounded-full" style="background:#b3491a"></span>{tr("quakeGuideMod")}</li>
-      <li class="flex items-start gap-1.5"><span class="mt-1.5 size-2 shrink-0 rounded-full" style="background:#a51612"></span>{tr("quakeGuideStrong")}</li>
-    </ul>
-  </div>
+  <button class="mb-1 text-[12.5px] text-muted underline" onclick={() => (showGuide = !showGuide)} aria-expanded={showGuide}>
+    {showGuide ? "−" : "+"} {tr("quakeGuide")}
+  </button>
+  {#if showGuide}
+    <div class="mb-1 rounded-xl border border-line px-3 py-2 text-[12.5px] text-muted">
+      <ul class="list-none m-0 space-y-0.5 p-0">
+        <li class="flex items-start gap-1.5"><span class="mt-1.5 size-2 shrink-0 rounded-full" style="background:#6b6258"></span>{tr("quakeGuideLight")}</li>
+        <li class="flex items-start gap-1.5"><span class="mt-1.5 size-2 shrink-0 rounded-full" style="background:#b3491a"></span>{tr("quakeGuideMod")}</li>
+        <li class="flex items-start gap-1.5"><span class="mt-1.5 size-2 shrink-0 rounded-full" style="background:#a51612"></span>{tr("quakeGuideStrong")}</li>
+      </ul>
+    </div>
+  {/if}
   <p class="caption -mt-1 mb-1 text-muted">{tr("quakeCountHint")}</p>
   {#each groups as g (g.key)}
     <Section title={g.key} startOpen={groups.length === 1}>
