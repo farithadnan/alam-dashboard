@@ -1,6 +1,6 @@
   <script>
     import { app } from "../lib/store.svelte.js";
-    import { numColor, atTown, severityColor } from "../lib/flags.js";
+    import { numColor, atTown, severityColor, apiBandOf } from "../lib/flags.js";
     import { wmo, isNightNow } from "../lib/weather-codes.js";
     import { tr, bandLabel } from "../lib/i18n.svelte.js";
     import WeatherBanner from "./ui/WeatherBanner.svelte";
@@ -31,7 +31,7 @@
       townAir
         ? { value: townAir.value, band: bandLabel(townAir.band?.label), color: numColor(townAir.band?.label) }
         : air
-          ? { value: Math.round(air.value), band: "AQI", color: numColor("Moderate") }
+          ? { value: Math.round(air.value), band: bandLabel(apiBandOf(air.value)), color: numColor(apiBandOf(air.value)) }
           : null,
     );
 

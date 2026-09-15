@@ -31,6 +31,16 @@ export const uvWord = (v) => {
   return "uv_ext";
 };
 
+/** Malaysia APIMS band key for a DOE AQI value (word via bandLabel). */
+export const apiBandOf = (v) => {
+  const n = Number(v);
+  if (!Number.isFinite(n) || n <= 0) return "";
+  if (n <= 50) return "Good";
+  if (n <= 100) return "Moderate";
+  if (n <= 200) return "Unhealthy";
+  if (n <= 300) return "Very Unhealthy";
+  return "Hazardous";
+};
 export const MAG_BORDER = (m) => (m >= 6 ? "#d3342f" : m >= 5 ? "#e05d2b" : "#8a8277");
 export const MAG_TEXT = { Light: "#6b6258", Moderate: "#b3491a", Strong: "#a51612" };
 export const magWord = (m) => (m >= 6 ? "Strong" : m >= 5 ? "Moderate" : "Light");
