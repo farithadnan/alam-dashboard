@@ -49,9 +49,11 @@
     <ShareButton payload={quakeSharePayload({ quakes, scope: app.scope })} class="mt-1" />
   </div>
   <p class="caption -mt-1">{tr("quakeCap")}</p>
-  {#if quakePts.length}
+  <div class="lg:grid lg:grid-cols-2 lg:items-start lg:gap-4">
+    <div class="min-w-0">
+    {#if quakePts.length}
     <MapView pts={quakePts} class="h-72 w-full rounded-xl lg:h-[52vh] lg:min-h-[400px]" fitMax={8} />
-  {/if}
+    {/if}
 
   <FilterPills allLabel="All" allValue="all" pills={MATCARDS.filter((c) => c.id !== "all").map((c) => ({ key: c.id, label: c.label, count: c.n, color: c.color }))} value={magFilter} onPick={(k) => (magFilter = k)} class="mt-2 mb-1" />
   <button class="mb-1 text-[12.5px] text-muted underline" onclick={() => (showGuide = !showGuide)} aria-expanded={showGuide}>
@@ -67,6 +69,8 @@
     </div>
   {/if}
   <p class="caption -mt-1 mb-1 text-muted">{tr("quakeCountHint")}</p>
+  </div>
+  <div class="min-w-0 mt-2 lg:mt-0">
   {#each groups as g (g.key)}
     <Section title={g.key} startOpen={groups.length === 1}>
       <ul class="list-none m-0 p-0">
@@ -110,3 +114,5 @@
   {#if !shown.length}
     <EmptyState icon="🌐" title={tr("noQuakesFilter")} desc={tr("noQuakesHint")} action={{ label: tr("viewAllQuakes"), onClick: () => (magFilter = "all") }} />
   {/if}
+  </div>
+</div>
