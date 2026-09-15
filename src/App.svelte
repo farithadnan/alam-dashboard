@@ -12,22 +12,23 @@ import Skeleton from "./components/ui/Skeleton.svelte";
 import Home from "./components/Home.svelte";
 import Weather from "./components/Weather.svelte";
 import Air from "./components/Air.svelte";
-import Flood from "./components/Flood.svelte";
-import Hazards from "./components/Hazards.svelte";
+import HazardsHome from "./components/HazardsHome.svelte";
 import News from "./components/News.svelte";
 import About from "./components/About.svelte";
 import Api from "./components/Api.svelte";
 
-const HASH_TO_VIEW = { "": "home", weather: "weather", air: "air", flood: "flood", earthquakes: "hazards", news: "news", about: "about", api: "api" };
-const VIEW_TO_HASH = { home: "", weather: "weather", air: "air", flood: "flood", hazards: "earthquakes", news: "news", about: "about", api: "api" };
+const HASH_TO_VIEW = { "": "home", weather: "weather", air: "air", flood: "hazards", earthquakes: "hazards", news: "news", about: "about", api: "api" };
+const VIEW_TO_HASH = { home: "", weather: "weather", air: "air", hazards: "flood", news: "news", about: "about", api: "api" };
 function readHash() {
   const h = (typeof location !== "undefined" ? location.hash : "").replace(/^#\/?/, "");
+  if (h === "flood" || h === "earthquakes") app.hazard = h;
   return HASH_TO_VIEW[h] ?? "home";
 }
 let view = $state(readHash());
 $effect(() => {
-  // Keep the URL in sync (replaceState avoids a hashchange loop) so deep links work.
-  const want = VIEW_TO_HASH[view] ? `#/${VIEW_TO_HASH[view]}` : "#/";
+  // Keep the URL in sync (replaceState avoids a hashchange loop). The Hazards center
+  // owns its sub-tab in app.hazard, so its hash reflects Flood vs Earthquakes.
+  const want = view === "hazards" ? `#/${app.hazard || "flood"}` : VIEW_TO_HASH[view] ? `#/${VIEW_TO_HASH[view]}` : "#/";
   if (typeof location !== "undefined" && location.hash !== want) history.replaceState(null, "", want);
 });
 let locOpen = $state(false);
@@ -120,16 +121,14 @@ function toggleLang() {
     </nav>
 
     <div class="ml-auto flex items-center gap-1.5">
-      {#if (view === "weather" || view === "air" || view === "flood") && !app.picked}
+      {#if (view === "weather" || view === "air" || view === "hazards") && !app.picked}
         <div class="seg" role="group" aria-label="Scope">
           {#each SCOPES as s (s.value)}
             <button class:on={app.scope === s.value} class="segbtn" onclick={() => (app.scope = s.value)}>{tr(s.key)}</button>
           {/each}
         </div>
       {/if}
-      {#if view !== "hazards"}
-        <button class="iconbtn" onclick={openLoc} aria-haspopup="dialog" aria-expanded={locOpen}>📍 <span class="hidden sm:inline">{townName || tr("changeLoc")}</span></button>
-      {/if}
+      <button class="iconbtn" onclick={openLoc} aria-haspopup="dialog" aria-expanded={locOpen}>📍 <span class="hidden sm:inline">{townName || tr("changeLoc")}</span></button>
       <button class="iconbtn hidden sm:inline-flex" onclick={toggleLang} aria-label="Language">{lang.code === "en" ? "BM" : "EN"}</button>
       <button class="iconbtn hidden sm:inline-flex" onclick={toggleTheme} aria-label="Toggle dark mode">{theme.dark ? "☀" : "☾"}</button>
       <button class="iconbtn relative sm:hidden" onclick={() => (settingsOpen = !settingsOpen)} aria-label="Settings" aria-expanded={settingsOpen}>⚙</button>
@@ -231,10 +230,8 @@ function toggleLang() {
     <Weather />
   {:else if view === "air"}
     <Air />
-  {:else if view === "flood"}
-    <Flood />
   {:else if view === "hazards"}
-    <Hazards />
+    <HazardsHome />
   {:else if view === "news"}
     <News />
   {:else if view === "api"}

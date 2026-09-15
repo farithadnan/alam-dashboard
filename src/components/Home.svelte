@@ -91,7 +91,10 @@
 
     <h3 class="qh">{tr("atAGlance")}</h3>
     <AtAGlance
-      onTap={(k) => (k === "floods" ? onNavigate("flood") : k === "quakes" ? onNavigate("hazards") : jump("advisories", k === "warnings"))}
+      onTap={(k) => {
+        if (k === "floods" || k === "quakes") { app.hazard = k === "floods" ? "flood" : "earthquakes"; onNavigate("hazards"); }
+        else jump("advisories", k === "warnings");
+      }}
       items={[
         { key: "warnings", icon: "⚠️", label: tr("glanceWarnings"), value: `${warnings.length}`, color: warnings.length ? severityColor(warnings[0].severity) : "var(--color-muted)" },
         { key: "floods", icon: "🌊", label: tr("glanceFloods"), value: floodLoaded ? (floodErrored ? "—" : `${floodCount}`) : "…", color: floodCount ? "var(--color-unhealthy)" : "var(--color-muted)" },

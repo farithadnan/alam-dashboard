@@ -5,9 +5,9 @@ import { locate } from "../src/lib/location.js";
 afterEach(() => vi.unstubAllGlobals());
 
 describe("shell config", () => {
-  it("has a nav entry per view, home first", () => {
+  it("has a nav entry per view, home first — Hazards hosts Flood + Earthquakes", () => {
     expect(NAV[0].view).toBe("home");
-    expect(NAV.map((n) => n.view)).toEqual(["home", "weather", "air", "flood", "hazards", "news"]);
+    expect(NAV.map((n) => n.view)).toEqual(["home", "weather", "air", "hazards", "news"]);
   });
   it("has the three scopes in order, each with an i18n key", () => {
     expect(SCOPES.map((s) => s.value)).toEqual(["near", "state", "malaysia"]);
