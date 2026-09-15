@@ -138,7 +138,7 @@ function toggleLang() {
           {/each}
         </div>
       {/if}
-      <button class="iconbtn" onclick={openLoc} aria-haspopup="dialog" aria-expanded={locOpen}><Icon name="pin" size={16} /> <span class="hidden sm:inline">{townName || tr("changeLoc")}</span></button>
+      <button class="iconbtn inline-flex items-center whitespace-nowrap gap-1.5" onclick={openLoc} aria-haspopup="dialog" aria-expanded={locOpen}><Icon name="pin" size={16} /> <span class="hidden sm:inline">{townName || tr("changeLoc")}</span></button>
       <button class="iconbtn hidden lg:inline-flex" onclick={toggleLang} aria-label="Language">{lang.code === "en" ? "BM" : "EN"}</button>
       <button class="iconbtn hidden lg:inline-flex" onclick={toggleTheme} aria-label="Toggle dark mode"><Icon name={theme.dark ? "sun" : "moon"} size={18} /></button>
       <button class="iconbtn relative lg:hidden" onclick={() => (settingsOpen = !settingsOpen)} aria-label="Settings" aria-expanded={settingsOpen}><Icon name="gear" size={18} /></button>
@@ -206,11 +206,11 @@ function toggleLang() {
 <main id="main-content" class="mx-auto w-full max-w-[1280px] px-4 pt-3 pb-24 lg:pb-10">
   {#if !claimed && view !== "about" && view !== "api" && view !== "hazards" && view !== "news"}
     <!-- Slim, quiet location nudge: the hero owns the first screen. -->
-    <div class="caption mb-3 flex items-center justify-between gap-2 rounded-lg border border-line bg-panel px-3 py-1.5 text-[12.5px]">
-      <span>{trFmt("locationPrompt", { place: app.state || "Malaysia" })}</span>
-      <span class="flex shrink-0 gap-2">
-        <button type="button" class="ghostbtn !min-h-0 !px-3 !py-1 text-[12px]" onclick={useLocation}>{locBusy ? "…" : tr("useMyLocation")}</button>
-        <button type="button" class="ghostbtn !min-h-0 !px-3 !py-1 text-[12px]" onclick={markClaimed}>{tr("dismiss")}</button>
+    <div class="caption mb-3 flex items-center gap-2 rounded-lg border border-line bg-panel px-3 py-1 text-[12px]">
+      <span class="min-w-0">{trFmt("locationPrompt", { place: app.state || "Malaysia" })}</span>
+      <span class="ml-auto flex shrink-0 items-center gap-1">
+        <button type="button" class="ghostbtn !min-h-0 min-h-6 !px-3 !py-1 text-[12px]" onclick={useLocation}>{locBusy ? "…" : tr("useMyLocation")}</button>
+        <button type="button" class="iconbtn !min-h-0 !border-transparent !bg-transparent !p-1.5 min-h-6" onclick={markClaimed} aria-label={tr("dismiss")} title={tr("dismiss")}><Icon name="close" size={14} /></button>
       </span>
     </div>
   {/if}
