@@ -33,6 +33,8 @@ $effect(() => {
 let locOpen = $state(false);
 let settingsOpen = $state(false);
 let locBusy = $state(false);
+let locTrigger = null;          // element that opened the dialog, for focus restore
+let locDialog;                  // bound dialog element, for focusing in
 // Was this location ever actually claimed by the user, or are they seeing a default?
 let claimed = $state(true);
 $effect(() => {
@@ -70,6 +72,21 @@ function markClaimed() {
   claimed = true;
   try { localStorage.setItem("alam.claimed", "1"); } catch {}
 }
+function openLoc(evt) {
+  locTrigger = evt?.currentTarget ?? null;
+  locOpen = true;
+}
+function closeLoc() {
+  locOpen = false;
+  if (locTrigger) { locTrigger.focus?.(); locTrigger = null; }
+}
+function onLocKey(e) {
+  if (e.key === "Escape") closeLoc();
+}
+// Move focus into the dialog the moment it opens.
+$effect(() => {
+  if (locOpen && locDialog) (locDialog.querySelector("select, button")?.focus?.());
+});
 
 async function useLocation() {
   markClaimed();
@@ -111,7 +128,7 @@ function toggleLang() {
         </div>
       {/if}
       {#if view !== "hazards"}
-        <button class="iconbtn" onclick={() => (locOpen = true)} aria-haspopup="dialog">📍 <span class="hidden sm:inline">{townName || tr("changeLoc")}</span></button>
+        <button class="iconbtn" onclick={openLoc} aria-haspopup="dialog" aria-expanded={locOpen}>📍 <span class="hidden sm:inline">{townName || tr("changeLoc")}</span></button>
       {/if}
       <button class="iconbtn hidden sm:inline-flex" onclick={toggleLang} aria-label="Language">{lang.code === "en" ? "BM" : "EN"}</button>
       <button class="iconbtn hidden sm:inline-flex" onclick={toggleTheme} aria-label="Toggle dark mode">{theme.dark ? "☀" : "☾"}</button>
@@ -150,9 +167,9 @@ function toggleLang() {
 </header>
 
 {#if locOpen}
-  <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4" onclick={() => (locOpen = false)} role="dialog" aria-modal="true">
+  <div bind:this={locDialog} class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4" onclick={closeLoc} role="dialog" aria-modal="true" aria-labelledby="loc-title" onkeydown={onLocKey}>
     <div class="w-full max-w-sm rounded-2xl border border-line bg-panel p-5 shadow-2xl" onclick={(e) => e.stopPropagation()}>
-      <h2 class="mt-0 mb-3 text-[16px] font-bold">{tr("changeLoc")}</h2>
+      <h2 id="loc-title" class="mt-0 mb-3 text-[16px] font-bold">{tr("changeLoc")}</h2>
       <label class="flex flex-col gap-1">
         <span class="caption text-[12px]">{tr("state")}</span>
         <select id="state-select" bind:value={app.state} onchange={onStatePick}>
@@ -170,13 +187,14 @@ function toggleLang() {
         </select>
       </label>
       <p class="caption mt-3 text-[12.5px]">{tr("locHint")}</p>
-      <button class="btn-primary mt-3 w-full" onclick={() => (locOpen = false)}>{tr("done")}</button>
+      <button class="btn-primary mt-3 w-full" onclick={closeLoc}>{tr("done")}</button>
       <button class="ghostbtn mt-2 w-full justify-center" onclick={useLocation}>{locBusy ? tr("locating") : tr("useLoc")}</button>
     </div>
   </div>
 {/if}
 
-<main class="mx-auto w-full max-w-[1280px] px-4 pt-3 pb-24 sm:pb-10">
+<a class="skip-link" href="#main-content">{tr("skipToContent")}</a>
+<main id="main-content" class="mx-auto w-full max-w-[1280px] px-4 pt-3 pb-24 sm:pb-10">
   {#if !claimed && view !== "about" && view !== "api" && view !== "hazards" && view !== "news"}
     <!-- Slim, quiet location nudge: the hero owns the first screen. -->
     <div class="caption mb-3 flex items-center justify-between gap-2 rounded-lg border border-line bg-panel px-3 py-1.5 text-[12.5px]">

@@ -86,6 +86,27 @@ select { min-height: 44px; border: 1px solid var(--color-ctrl); border-radius: 1
 .segbtn.on { background: var(--color-accent); color: #fff; }
 .seg { display: inline-flex; border: 1px solid var(--color-ctrl); border-radius: 999px; overflow: hidden; }
 
+/* Skip-to-content link: visually hidden until keyboard focus. */
+.skip-link {
+  position: absolute; left: 0.5rem; top: 0.5rem; z-index: 100;
+  background: var(--color-accent); color: #fff; border-radius: 8px; padding: 8px 14px;
+  font: inherit; font-size: 14px; font-weight: 600; text-decoration: none;
+  transform: translateY(-220%); transition: transform .15s;
+}
+.skip-link:focus { transform: none; }
+
+/* iOS safe-area insets for the fixed bottom nav + the content that clears it. */
+@media (max-width: 639px) {
+  nav.fixed.bottom-0 { padding-bottom: max(0.25rem, env(safe-area-inset-bottom, 0px)); }
+  main.pb-24 { padding-bottom: calc(6rem + env(safe-area-inset-bottom, 0px)); }
+  footer.pb-20 { padding-bottom: calc(5rem + env(safe-area-inset-bottom, 0px)); }
+}
+
+/* Respect users who request reduced motion (without removing the hero's look). */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.001s !important; transition-duration: 0.001s !important; scroll-behavior: auto !important; }
+}
+
 /* Dark theme — overrides the @theme tokens on <html data-theme="dark"> */
 [data-theme="dark"] {
   --color-bg: #16181b;

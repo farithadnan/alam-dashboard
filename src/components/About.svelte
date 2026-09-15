@@ -8,6 +8,23 @@
     let rtype = $state("data");
     let rdesc = $state("");
     let remail = $state("");
+    let reportTrigger = null;
+    let reportDialog;
+
+    function openReport(evt) {
+      reportTrigger = evt?.currentTarget ?? null;
+      reportOpen = true;
+    }
+    function closeReport() {
+      reportOpen = false;
+      if (reportTrigger) { reportTrigger.focus?.(); reportTrigger = null; }
+    }
+    function onReportKey(e) {
+      if (e.key === "Escape") closeReport();
+    }
+    $effect(() => {
+      if (reportOpen && reportDialog) (reportDialog.querySelector("select, textarea, input, button")?.focus?.());
+    });
 
     function sendReport() {
       const subj = encodeURIComponent(`[Alam report] ${rtype}`);
@@ -39,7 +56,7 @@
 
     <h3 class="mt-6 text-[15px] font-bold">{tr("contactTitle")}</h3>
     <div class="mt-2 space-y-1.5 text-[14px]">
-      <a class="flex items-center gap-2 text-accent hover:underline" href="mailto:${SITE.email}">
+      <a class="flex items-center gap-2 text-accent hover:underline" href={`mailto:${SITE.email}`}>
         <span aria-hidden="true">✉️</span>{SITE.email}
       </a>
       <a class="flex items-center gap-2 text-accent hover:underline" href="{SITE.github}" target="_blank" rel="noopener" aria-label="GitHub">
@@ -47,13 +64,13 @@
       </a>
     </div>
 
-    <button class="btn-primary mt-6" onclick={() => (reportOpen = true)}>{tr("reportBtn")}</button>
+    <button class="btn-primary mt-6" onclick={openReport} aria-haspopup="dialog" aria-expanded={reportOpen}>{tr("reportBtn")}</button>
   </section>
 
   {#if reportOpen}
-    <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4" onclick={() => (reportOpen = false)} role="dialog" aria-modal="true">
+    <div bind:this={reportDialog} class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4" onclick={closeReport} role="dialog" aria-modal="true" aria-labelledby="report-title" onkeydown={onReportKey}>
       <div class="w-full max-w-md rounded-2xl border border-line bg-panel p-5 shadow-2xl" onclick={(e) => e.stopPropagation()}>
-        <h3 class="mt-0 mb-3 text-[16px] font-bold">{tr("reportTitle")}</h3>
+        <h3 id="report-title" class="mt-0 mb-3 text-[16px] font-bold">{tr("reportTitle")}</h3>
         <label class="flex flex-col gap-1">
           <span class="caption text-[12px]">{tr("reportType")}</span>
           <select bind:value={rtype}>

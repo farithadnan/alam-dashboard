@@ -73,4 +73,4 @@ into the bundle).
 - Bilingual (English / Bahasa Malaysia) and dark mode, both toggled in the header.
 - Share card renders a 1080x1080 PNG on canvas (Web Share API on mobile, download
   otherwise).
-- No social links in the footer by choice; contact is `hello@ohmyalam.com`.
+- No social links in the footer by choice; contact is `dev@farithadnan.net`.
