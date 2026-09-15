@@ -33,6 +33,7 @@
     let range = $state(24);
     let open = $state(null);
     let nearInfo = $state("");
+    let showScale = $state(false);
 
     /** The station currently being charted: the expanded row, or the "near me" hero. */
     const target = $derived(open ? stations.find((s) => s.station === open) ?? null : app.scope === "near" ? heroAir : null);
@@ -107,6 +108,18 @@
         <li class="flex items-center gap-1"><span class="inline-block size-3 rounded-full" style="background:{color}"></span> {bandLabel(label)}</li>
       {/each}
     </ul>
+    <button class="mt-1 text-[12.5px] text-muted underline" onclick={() => (showScale = !showScale)} aria-expanded={showScale}>
+      {showScale ? "−" : "+"} {tr("aqiScaleToggle")}
+    </button>
+    {#if showScale}
+      <ul class="mt-1 list-none m-0 space-y-1 rounded-xl border border-line px-3 py-2 text-[12.5px] text-muted">
+        <li class="flex items-start gap-1.5"><span class="mt-1.5 size-2 shrink-0 rounded-full" style="background:#2e7d32"></span>{tr("aqiMeanGood")}</li>
+        <li class="flex items-start gap-1.5"><span class="mt-1.5 size-2 shrink-0 rounded-full" style="background:#b26a00"></span>{tr("aqiMeanModerate")}</li>
+        <li class="flex items-start gap-1.5"><span class="mt-1.5 size-2 shrink-0 rounded-full" style="background:#e05d2b"></span>{tr("aqiMeanUnhealthy")}</li>
+        <li class="flex items-start gap-1.5"><span class="mt-1.5 size-2 shrink-0 rounded-full" style="background:#d32f2f"></span>{tr("aqiMeanVery")}</li>
+        <li class="flex items-start gap-1.5"><span class="mt-1.5 size-2 shrink-0 rounded-full" style="background:#7b1fa2"></span>{tr("aqiMeanHazardous")}</li>
+      </ul>
+    {/if}
   {/if}
 
   {#if app.scope !== "near" && counts.length}

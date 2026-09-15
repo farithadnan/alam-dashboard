@@ -87,6 +87,16 @@
       <FilterPills pills={[{ key: "", label: tr("floodSevAll"), count: total, color: "#8a8277" }, ...present.map((p) => ({ key: p.s, label: `${p.e} ${p.label}`, count: p.n, color: p.c }))]} value={sevFilter} onPick={(k) => onSev?.(k)} class="mb-1" />
       <p class="caption -mt-1 mb-2 text-muted">{tr("floodSevHint")}</p>
     {/if}
+    {#if present.length}
+      <div class="mb-2 rounded-xl border border-line px-3 py-2 text-[12.5px] text-muted">
+        <div class="font-semibold text-fg">{tr("floodLevelTitle")}</div>
+        <ul class="mt-1 list-none m-0 space-y-0.5 p-0">
+          <li class="flex items-start gap-1.5"><span class="mt-1.5 size-2 shrink-0 rounded-full" style="background:#b26a00"></span>{tr("floodMeanAlert")}</li>
+          <li class="flex items-start gap-1.5"><span class="mt-1.5 size-2 shrink-0 rounded-full" style="background:#e05d2b"></span>{tr("floodMeanWarning")}</li>
+          <li class="flex items-start gap-1.5"><span class="mt-1.5 size-2 shrink-0 rounded-full" style="background:#a51110"></span>{tr("floodMeanDanger")}</li>
+        </ul>
+      </div>
+    {/if}
     {#if highest}
       <div class="mb-2 flex items-center gap-2 rounded-xl border border-line px-3 py-2 text-[13px]">
         <span aria-hidden="true">🔺</span>
