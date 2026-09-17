@@ -4,7 +4,7 @@
     let { pills = [], value = "", onPick = null, allLabel = "", allValue = "", class: cls = "" } = $props();
   </script>
 
-  <div class="flex flex-wrap gap-1.5 {cls}">
+  <div class="no-scrollbar flex gap-1.5 overflow-x-auto pb-1 sm:flex-wrap sm:overflow-visible {cls}">
     {#if allLabel}
       <button type="button" class="pillfilter inline-flex items-center gap-1.5" onclick={() => onPick?.(allValue)}
         style={value === allValue ? "border-color:#8a8277;color:#8a8277;background:#8a82771a" : ""}>

@@ -54,6 +54,14 @@
     });
 
     const stats = $derived(seriesStats(series));
+    // Malaysia APIMS bands as chart risk-zones (Gemini: colour the danger thresholds).
+    const AQI_ZONES = [[0, 50, "#2e7d32"], [50, 100, "#b26a00"], [100, 200, "#e05d2b"], [200, 300, "#d32f2f"], [300, 1000, "#7b1fa2"]];
+    const trendWord = $derived.by(() => {
+      if (series.length < 2) return "";
+      const d = (series[series.length - 1].v ?? 0) - (series[0].v ?? 0);
+      return d > 2 ? tr("trendRising") : d < -2 ? tr("trendFalling") : tr("trendSteady");
+    });
+    const trendColor = $derived(trendWord === tr("trendRising") ? "#d32f2f" : trendWord === tr("trendFalling") ? "#2e7d32" : "var(--color-muted)");
 
     // Haze outlook (model PM2.5) for the saved town — dust belongs with air quality.
     let haze = $state([]);
@@ -100,7 +108,7 @@
     }
   </script>
 
-  <PageHeader title={`${tr("navAQI")} · ${app.scope === "malaysia" ? "Malaysia" : app.state}`} updated={app.updated} />
+  <PageHeader title={`${tr("navAQI")} · ${app.scope === "malaysia" ? "Malaysia" : app.state}`} updated={app.updated} source="DOE APIMS" />
   <p class="caption -mt-1 mb-1">{tr("aqiTip")}</p>
   <MapView pts={allPts} class="h-72 w-full rounded-xl lg:h-[52vh] lg:min-h-[400px]" fitMax={app.scope === "near" ? 12 : app.scope === "state" ? 9 : 8} focus={mapFocus} />
   {#if legend.length}
@@ -179,16 +187,19 @@
           <div class="text-center"><div class="caption text-[10px]">UV</div><div class="font-mono font-semibold">{airTown?.meta?.uv ?? "—"}{#if airTown?.meta?.uv != null}<span class="ml-0.5 text-[10px] font-normal text-muted">{tr(uvWord(airTown.meta.uv))}</span>{/if}</div></div>
         </div>
       </div>
-      <p class="mt-2 text-[13px] text-muted">{bandAdvice(heroAir.band?.label) || heroAir.band?.advice}</p>
-      <div class="mt-2 flex gap-2">
-        <button class:on={range === 24} class="segbtn" onclick={() => setRange(24)}>24h</button>
-        <button class:on={range === 168} class="segbtn" onclick={() => setRange(168)}>7d</button>
+      <p class="mt-2 text-[13px] text-muted"><span class="font-semibold text-fg">{tr("outdoorActivity")}:</span> {bandAdvice(heroAir.band?.label) || heroAir.band?.advice}</p>
+      <div class="mt-2 flex items-center justify-between gap-2">
+        <div class="flex gap-2">
+          <button class:on={range === 24} class="segbtn" onclick={() => setRange(24)}>24h</button>
+          <button class:on={range === 168} class="segbtn" onclick={() => setRange(168)}>7d</button>
+        </div>
+        {#if trendWord}<span class="text-[12px] font-semibold" style="color:{trendColor}">{tr("trend")} {trendWord}</span>{/if}
       </div>
       <p class="caption mt-1 text-[12px]">{range === 24 ? tr("chartPast24") : tr("chartPast7d")}</p>
       {#if seriesLoading}
         <div class="flex h-[170px] items-center justify-center"><Spinner size={22} label={tr("loading")} /></div>
       {:else if series.length >= 2}
-        <TrendChart series={series} color={numColor(heroAir.band?.label)} ariaLabel="Air quality trend" mode={range === 168 ? "days" : "hours"} />
+        <TrendChart series={series} color={numColor(heroAir.band?.label)} ariaLabel="Air quality trend" mode={range === 168 ? "days" : "hours"} zones={AQI_ZONES} />
         {#if stats}<p class="caption mt-1 text-[12px]">{"min " + stats.min + " · avg " + stats.avg + " · max " + stats.max}</p>{/if}
       {/if}
     </div>
@@ -234,7 +245,7 @@
                   {#if seriesLoading}
                     <div class="flex h-[170px] items-center justify-center"><Spinner size={22} label={tr("loading")} /></div>
                   {:else if series.length >= 2}
-                    <TrendChart series={series} color={numColor(o.band?.label)} ariaLabel="Air quality trend" mode={range === 168 ? "days" : "hours"} />
+                    <TrendChart series={series} color={numColor(o.band?.label)} ariaLabel="Air quality trend" mode={range === 168 ? "days" : "hours"} zones={AQI_ZONES} />
                     {#if stats}<p class="caption mt-1 text-[12px]">{"min " + stats.min + " · avg " + stats.avg + " · max " + stats.max}</p>{/if}
                   {/if}
                 </div>

@@ -1,5 +1,5 @@
 <script>
-let { series = [], color = "#c14a1f", height = 170, ariaLabel = "Trend", unit = "", mode = "auto" } = $props();
+let { series = [], color = "#c14a1f", height = 170, ariaLabel = "Trend", unit = "", mode = "auto", zones = [] } = $props();
 
 // Fixed viewBox with real margins so axis labels never overlap the plot.
 const W = 640;
@@ -77,6 +77,11 @@ function onMove(e) {
       {#each yTicks as t, k (k)}
         <line x1={L} x2={L + innerW} y1={py(t)} y2={py(t)} stroke="currentColor" stroke-opacity="0.14" stroke-width="1" />
         <text x={L - 6} y={py(t) + 3.5} text-anchor="end" font-size="10.5" fill="currentColor" fill-opacity="0.55">{t}</text>
+      {/each}
+      {#each zones as z (z[0] + ":" + z[1])}
+        {@const ztop = py(Math.min(z[1], max))}
+        {@const zbot = py(Math.max(z[0], min))}
+        <rect x={L} width={innerW} y={ztop} height={Math.max(0, zbot - ztop)} fill={z[2]} opacity="0.16" />
       {/each}
       <path d={area} fill={color} opacity="0.12" />
       <path d={line} fill="none" stroke={color} stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round" />

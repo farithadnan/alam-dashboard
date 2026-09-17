@@ -22,15 +22,26 @@
   </script>
 
   {#if top.length}
+    {@const maxC = severityColor(top[0]?.severity)}
+    {@const critical = top.some((w) => sev(w) >= 3)}
     <div class="mt-3 space-y-2" role="region" aria-label={tr("activeAlerts")}>
+      <div class="flex items-center gap-2 rounded-xl px-3 py-2" style="background:color-mix(in srgb, {maxC} 12%, transparent);border:1px solid {maxC}">
+        <span aria-hidden="true" class="text-[15px] leading-none" style="color:{maxC}">⚠️</span>
+        <span class="text-[13px] font-bold" style="color:{maxC}">{top.length} {tr("activeAlerts")}</span>
+      </div>
       {#each top as w (w.station + w.measuredAt)}
         {@const c = severityColor(w.severity)}
-        <div class="rounded-xl border px-3 py-3" style="border-color:{c};background:color-mix(in srgb, {c} 8%, transparent)">
+        {@const sevN = sev(w)}
+        <div class="rounded-xl border px-3 {sevN >= 3 ? 'py-4' : 'py-3'}" style="border-color:{c};border-width:{sevN >= 3 ? '2px' : '1px'};background:color-mix(in srgb, {c} {sevN >= 3 ? 14 : 8}%, transparent)">
           <div class="flex items-start gap-2.5">
-            <span class="mt-1.5 size-3 shrink-0 rounded-full" style="background:{c}"></span>
+            {#if sevN >= 3}
+              <span aria-hidden="true" class="mt-0.5 text-[18px] leading-none" style="color:{c}">⚠️</span>
+            {:else}
+              <span class="mt-1.5 size-3 shrink-0 rounded-full" style="background:{c}"></span>
+            {/if}
             <div class="min-w-0 flex-1">
               <div class="flex items-center justify-between gap-2">
-                <div class="text-[14px] font-semibold leading-tight" style="color:{c}">{w.title}</div>
+                <div class="text-[{sevN >= 3 ? 16 : 14}px] font-bold leading-tight" style="color:{c}">{w.title}</div>
                 <span class="shrink-0 rounded-full px-2 py-0.5 text-[11px] font-bold" style="color:{c};background:color-mix(in srgb, {c} 14%, transparent)">{severityWord(w.severity)}</span>
               </div>
               {#if w.meta?.validTo}
