@@ -48,10 +48,15 @@ const states = $derived(app.data?.states ?? []);
 const towns = $derived((app.data?.allTowns ?? []).filter((t) => t.state === app.state));
 const townName = $derived(app.data?.weather?.find((r) => r.station === app.town && r.kind === "weather")?.stationName ?? app.data?.allTowns?.find((t) => t.station === app.town)?.name ?? app.town ?? "");
 
+let _lastSig = "";
 $effect(() => {
-  void app.scope;
-  void app.town;
-  void app.picked;
+  const sig = `${app.scope}|${app.state}|${app.town}|${app.picked}`;
+  void sig;
+  // Only reload when the visible scope/town/state actually changed. load() itself
+  // adopts a default state/town into these fields; without this guard Svelte re-fires
+  // the effect (same sig) and load() spins — the loading bar "blinks".
+  if (sig === _lastSig) return;
+  _lastSig = sig;
   if (app.state) load();
 });
 onMount(() => {

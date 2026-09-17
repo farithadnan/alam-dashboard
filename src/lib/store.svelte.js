@@ -24,7 +24,10 @@ let seq = 0; // ignores out-of-order responses when the user switches quickly
 
 export async function load() {
   const id = ++seq;
-  app.loading = true;
+  // Only flash the loading bar on the genuinely-first load (nothing on screen yet).
+  // Startup converges in up to 3 sequential fetches (state adoption + town
+  // correction); without this those would each show/hide the bar → it blinks.
+  if (!app.data) app.loading = true;
   try {
     // State narrows stations/weather; town narrows the heavier hourly + forecast
     // series to the one place the UI is actually showing.
