@@ -4,7 +4,7 @@ import { getOfficial, getHistory } from "../lib/api.js";
 import { moonPhase, numColor, uvWord } from "../lib/flags.js";
 import { wmo, isNightNow } from "../lib/weather-codes.js";
 import { mapPopup } from "../lib/popup.js";
-import { tr, wmoLabel, bandLabel, bandAdvice } from "../lib/i18n.svelte.js";
+import { tr, trFmt, wmoLabel, bandLabel, bandAdvice } from "../lib/i18n.svelte.js";
 import { shareCard } from "../lib/sharecard.js";
 import { createLoader } from "../lib/async.js";
 import Carousel from "./ui/Carousel.svelte";
@@ -98,6 +98,13 @@ function hourLabel(t) {
   const h = parseInt((t || "").slice(11, 13) || "0", 10) || 0;
   return h < 12 ? `${h || 12}am` : h === 12 ? "12pm" : `${h - 12}pm`;
 }
+// Rain-first: surface the next hour with real rain chance + today's range right under
+// the temperature (Malaysians ask "will it rain later?" before anything else).
+const nextRain = $derived(hourly.find((h) => Number(h.meta?.precip || 0) >= 30) ?? null);
+const todayHiLo = $derived.by(() => {
+  const vals = hourly.map((h) => Number(h.value)).filter(Number.isFinite);
+  return vals.length ? { hi: Math.round(Math.max(...vals)), lo: Math.round(Math.min(...vals)) } : null;
+});
 </script>
 
 {#if now}
@@ -116,6 +123,20 @@ function hourLabel(t) {
       {#if icon}<span class="shrink-0 text-[34px] leading-none sm:text-[52px]" aria-hidden="true">{icon}</span>{/if}
       <div class="font-mono text-[40px] font-extrabold leading-none tracking-tighter sm:text-[60px]">{Math.round(now.value)}°</div>
       <div class="pb-1 text-[13px] text-muted sm:pb-1.5 sm:text-[14px]">{tr("feels")} {Math.round(now.meta?.apparentTemp ?? now.value)}° · {wmoLabel(label)}</div>
+    </div>
+    <div class="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1">
+      {#if nextRain}
+        <p class="inline-flex items-center gap-1.5 rounded-full border border-line px-3 py-1 text-[13px]">
+          <span aria-hidden="true">🌧️</span>
+          <span class="font-semibold">{tr("rainChance")} {Math.round(nextRain.meta.precip)}%</span>
+          <span class="text-muted">{tr("rainAt")} {hourLabel(nextRain.measuredAt)}</span>
+        </p>
+      {:else}
+        <p class="text-[13px] text-muted">{tr("rainNoneSoon")}</p>
+      {/if}
+      {#if todayHiLo}
+        <p class="text-[13px] font-semibold">{trFmt("todayRange", { hi: todayHiLo.hi, lo: todayHiLo.lo })}</p>
+      {/if}
     </div>
   </div>
 
