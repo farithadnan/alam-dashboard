@@ -46,10 +46,8 @@
     .sun-glow {
       position: absolute; left: -40px; top: -60px; width: 230px; height: 230px;
       background: radial-gradient(circle, rgba(255,255,255,.5), transparent 65%);
-      animation: pulse 5s ease-in-out infinite;
     }
     .scene-thunder .sun-glow, .scene-night .sun-glow {
       background: radial-gradient(circle, rgba(255,255,220,.28), transparent 65%);
     }
-    @keyframes pulse { 0%,100% { transform: scale(1); opacity:.85 } 50% { transform: scale(1.12); opacity:1 } }
   </style>
