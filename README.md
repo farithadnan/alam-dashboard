@@ -68,6 +68,19 @@ GitHub Actions (`.github/workflows/publish.yml`) runs `npm test`, builds, and de
 `CLOUDFLARE_ACCOUNT_ID`, and `VITE_CARTO_KEY` as a build-time env var (it is inlined
 into the bundle).
 
+## Operations
+
+The dashboard is served from two possible origins; keep them in sync:
+
+- **`scripts/update-vps-dashboard.sh`** — run *on the VPS box* to pull and rebuild the
+  bundle that `app.oh-alam.my` serves when it points at the VPS. The API serves `dist/`
+  straight from disk, so a rebuild updates the live UI immediately (no restart needed
+  for the UI). Use it after pulling UI changes the VPS should show.
+- **`scripts/domain-flip.sh`** (lives in the `alam-api` repo) — one command to route
+  `app.oh-alam.my` between the **Worker** (`worker`, uses D1 — subject to its daily
+  row-read cap) and the **VPS tunnel** (`vps`, own SQLite — reliable). Default to VPS
+  for reliability; flip to Worker after the 00:00 UTC D1 reset for the latest build.
+
 ## Notes
 
 - Bilingual (English / Bahasa Malaysia) and dark mode, both toggled in the header.
