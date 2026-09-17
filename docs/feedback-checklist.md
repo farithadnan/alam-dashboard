@@ -37,14 +37,14 @@ Consolidated from OpenAI, Grok and Gemini reviews. Status: ✅ done · ⏳ pendi
 |---|-------------|--------|-------|
 | 1 | Alert State Banner (green normal → red on breach) | ✅ | green "All systems normal" + severity-strip |
 | 2 | Chart threshold color-zones | ✅ AQI ⏳ flood/rain | AQI zones live; flood level/rain charts pending |
-| 3 | Location search autocomplete + aliases | 🚧 | Picker is select-based; needs search+alias field |
+| 3 | Location search autocomplete + aliases | ✅ | Picker search: JB→Johor Bahru, KL→Kuala Lumpur, PJ, KK… |
 | 4 | Mobile stacked cards (no horizontal scroll) | ✅ | Flood rows + AQI list already responsive cards |
 | 5 | Filter pills ≥40px + scrollable | ✅ | 40px + horizontal-scroll carousel on mobile |
-| 6 | Lazy-load maps / collapse history charts | 🚧 | Needs MapView lazy + Section collapse |
+| 6 | Lazy-load maps / collapse history charts | ✅ | MapView lazy via IntersectionObserver; air station charts already collapsible |
 | 7 | Full BM + official Malay terms (Waspada/Buruk) | ✅ | sev labels: Danger=Bahaya, Warning=Waspada, Alert=Amaran, Heavy=Lebat |
 | 8 | Standardize risk colors | ✅ | APIMS bands + flood ladder present |
 | 9 | Keep bottom tab bar | ✅ | |
-| 10 | Weak-network performance | 🚧 | Tied to #6 |
+| 10 | Weak-network performance | ✅ | Lazy map tiles + collapsed-by-default station charts |
 
 ## Cross-cutting
-- ✅ done: 20 · ⏳ pending: 3 · 🚧 infra/deferred: 3 (domain, lazy-load/accordion, location autocomplete-alias search)
+- ✅ done: 22 · ⏳ pending: 0 in-app · 🚧 1 deferred (domain apex/redirect — needs registr/zone authority)
