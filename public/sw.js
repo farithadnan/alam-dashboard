@@ -1,7 +1,7 @@
 // OhAlam service worker — offline support for the app shell + last-seen data.
 // API responses are network-first (always fresh when online) and fall back to
 // the last cached copy offline; static assets are cache-first.
-const VERSION = "alam-v1";
+const VERSION = "alam-v2";
 const SHELL = ["/", "/index.html", "/manifest.webmanifest", "/icon-192.png", "/icon-512.png", "/apple-touch-icon.png"];
 
 self.addEventListener("install", (e) => {
@@ -32,6 +32,14 @@ self.addEventListener("fetch", (e) => {
         })
         .catch(() => caches.match(request)),
     );
+    return;
+  }
+
+  // The shell must be NETWORK-FIRST: index.html has no-cache and always references the
+  // current hashed bundles. Serving it from cache would keep showing an old (possibly
+  // buggy) build forever after a deploy — exactly the stale-bundle blink bug.
+  if (url.pathname === "/" || url.pathname === "/index.html") {
+    e.respondWith(fetch(request).catch(() => caches.match(request)));
     return;
   }
 
