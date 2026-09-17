@@ -227,7 +227,7 @@ const todayHiLo = $derived.by(() => {
 
   {#if mapPts.length}
     <h3 class="qh">{tr("stationsMap")}</h3>
-    <MapView pts={mapPts} fit={!focus} focus={focus} onPick={(id) => (app.picked = id)} class="h-72 w-full rounded-xl lg:h-[52vh] lg:min-h-[400px]" />
+    <MapView pts={mapPts} fit={!focus} focus={focus} onPick={(id) => (app.picked = id)} lazy class="h-72 w-full rounded-xl lg:h-[52vh] lg:min-h-[400px]" />
   {/if}
 {:else if app.loading}
   <div class="mt-2 space-y-3">

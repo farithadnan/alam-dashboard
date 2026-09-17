@@ -69,6 +69,34 @@ function onStatePick(e) {
   const first = (app.data?.allTowns ?? []).find((t) => t.state === st);
   if (first) app.town = first.station;
 }
+// Location search with common informal aliases (JB → Johor Bahru, KL → Kuala Lumpur…).
+let q = $state("");
+const ALIASES = {
+  jb: "johor bahru", "johor bahru": "johor bahru", kl: "kuala lumpur", "kuala lumpur": "kuala lumpur",
+  pj: "petaling jaya", "petaling jaya": "petaling jaya", "shah alam": "shah alam", klang: "klang",
+  subang: "subang jaya", "subang jaya": "subang jaya", kk: "kota kinabalu", "kota kinabalu": "kota kinabalu",
+  kch: "kuching", kuching: "kuching", ipoh: "ipoh", penang: "george town", "george town": "george town",
+  melaka: "melaka", miri: "miri", sibu: "sibu", bintulu: "bintulu", bangi: "bangi", cyberjaya: "cyberjaya",
+};
+const normz = (s) => String(s || "").toLowerCase().replace(/[^a-z0-9 ]/g, "").replace(/\s+/g, " ").trim();
+const placeMatches = $derived.by(() => {
+  const raw = q.trim();
+  if (!raw) return [];
+  const sub = normz(raw);
+  const aliasTarget = normz(ALIASES[sub] || "");
+  return (app.data?.allTowns ?? []).filter((t) => {
+    const nm = normz(t.name), slug = normz(t.station);
+    if (nm.includes(sub) || slug.includes(sub)) return true;
+    if (aliasTarget && nm.includes(aliasTarget)) return true;
+    if (Object.values(ALIASES).some((tg) => normz(tg) === nm && sub.length >= 3 && nm.includes(sub))) return true;
+    return false;
+  }).slice(0, 12);
+});
+function pickPlace(t) {
+  app.state = t.state;
+  app.town = t.station;
+  q = "";
+}
 function markClaimed() {
   claimed = true;
   try { localStorage.setItem("alam.claimed", "1"); } catch {}
@@ -180,6 +208,26 @@ function toggleLang() {
     <div class="w-full max-w-sm rounded-2xl border border-line bg-panel p-5 shadow-2xl" onclick={(e) => e.stopPropagation()}>
       <h2 id="loc-title" class="mt-0 mb-3 text-[16px] font-bold">{tr("changeLoc")}</h2>
       <label class="flex flex-col gap-1">
+        <span class="caption text-[12px]">{tr("searchPlace")}</span>
+        <input class="rounded-xl border border-line bg-bg p-2 text-[14px]" bind:value={q} placeholder={tr("searchPlacePh")} aria-label={tr("searchPlace")} />
+      </label>
+      {#if q}
+        <ul class="mt-1 max-h-44 overflow-y-auto rounded-xl border border-line bg-bg">
+          {#if placeMatches.length}
+            {#each placeMatches as t (t.station)}
+              <li class="border-b border-line last:border-b-0">
+                <button class="flex w-full items-center justify-between gap-2 px-3 py-2 text-left text-[13.5px] hover:bg-line" onclick={() => pickPlace(t)}>
+                  <span class="min-w-0 truncate">{t.name}</span>
+                  <span class="shrink-0 text-[12px] text-muted">{t.state}</span>
+                </button>
+              </li>
+            {/each}
+          {:else}
+            <li class="px-3 py-2 text-[12.5px] text-muted">{tr("noSearchResults")}</li>
+          {/if}
+        </ul>
+      {/if}
+      <label class="mt-3 flex flex-col gap-1">
         <span class="caption text-[12px]">{tr("state")}</span>
         <select id="state-select" bind:value={app.state} onchange={onStatePick}>
           {#each states as name (name)}

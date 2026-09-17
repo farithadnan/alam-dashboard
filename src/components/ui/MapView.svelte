@@ -3,7 +3,7 @@
 import { onMount, onDestroy } from "svelte";
 import L from "leaflet";
 
-let { pts = [], fit = true, fitMax = 10, focus = null, onPick = null, class: cls = "h-64 w-full rounded-xl" } = $props();
+let { pts = [], fit = true, fitMax = 10, focus = null, onPick = null, class: cls = "h-64 w-full rounded-xl", lazy = false } = $props();
 let el;
 let map;
 let icons = [];
@@ -13,8 +13,8 @@ function zoomFactor(z) {
   return Math.max(0.8, Math.min(1.6, 1 + (8 - z) * 0.12));
 }
 
-onMount(() => {
-  if (!el) return;
+function initMap() {
+  if (!el || map) return;
   map = L.map(el, { zoomControl: true, attributionControl: true }).setView([4.1, 109.2], 5);
   const key = SITE.cartoKey;
   L.tileLayer(
@@ -28,7 +28,18 @@ onMount(() => {
   map.on("zoomend", drawIcons);
   drawIcons();
   fitView();
-  return () => { if (map) { map.remove(); map = null; } };
+}
+
+onMount(() => {
+  if (!el) return;
+  if (!lazy) { initMap(); return () => { if (map) { map.remove(); map = null; } }; }
+  // Lazy: only boot Leaflet (and its tiles) when this scrolls near the viewport —
+  // spares CPU/data on weak 4G/3G when the map is below the fold.
+  const io = new IntersectionObserver((entries) => {
+    if (entries[0]?.isIntersecting && !map) { initMap(); io.disconnect(); }
+  }, { rootMargin: "300px" });
+  io.observe(el);
+  return () => { io.disconnect(); if (map) { map.remove(); map = null; } };
 });
 onDestroy(() => { if (map) { map.remove(); map = null; } });
 
