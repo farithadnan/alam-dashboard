@@ -164,6 +164,15 @@ select { min-height: 44px; border: 1px solid var(--color-ctrl); border-radius: 1
   to   { width: 88%; }
 }
 
+/* Desktop-only animation calming: the shared animation CSS already matches mobile,
+   but a large desktop render shows more motion at once. Tame it so a big screen
+   reads as still/calm as a phone — mobile (below 1024px) is untouched. */
+@media (min-width: 1024px) {
+  .alam-pulse { animation-duration: 14s; }
+  .sun, .moon { animation-duration: 12s; }
+  .star { animation-duration: 4s; }
+}
+
 /* Anchor targets must clear the sticky header, or a jump lands underneath it.
    Applies to every in-page target, so new ones behave without being told. */
 [id] {
