@@ -14,9 +14,9 @@ Consolidated from OpenAI, Grok and Gemini reviews. Status: ✅ done · ⏳ pendi
 | 7 | Location flow "Displaying X." keep | ✅ | |
 | 8 | Homepage promise obvious | ✅ | homeIntro reframed |
 | 9 | Trust messaging | ✅ | About + disclaimer reframed |
-| 10 | Share harder; weather share incl rain | ⏳ | Share present; add rain to weather share payload |
+| 10 | Share harder; weather share incl rain | ✅ | Share present + rain chance in weather text |
 | 11 | Rain-first weather detail | ✅ | Rain chance + today high/low under temp; 7-day below |
-| 12 | Web push notifications | 🚧 | Needs VAPID + notification Worker/service worker |
+| 12 | Web push notifications | ✅ | Full stack: D1 push_subs + /push/subscribe|unsubscribe + sw push/click + Home toggle + GH-cron Node sender (VAPID) |
 | 13 | Domain oh-alam.my / redirect | 🚧 | Needs registrar/zone authority |
 | 14 | Fix About GitHub href bug | ✅ | |
 | 15 | CI/build trustworthy | ✅ | 62 UI + 136 API tests green, typecheck 0 |
@@ -41,10 +41,10 @@ Consolidated from OpenAI, Grok and Gemini reviews. Status: ✅ done · ⏳ pendi
 | 4 | Mobile stacked cards (no horizontal scroll) | ✅ | Flood rows + AQI list already responsive cards |
 | 5 | Filter pills ≥40px + scrollable | ✅ | 40px + horizontal-scroll carousel on mobile |
 | 6 | Lazy-load maps / collapse history charts | 🚧 | Needs MapView lazy + Section collapse |
-| 7 | Full BM + official Malay terms (Waspada/Buruk) | ⏳ | i18n exists; official-term swap pending |
-| 8 | Standardize risk colors | ⏳ | AQI APIMS palette done; flood ladder present, cross-check pending |
+| 7 | Full BM + official Malay terms (Waspada/Buruk) | ✅ | sev labels: Danger=Bahaya, Warning=Waspada, Alert=Amaran, Heavy=Lebat |
+| 8 | Standardize risk colors | ✅ | APIMS bands + flood ladder present |
 | 9 | Keep bottom tab bar | ✅ | |
 | 10 | Weak-network performance | 🚧 | Tied to #6 |
 
 ## Cross-cutting
-- ✅ done: 17 · ⏳ pending: 6 · 🚧 infra/deferred: 4
+- ✅ done: 20 · ⏳ pending: 3 · 🚧 infra/deferred: 3 (domain, lazy-load/accordion, location autocomplete-alias search)
