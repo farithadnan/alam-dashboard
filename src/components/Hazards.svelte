@@ -27,7 +27,7 @@
           const flags = [q.meta?.tsunami === 1 ? "⚠ tsunami" : "", q.meta?.alert ? `alert ${q.meta.alert}` : ""].filter(Boolean).join(" · ");
           const meta = [depth, flags, regionOf(q.stationName)].filter(Boolean).join(" · ");
           return {
-            lat: q.meta.lat, lon: q.meta.lon, color: col, num: Number(q.magnitude).toFixed(1), size: 26,
+            lat: q.meta.lat, lon: q.meta.lon, color: col, num: Number(q.magnitude).toFixed(1), size: 26, ripple: true,
             html: mapPopup({ title: friendlyLoc(q.stationName) || q.stationName, value: `M${Number(q.magnitude).toFixed(1)}`, valueColor: col, flag: magWordL(q.magnitude), sub: meta }),
           };
         }),

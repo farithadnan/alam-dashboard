@@ -38,6 +38,7 @@ export function airMapPoints(stations = []) {
         color: col,
         num: s.value,
         size: 26,
+        ripple: true,
         html: mapPopup({
           title: cityOf(s.stationName),
           value: String(s.value),
