@@ -1,7 +1,7 @@
 // OhAlam service worker — offline support for the app shell + last-seen data.
 // API responses are network-first (always fresh when online) and fall back to
 // the last cached copy offline; static assets are cache-first.
-const VERSION = "alam-v2";
+const VERSION = "alam-v3";
 const SHELL = ["/", "/index.html", "/manifest.webmanifest", "/icon-192.png", "/icon-512.png", "/apple-touch-icon.png"];
 
 self.addEventListener("install", (e) => {
