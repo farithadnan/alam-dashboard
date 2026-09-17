@@ -30,16 +30,15 @@ export function legendOf(stations = []) {
 export function airMapPoints(stations = []) {
   return stations
     .filter((s) => s.coords?.lat && s.coords?.lon)
-    .map((s, i) => {
-      const col = numColor(s.band?.label);
-      return {
-        lat: s.coords.lat,
-        lon: s.coords.lon,
-        color: col,
-        num: s.value,
-        size: 26,
-        ripple: i === 0,
-        html: mapPopup({
+    .map((s) => {
+    const col = numColor(s.band?.label);
+    return {
+    lat: s.coords.lat,
+    lon: s.coords.lon,
+    color: col,
+    num: s.value,
+    size: 26,
+    html: mapPopup({
           title: cityOf(s.stationName),
           value: String(s.value),
           valueColor: col,

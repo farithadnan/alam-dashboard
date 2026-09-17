@@ -21,13 +21,13 @@
     const quakePts = $derived(
       shown
         .filter((q) => q.meta?.lat && q.meta?.lon)
-        .map((q, i) => {
+        .map((q) => {
           const col = magText(magWord(q.magnitude));
           const depth = q.meta?.depth != null ? `Depth ${Math.round(q.meta.depth)} km` : "";
           const flags = [q.meta?.tsunami === 1 ? "⚠ tsunami" : "", q.meta?.alert ? `alert ${q.meta.alert}` : ""].filter(Boolean).join(" · ");
           const meta = [depth, flags, regionOf(q.stationName)].filter(Boolean).join(" · ");
           return {
-            lat: q.meta.lat, lon: q.meta.lon, color: col, num: Number(q.magnitude).toFixed(1), size: 26, ripple: i === 0,
+            lat: q.meta.lat, lon: q.meta.lon, color: col, num: Number(q.magnitude).toFixed(1), size: 26,
             html: mapPopup({ title: friendlyLoc(q.stationName) || q.stationName, value: `M${Number(q.magnitude).toFixed(1)}`, valueColor: col, flag: magWordL(q.magnitude), sub: meta }),
           };
         }),
