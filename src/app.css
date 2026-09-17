@@ -152,15 +152,16 @@ select { min-height: 44px; border: 1px solid var(--color-ctrl); border-radius: 1
 .no-scrollbar::-webkit-scrollbar { display: none; }
 .no-scrollbar { scrollbar-width: none; -ms-overflow-style: none; }
 
-/* Indeterminate top loading bar — signals a fetch without blanking content. */
+/* Top loading bar — a one-pass, segmented progress (10 steps) instead of an
+   indeterminate start→end sweep that reads as blinking. Fills to full once. */
 .loadingbar {
-  width: 38%; height: 100%;
-  background: var(--color-accent);
-  animation: loadslide 1.1s ease-in-out infinite;
+  height: 100%;
+  background: linear-gradient(90deg, var(--color-accent), #ff9660);
+  animation: loadprogress 1.6s steps(10) forwards;
 }
-@keyframes loadslide {
-  0%   { transform: translateX(-110%); }
-  100% { transform: translateX(360%); }
+@keyframes loadprogress {
+  from { width: 0%; }
+  to   { width: 100%; }
 }
 
 /* Anchor targets must clear the sticky header, or a jump lands underneath it.
