@@ -49,3 +49,34 @@ self.addEventListener("fetch", (e) => {
     ),
   );
 });
+
+// ---- Web push ----
+self.addEventListener("push", (e) => {
+  let data = {};
+  try { data = e.data ? e.data.json() : {}; } catch { /* non-JSON payload */ }
+  e.waitUntil(
+    self.registration.showNotification(data.title || "OhAlam", {
+      body: data.body || (data.message || ""),
+      icon: "/icon-192.png",
+      badge: "/icon-192.png",
+      tag: data.tag || "alam-alert",
+      data: { url: data.url || "/" },
+    }),
+  );
+});
+
+self.addEventListener("notificationclick", (e) => {
+  e.notification.close();
+  const url = new URL(e.notification.data?.url || "/", self.location.origin).href;
+  e.waitUntil(
+    clients.matchAll({ type: "window", includeUncontrolled: true }).then((list) => {
+      for (const c of list) {
+        if ("focus" in c) {
+          c.navigate(url);
+          return c.focus();
+        }
+      }
+      return clients.openWindow(url);
+    }),
+  );
+});

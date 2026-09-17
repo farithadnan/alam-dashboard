@@ -12,6 +12,7 @@
     import { getFlood } from "../lib/api.js";
     import Skeleton from "./ui/Skeleton.svelte";
     import Warnings from "./Warnings.svelte";
+    import { pushSupported, pushEnabled, subscribePush, unsubscribePush } from "../lib/push.js";
 
     let { onNavigate = () => {} } = $props();
 
@@ -66,6 +67,19 @@
       { name: "NADMA", by: "Disaster info", href: "https://portalbencana.nadma.gov.my/" },
       { name: "USGS", by: "Earthquakes", href: "https://earthquake.usgs.gov/" },
     ];
+
+    // Personal device alerts (Web Push) for the saved location.
+    let pushStat = $state("loading");
+    $effect(() => {
+      if (!pushSupported()) { pushStat = "unsupported"; return; }
+      pushEnabled().then((v) => (pushStat = v ? "on" : "off"));
+    });
+    async function togglePush() {
+      if (pushStat === "on") { pushStat = "busy"; const r = await unsubscribePush(); pushStat = r.status === "unsubscribed" ? "off" : pushStat; return; }
+      pushStat = "busy";
+      const r = await subscribePush(app.town || "", app.state || "");
+      pushStat = r.status === "subscribed" ? "on" : r.status === "denied" ? "denied" : "off";
+    }
   </script>
 
   {#if now}
@@ -102,6 +116,17 @@
         { key: "climate", icon: "🌡️", label: tr("glanceClimate"), value: climate?.meta?.phase || "", color: climate ? "#b26a00" : "var(--color-muted)" },
       ]}
     />
+    {#if pushSupported()}
+      <div class="mt-3 flex items-center justify-between gap-3 rounded-xl border border-line px-3 py-3">
+        <div class="min-w-0">
+          <div class="text-[13.5px] font-semibold">🔔 {tr("enableAlerts")}</div>
+          <div class="mt-0.5 text-[12px] text-muted">{townName || app.town}{#if app.state}, {app.state}{/if} · {tr("alertsOnHint")}</div>
+        </div>
+        <button class="ghostbtn shrink-0" onclick={togglePush} disabled={pushStat === "busy"}>
+          {pushStat === "on" ? tr("alertsOn") : pushStat === "denied" ? tr("alertsDenied") : tr("enableAlerts")}
+        </button>
+      </div>
+    {/if}
 
     {#if app.updated}
       <p class="caption text-muted mt-1">{tr("updated")} {app.updated}</p>
