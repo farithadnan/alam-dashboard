@@ -164,14 +164,15 @@ select { min-height: 44px; border: 1px solid var(--color-ctrl); border-radius: 1
   to   { width: 88%; }
 }
 
-/* Desktop-only animation calming: the shared animation CSS already matches mobile,
-   but some desktop browser renderers (GPU composition / animation timing) run CSS
-   keyframes at machine speed, so an animated hero/map looks like frantic pulsation
-   while the identical code is calm on mobile. Freeze the motion surfaces on large
-   screens — mobile (below 1024px) is untouched and keeps its normal animation. */
-@media (min-width: 1024px) {
-  .alam-pulse, .drop, .sun, .moon, .star, .thunder-flash, .shooting-star { animation: none !important; }
+/* Honor the OS-level "reduce motion" setting for the moving surfaces. This is the
+   system-native calm path: on machines whose GPU/compositor runs CSS keyframes
+   aggressively (a desktop-only flicker users report), flipping this OS setting or
+   matching it calms every surface at once — without touching mobile-by-default. */
+@media (prefers-reduced-motion: reduce) {
+  .alam-pulse, .drop, .sun, .moon, .star, .thunder-flash, .shooting-star, .spin { animation: none !important; }
 }
+/* Desktop also reduces concurrent-motion volume: see builders — only the primary
+   pin ripples per map, so a large screen never shows dozens of rings at once. */
 
 /* Anchor targets must clear the sticky header, or a jump lands underneath it.
    Applies to every in-page target, so new ones behave without being told. */
