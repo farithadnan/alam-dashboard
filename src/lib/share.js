@@ -65,7 +65,7 @@ export function homeSharePayload({ town, state, now, townAir, warnings = [], flo
 export const sharePayload = homeSharePayload; // kept name so Home / preview callers stay stable
 
 /** Weather: just the current conditions + a nudge to the forecast. */
-export function weatherSharePayload({ town, state, now, humidity = now?.meta?.humidity ?? null, wind = now?.meta?.wind ?? null }) {
+export function weatherSharePayload({ town, state, now, humidity = now?.meta?.humidity ?? null, wind = now?.meta?.wind ?? null, precip = now?.meta?.precip ?? null }) {
   const place = [town, state].filter(Boolean).join(", ") || "your area";
   const temp = now ? Math.round(now.value) : null;
   const feels = now?.meta?.apparentTemp != null ? Math.round(now.meta.apparentTemp) : null;
@@ -74,6 +74,7 @@ export function weatherSharePayload({ town, state, now, humidity = now?.meta?.hu
     feels != null ? `feeling like ${feels}°` : "",
     humidity != null ? `humidity at ${humidity}%` : "",
     wind != null ? `wind around ${wind} km/h` : "",
+    precip != null && precip > 0 ? `rain chance ${Math.round(precip)}%` : "",
   ].filter(Boolean);
 
   const lines = [

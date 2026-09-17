@@ -138,7 +138,7 @@ const ms = {
   advice_good: "Udara bersih; hari yang baik untuk keluar.", advice_moderate: "Boleh diterima. Kumpulan sensitif: aktiviti sederhana adalah ok.",
   advice_unhealthy: "Kurangkan aktiviti luar yang berpanjangan.", advice_very: "Elak aktiviti luar; tutup tingkap.",
   advice_hazardous: "Semua perlu di dalam rumah; risiko kesihatan serius.",
-  sev_high: "Tinggi", sev_watch: "Perhatian", sev_advisory: "Nasihat", sev_danger: "Bahaya", sev_warning: "Amaran", sev_alert: "Awas", sev_heavy: "Lebat",
+  sev_high: "Tinggi", sev_watch: "Perhatian", sev_advisory: "Nasihat", sev_danger: "Bahaya", sev_warning: "Waspada", sev_alert: "Amaran", sev_heavy: "Lebat",
   mag_strong: "Kuat", mag_moderate: "Sederhana", mag_light: "Ringan",
   wmo_clear: "Cerah", wmo_mostly: "Cerah Berawan", wmo_partly: "Separa Mendung", wmo_overcast: "Mendung",
   wmo_fog: "Kabut", wmo_drizzle: "Gerimis", wmo_lightrain: "Hujan Renyai", wmo_rain: "Hujan", wmo_heavy: "Hujan Lebat",
