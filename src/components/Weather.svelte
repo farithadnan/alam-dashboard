@@ -41,7 +41,7 @@ const picked = $derived(app.picked);
   <WeatherDetail station={app.town} />
 {:else}
   {@const scopeLabel = app.scope === "malaysia" ? "Malaysia" : app.state}
-  <PageHeader title={`${tr("navWeather")} · ${scopeLabel}`} updated={app.updated} />
+  <PageHeader title={`${tr("navWeather")} · ${scopeLabel}`} updated={app.updated} source="MET Malaysia / Open-Meteo" />
   <p class="caption -mt-1 mb-1">{tr("weatherTip")}</p>
   {#if app.loading && !towns.length}
     <div class="mt-2 space-y-3">

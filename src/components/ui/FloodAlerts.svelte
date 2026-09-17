@@ -79,6 +79,16 @@
       <Skeleton h={54} />
     </div>
   {:else if hasData}
+    {#if present.length}
+      {@const topC = PIN_COLOR[present[0]?.s] ?? "#b26a00"}
+      <div class="mb-2 rounded-xl border px-3 py-3" style="border-color:{topC};border-width:2px;background:color-mix(in srgb,{topC}14%,transparent)">
+        <div class="flex items-center gap-2">
+          <span aria-hidden="true" style="color:{topC}">⚠️</span>
+          <span class="text-[15px] font-bold" style="color:{topC}">{trFmt("floodRiskNow", { n: total })}</span>
+        </div>
+        <p class="mt-1 text-[12.5px] text-muted">{tr("floodRiskAct")}</p>
+      </div>
+    {/if}
     {#if floodPts.length}
       <MapView pts={floodPts} class="mb-3 h-72 w-full rounded-xl lg:h-[52vh] lg:min-h-[400px]" fitMax={9} />
     {/if}

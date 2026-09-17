@@ -45,7 +45,7 @@
   </script>
 
   <div class="flex items-start justify-between gap-2">
-    <PageHeader title={tr("quakeTitle")} updated={app.updated} />
+    <PageHeader title={tr("quakeTitle")} updated={app.updated} source="USGS / MET Malaysia" />
     <ShareButton payload={quakeSharePayload({ quakes, scope: app.scope })} class="mt-1" />
   </div>
   <p class="caption -mt-1">{tr("quakeCap")}</p>

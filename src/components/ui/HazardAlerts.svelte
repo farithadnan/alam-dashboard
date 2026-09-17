@@ -3,7 +3,7 @@
     import { tr, severityWord } from "../../lib/i18n.svelte.js";
 
     /** Active warnings, already run through activeWarnings() and sorted by severity. */
-    let { warnings = [], onRead = null, onAll = null } = $props();
+    let { warnings = [], onRead = null, onAll = null, extraCalm = false } = $props();
 
     // Hierarchy: 0-2 highest-severity items as banners; anything more is one "see all".
     const top = $derived(warnings.slice().sort(
@@ -58,6 +58,14 @@
         <button class="w-full py-1 text-[12.5px] text-muted underline" onclick={() => onAll()}>{tr("seeAllWarnings")}</button>
       {/if}
     </div>
+  {:else if extraCalm}
+    <p class="mt-3 flex items-center gap-2 rounded-xl border px-3 py-3" style="border-color:#2e7d32;background:color-mix(in srgb,#2e7d32 8%,transparent)">
+      <span aria-hidden="true">🟢</span>
+      <span class="text-[13px]">
+        <span class="font-bold" style="color:#2e7d32">{tr("allClearTitle")}</span>
+        <span class="text-muted"> — {tr("allClearBody")}</span>
+      </span>
+    </p>
   {:else}
     <p class="mt-3 flex items-center gap-2 rounded-xl border border-line px-3 py-3 text-[13px] text-muted">
       <span aria-hidden="true">🛡️</span>{tr("noActiveWarnings")}

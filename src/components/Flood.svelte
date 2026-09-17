@@ -43,7 +43,7 @@
   </script>
 
   <div class="flex items-start justify-between gap-2">
-    <PageHeader title={tr("floodTitle")} updated={updatedAt ? new Date(updatedAt).toLocaleTimeString() : ""} />
+    <PageHeader title={tr("floodTitle")} updated={updatedAt ? new Date(updatedAt).toLocaleTimeString() : ""} source="JPS InfoBanjir" />
     <ShareButton payload={floodSharePayload({ scope: app.scope, state, river: data.river, rain: data.rain })} class="mt-1" />
   </div>
   <p class="caption -mt-1 mb-1">{tr("floodNote")} · <a class="underline hover:text-accent" href="https://publicinfobanjir.water.gov.my/" target="_blank" rel="noopener">{tr("floodOpen")}</a></p>

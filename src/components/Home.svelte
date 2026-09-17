@@ -87,7 +87,7 @@
     <EmptyState icon="⚠️" title={tr("loadFailed")} action={{ label: tr("retry"), onClick: () => load() }} class="mt-2" />
   {:else}
     <!-- Primary answer first: active alerts, then a compact at-a-glance. -->
-    <HazardAlerts warnings={warnings} onRead={() => jump("advisories", true)} onAll={() => jump("advisories")} />
+    <HazardAlerts warnings={warnings} onRead={() => jump("advisories", true)} onAll={() => jump("advisories")} extraCalm={floodLoaded && !floodCount && !warnings.length} />
 
     <h3 class="qh">{tr("atAGlance")}</h3>
     <AtAGlance
