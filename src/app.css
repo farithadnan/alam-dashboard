@@ -165,12 +165,12 @@ select { min-height: 44px; border: 1px solid var(--color-ctrl); border-radius: 1
 }
 
 /* Desktop-only animation calming: the shared animation CSS already matches mobile,
-   but a large desktop render shows more motion at once. Tame it so a big screen
-   reads as still/calm as a phone — mobile (below 1024px) is untouched. */
+   but some desktop browser renderers (GPU composition / animation timing) run CSS
+   keyframes at machine speed, so an animated hero/map looks like frantic pulsation
+   while the identical code is calm on mobile. Freeze the motion surfaces on large
+   screens — mobile (below 1024px) is untouched and keeps its normal animation. */
 @media (min-width: 1024px) {
-  .alam-pulse { animation-duration: 14s; }
-  .sun, .moon { animation-duration: 12s; }
-  .star { animation-duration: 4s; }
+  .alam-pulse, .drop, .sun, .moon, .star, .thunder-flash, .shooting-star { animation: none !important; }
 }
 
 /* Anchor targets must clear the sticky header, or a jump lands underneath it.
