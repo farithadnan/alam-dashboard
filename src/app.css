@@ -139,11 +139,11 @@ select { min-height: 44px; border: 1px solid var(--color-ctrl); border-radius: 1
 /* Earthquake/flood pin pulse — slow + subtle so it reads as a calm ring, not a frantic blink. */
 .alam-pulse {
   position: absolute; inset: 0; border-radius: 50%;
-  animation: alam-ripple 5.5s ease-out infinite; pointer-events: none;
+  animation: alam-ripple 8s ease-out infinite; pointer-events: none;
 }
 @keyframes alam-ripple {
-  from { transform: scale(1); opacity: 0.5; }
-  to { transform: scale(2.2); opacity: 0; }
+  from { transform: scale(1); opacity: 0.45; }
+  to { transform: scale(2); opacity: 0; }
 }
 .qh { font-size: 16px; font-weight: 700; color: var(--color-fg); margin: 24px 0 6px; letter-spacing: -0.01em; line-height: 1.25; }
 .caption { font-size: 13px; color: var(--color-muted); line-height: 1.55; }
@@ -152,16 +152,16 @@ select { min-height: 44px; border: 1px solid var(--color-ctrl); border-radius: 1
 .no-scrollbar::-webkit-scrollbar { display: none; }
 .no-scrollbar { scrollbar-width: none; -ms-overflow-style: none; }
 
-/* Top loading bar — a one-pass, segmented progress (10 steps) instead of an
-   indeterminate start→end sweep that reads as blinking. Fills to full once. */
+/* Top loading bar — one-pass, bit-by-bit progress that stops short of full width
+   (fills in 10 visible steps, capped at ~88%) instead of sweeping the whole bar. */
 .loadingbar {
   height: 100%;
   background: linear-gradient(90deg, var(--color-accent), #ff9660);
-  animation: loadprogress 1.6s steps(10) forwards;
+  animation: loadprogress 2.2s steps(10) forwards;
 }
 @keyframes loadprogress {
   from { width: 0%; }
-  to   { width: 100%; }
+  to   { width: 88%; }
 }
 
 /* Anchor targets must clear the sticky header, or a jump lands underneath it.
