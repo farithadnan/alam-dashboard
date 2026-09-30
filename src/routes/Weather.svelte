@@ -42,7 +42,6 @@
 {:else}
   {@const scopeLabel = app.scope === "malaysia" ? "Malaysia" : app.state}
   <PageHeader title={`${tr("navWeather")} · ${scopeLabel}`} updated={app.updated} source="MET Malaysia / Open-Meteo" />
-  <p class="caption mb-2">{tr("weatherTip")}</p>
   {#if app.loading && !towns.length}
     <div class="mt-1 space-y-3">
       <Skeleton h={256} class="!rounded-2xl" />

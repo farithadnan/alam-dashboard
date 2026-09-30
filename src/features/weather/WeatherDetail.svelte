@@ -114,32 +114,38 @@ const todayHiLo = $derived.by(() => {
     <div class="flex items-center justify-between gap-2">
       <h1 class="min-w-0 truncate text-[19px] font-extrabold tracking-tight">{townName}{#if stateName}<span class="font-semibold text-muted">, {stateName}</span>{/if}</h1>
       <div class="flex shrink-0 gap-1.5">
-        {#if onClose}<button class="iconbtn" onclick={onClose} aria-label={tr("back")}><Icon name="arrowLeft" size={15} /> {tr("back")}</button>{/if}
-        <ShareButton payload={weatherSharePayload({ town: townName, state: stateName, now, humidity: now.meta?.humidity, wind: now.meta?.wind })} />
+        {#if onClose}<button class="iconbtn inline-flex items-center gap-1.5 whitespace-nowrap !px-2.5" onclick={onClose} aria-label={tr("back")} title={tr("back")}><Icon name="arrowLeft" size={16} /><span class="hidden sm:inline">{tr("back")}</span></button>{/if}
+        <ShareButton payload={weatherSharePayload({ town: townName, state: stateName, now, humidity: now.meta?.humidity, wind: now.meta?.wind, high: todayHiLo?.hi, low: todayHiLo?.lo, feels: now.meta?.apparentTemp })} />
       </div>
     </div>
 
     <div class="card mt-2 overflow-hidden">
       <div class="flex items-center gap-4 p-4">
-        {#if icon}<span class="shrink-0 text-[50px] leading-none" aria-hidden="true">{icon}</span>{/if}
-        <div class="min-w-0">
-          <div class="num text-[54px] font-extrabold leading-none tracking-tighter">{Math.round(now.value)}°</div>
-          <div class="mt-1 text-[13.5px] text-muted">{tr("feels")} {Math.round(now.meta?.apparentTemp ?? now.value)}° · {wmoLabel(label)}</div>
+        {#if icon}<span class="grid size-16 shrink-0 place-items-center rounded-2xl bg-panel-2 text-[38px] leading-none" aria-hidden="true">{icon}</span>{/if}
+        <div class="min-w-0 flex-1">
+          <div class="num text-[50px] font-extrabold leading-none tracking-tighter">{Math.round(now.value)}°</div>
+          <div class="mt-1 truncate text-[13.5px] text-muted">{tr("feels")} {Math.round(now.meta?.apparentTemp ?? now.value)}° · {wmoLabel(label)}</div>
         </div>
       </div>
-      <div class="flex flex-wrap items-center gap-2 border-t border-line px-4 py-3">
-        {#if nextRain}
-          <span class="inline-flex items-center gap-1.5 rounded-full border border-line bg-panel-2 px-3 py-1 text-[12.5px]">
-            <span aria-hidden="true">🌧️</span>
-            <span class="font-semibold">{tr("rainChance")} {Math.round(nextRain.meta.precip)}%</span>
-            <span class="text-muted">{tr("rainAt")} {hourLabel(nextRain.measuredAt)}</span>
-          </span>
-        {:else}
-          <span class="text-[12.5px] text-muted">{tr("rainNoneSoon")}</span>
-        {/if}
-        {#if todayHiLo}
-          <span class="text-[12.5px] font-semibold">{trFmt("todayRange", { hi: todayHiLo.hi, lo: todayHiLo.lo })}</span>
-        {/if}
+      <div class="grid grid-cols-2 border-t border-line">
+        <div class="border-r border-line p-3">
+          <div class="text-[11.5px] font-medium text-muted">{tr("rainChance")}</div>
+          {#if nextRain}
+            <div class="num mt-0.5 text-[17px] font-bold">{Math.round(nextRain.meta.precip)}%</div>
+            <div class="text-[11px] text-faint">{tr("rainAt")} {hourLabel(nextRain.measuredAt)}</div>
+          {:else}
+            <div class="mt-0.5 text-[13px] text-muted">{tr("rainNoneSoon")}</div>
+          {/if}
+        </div>
+        <div class="p-3">
+          <div class="text-[11.5px] font-medium capitalize text-muted">{tr("high")} / {tr("low")}</div>
+          {#if todayHiLo}
+            <div class="num mt-0.5 text-[17px] font-bold">{todayHiLo.hi}° / {todayHiLo.lo}°</div>
+            <div class="text-[11px] text-faint">{tr("today")}</div>
+          {:else}
+            <div class="mt-0.5 text-[13px] text-muted">–</div>
+          {/if}
+        </div>
       </div>
     </div>
   </div>
@@ -209,13 +215,15 @@ const todayHiLo = $derived.by(() => {
     {#if wkDays.length}
       <div class="grid grid-cols-7 gap-1 overflow-x-auto">
         {#each wkDays as d, i (d.date)}
-          {@const w = barPct(d.tmin ?? 0)}
-          {@const h = Math.max(2, barPct(d.tmax ?? 0) - w)}
+          {@const H = 64}
+          {@const topPx = Math.round((1 - barPct(d.tmax ?? 0) / 100) * H)}
+          {@const botPx = Math.round((barPct(d.tmin ?? 0) / 100) * H)}
+          {@const barH = Math.max(4, H - topPx - botPx)}
           <button type="button" class="flex min-w-[48px] cursor-pointer flex-col items-center gap-1 rounded-xl pb-2 pt-1 transition" class:bg-panel={selDay === i} class:ring-1={selDay === i} class:ring-accent={selDay === i} onclick={() => (selDay = i)}>
             <span class="text-[11px] text-muted">{dayName(d.date)}</span>
             <span class="text-[17px] leading-none" aria-hidden="true">{metIcon(d.summary)}</span>
-            <span class="relative h-16 w-2.5 rounded-full bg-line">
-              <span class="absolute left-0 right-0 rounded-full" style="bottom:{w}%;height:{h}%;background:#ef6c1a"></span>
+            <span class="relative block h-16 w-2.5 overflow-hidden rounded-full bg-line">
+              <span class="absolute left-0 right-0 rounded-full" style="top:{topPx}px;height:{barH}px;background:#ef6c1a"></span>
             </span>
             <span class="text-[11.5px] font-semibold">{d.tmax}°</span>
             <span class="-mt-0.5 text-[10.5px] text-muted">{d.tmin}°</span>

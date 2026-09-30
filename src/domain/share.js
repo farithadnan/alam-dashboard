@@ -23,7 +23,7 @@ function note(place, lines, overrides) {
   return Object.assign(
     {
       town: place, state: "", place, text: lines.join("\n"), build: "note",
-      headline: "", valueLabel: null, band: "", tip: "", extra: "",
+      headline: "", valueLabel: null, icon: "", band: "", tip: "", extra: "", stats: [],
       footer: linkTo(""), color: "#c14a1f",
     },
     overrides,
@@ -53,24 +53,32 @@ export function homeSharePayload({ town, state, now, townAir, warnings = [], flo
   lines.push(`Follow it live here: ${linkTo("")}`);
 
   return note(place, lines, {
-    headline: [cond, temp != null ? `${temp}°` : ""].filter(Boolean).join(", ") || "Your area now",
-    valueLabel: value != null ? `AQI ${Math.round(value)}` : null,
+    headline: cond || "Your area now",
+    valueLabel: temp != null ? `${temp}°` : value != null ? `AQI ${Math.round(value)}` : null,
+    icon: now?.meta?.code != null ? wmo(String(now.meta.code))[0] : "",
     band: band || "",
     tip: advice || "",
+    stats: [
+      value != null ? { label: "Air quality", value: `AQI ${Math.round(value)}` } : null,
+      now?.meta?.apparentTemp != null ? { label: "Feels like", value: `${Math.round(now.meta.apparentTemp)}°` } : null,
+      now?.meta?.humidity != null ? { label: "Humidity", value: `${now.meta.humidity}%` } : null,
+      now?.meta?.wind != null ? { label: "Wind", value: `${now.meta.wind} km/h` } : null,
+    ].filter(Boolean),
     footer: linkTo(""),
     color: townAir?.band?.label ? numColor(townAir.band.label) : "#c14a1f",
   });
 }
 export const sharePayload = homeSharePayload; // kept name so Home / preview callers stay stable
 
-/** Weather: just the current conditions + a nudge to the forecast. */
-export function weatherSharePayload({ town, state, now, humidity = now?.meta?.humidity ?? null, wind = now?.meta?.wind ?? null, precip = now?.meta?.precip ?? null }) {
+/** Weather: the current conditions as a small infographic card. */
+export function weatherSharePayload({ town, state, now, humidity = now?.meta?.humidity ?? null, wind = now?.meta?.wind ?? null, precip = now?.meta?.precip ?? null, high = null, low = null, feels = null }) {
   const place = [town, state].filter(Boolean).join(", ") || "your area";
   const temp = now ? Math.round(now.value) : null;
-  const feels = now?.meta?.apparentTemp != null ? Math.round(now.meta.apparentTemp) : null;
+  const feel = feels != null ? Math.round(feels) : now?.meta?.apparentTemp != null ? Math.round(now.meta.apparentTemp) : null;
   const cond = now?.meta?.code != null ? wmo(String(now.meta.code))[1] || "" : "";
+  const icon = now?.meta?.code != null ? wmo(String(now.meta.code))[0] : "";
   const facts = [
-    feels != null ? `feeling like ${feels}°` : "",
+    feel != null ? `feeling like ${feel}°` : "",
     humidity != null ? `humidity at ${humidity}%` : "",
     wind != null ? `wind around ${wind} km/h` : "",
     precip != null && precip > 0 ? `rain chance ${Math.round(precip)}%` : "",
@@ -82,10 +90,18 @@ export function weatherSharePayload({ town, state, now, humidity = now?.meta?.hu
   ];
 
   return note(place, lines, {
-    headline: `${cond || "Quiet"}, ${temp != null ? `${temp}°` : "mild"}`,
-    valueLabel: null,
+    headline: cond || "Current weather",
+    valueLabel: temp != null ? `${temp}°` : null,
+    icon,
     band: "",
     tip: "",
+    stats: [
+      feel != null ? { label: "Feels like", value: `${feel}°` } : null,
+      humidity != null ? { label: "Humidity", value: `${humidity}%` } : null,
+      wind != null ? { label: "Wind", value: `${wind} km/h` } : null,
+      precip != null && precip > 0 ? { label: "Rain chance", value: `${Math.round(precip)}%` } : null,
+      high != null && low != null ? { label: "High / Low", value: `${Math.round(high)}° / ${Math.round(low)}°` } : null,
+    ].filter(Boolean),
     footer: linkTo("#/weather"),
     color: "#3b6ea8",
   });

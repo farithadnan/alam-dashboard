@@ -40,11 +40,11 @@
       {/if}
     </div>
 
-    <div class="flex flex-wrap items-center gap-x-4 gap-y-1 text-[12.5px] font-medium text-white/90">
-      {#if high != null && low != null}<span>H {Math.round(high)}° · L {Math.round(low)}°</span>{/if}
-      {#if rainChance != null}<span>☔ {Math.round(rainChance)}%</span>{/if}
-      {#if humidity != null}<span>💧 {humidity}%</span>{/if}
-      {#if wind != null}<span>💨 {wind} km/h</span>{/if}
+    <div class="flex flex-wrap items-center gap-1.5 text-[11.5px] font-semibold">
+      {#if high != null && low != null}<span class="rounded-full bg-white/15 px-2.5 py-1"><span class="font-medium text-white/70">{tr("high")} / {tr("low")}</span> {Math.round(high)}° / {Math.round(low)}°</span>{/if}
+      {#if rainChance != null}<span class="rounded-full bg-white/15 px-2.5 py-1"><span class="font-medium text-white/70">{tr("rainChance")}</span> {Math.round(rainChance)}%</span>{/if}
+      {#if humidity != null}<span class="rounded-full bg-white/15 px-2.5 py-1"><span class="font-medium text-white/70 capitalize">{tr("humidity")}</span> {humidity}%</span>{/if}
+      {#if wind != null}<span class="rounded-full bg-white/15 px-2.5 py-1"><span class="font-medium text-white/70 capitalize">{tr("wind")}</span> {wind} km/h</span>{/if}
     </div>
 
     <div class="flex items-center justify-between gap-2">

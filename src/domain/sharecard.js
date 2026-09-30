@@ -21,10 +21,32 @@ function wrap(ctx, text, x, y, maxW, lineH) {
   return y;
 }
 
+/** Rounded-rect path. `top` rounds only the top corners (for the accent bar). */
+function rr(ctx, x, y, w, h, r, top = false) {
+  ctx.beginPath();
+  if (top) {
+    ctx.moveTo(x, y + h);
+    ctx.lineTo(x, y + r);
+    ctx.quadraticCurveTo(x, y, x + r, y);
+    ctx.lineTo(x + w - r, y);
+    ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+    ctx.lineTo(x + w, y + h);
+    ctx.closePath();
+    return;
+  }
+  ctx.moveTo(x + r, y);
+  ctx.arcTo(x + w, y, x + w, y + h, r);
+  ctx.arcTo(x + w, y + h, x, y + h, r);
+  ctx.arcTo(x, y + h, x, y, r);
+  ctx.arcTo(x, y, x + w, y, r);
+  ctx.closePath();
+}
+
 /**
- * Draw the share card and return the canvas. `d` is any lib/share.js paylod:
- * { place, headline, valueLabel, band, tip, extra, footer, color }. Same payload drives
- * both the friendly text and the image, so what you preview is what sends.
+ * Draw the share card and return the canvas. `d` is any share.js payload:
+ * { place, headline, valueLabel, icon, band, tip, extra, stats, footer, color }.
+ * Same payload drives the friendly text and this infographic, so what you preview
+ * is exactly what sends.
  */
 function drawCard(d) {
   const c = document.createElement("canvas");
@@ -32,62 +54,96 @@ function drawCard(d) {
   c.height = H;
   const x = c.getContext("2d");
   const color = d.color || "#c14a1f";
-
-  x.fillStyle = "#fbf8f3";
-  x.fillRect(0, 0, W, H);
-  x.fillStyle = color;
-  x.fillRect(0, 0, W, 14);
-
+  const M = 44;
+  const X = M + 60;
+  const CW = W - 2 * X;
   x.textBaseline = "alphabetic";
-  x.fillStyle = "#242628";
-  x.font = "800 46px system-ui, -apple-system, Segoe UI, sans-serif";
-  x.fillText("OhAlam", 72, 130);
-  x.fillStyle = "#c14a1f";
-  x.fillText(".", 72 + x.measureText("OhAlam").width, 130);
 
-  // Place (top left, under the wordmark).
-  x.fillStyle = "#6b6258";
-  x.font = "400 42px system-ui, sans-serif";
-  let y = wrap(x, d.place || "", 72, 196, W - 144, 56);
-
-  // The headline number/statement.
-  const big = d.valueLabel || d.headline || "";
+  // Page + white card + accent top bar.
+  x.fillStyle = "#eef1f6";
+  x.fillRect(0, 0, W, H);
+  x.fillStyle = "#ffffff";
+  rr(x, M, M, W - 2 * M, H - 2 * M, 44);
+  x.fill();
   x.fillStyle = color;
-  x.font = "800 92px system-ui, sans-serif";
-  y = wrap(x, String(big).slice(0, 18), 72, y + 90, W - 144, 96) + 8;
+  rr(x, M, M, W - 2 * M, 18, 44, true);
+  x.fill();
 
-  // Band under the number, e.g. "Unhealthy" / "Warning".
+  // Wordmark.
+  x.fillStyle = "#0f1720";
+  x.font = "800 46px system-ui, -apple-system, Segoe UI, sans-serif";
+  x.fillText("OhAlam", X, M + 120);
+  x.fillStyle = color;
+  x.fillText(".", X + x.measureText("OhAlam").width, M + 120);
+
+  // Place.
+  x.fillStyle = "#5a6675";
+  x.font = "400 40px system-ui, sans-serif";
+  let y = wrap(x, d.place || "", X, M + 198, CW, 52);
+
+  // Big value, with an optional condition glyph.
+  const icon = d.icon || "";
+  const big = String(d.valueLabel || d.headline || "").slice(0, 14);
+  const bigY = y + 150;
+  if (icon) { x.font = "84px serif"; x.fillText(icon, X, bigY - 22); }
+  x.fillStyle = color;
+  x.font = "800 118px system-ui, sans-serif";
+  x.fillText(big, X + (icon ? 130 : 0), bigY);
+  y = bigY;
+
+  // Condition line under the value (when the value is a separate number).
+  if (d.valueLabel && d.headline) {
+    x.fillStyle = "#0f1720";
+    x.font = "600 44px system-ui, sans-serif";
+    y = wrap(x, d.headline, X, y + 70, CW, 54);
+  }
   if (d.band) {
     x.fillStyle = color;
-    x.font = "700 54px system-ui, sans-serif";
-    y = wrap(x, String(d.band), 72, y, W - 144, 62) + 14;
+    x.font = "700 52px system-ui, sans-serif";
+    y = wrap(x, d.band, X, y + 66, CW, 60);
   }
 
-  // Context headline when a separate value is shown (e.g. "Overcast, 28°" on the air card).
-  if (d.valueLabel && d.headline) {
-    x.fillStyle = "#242628";
-    x.font = "600 46px system-ui, sans-serif";
-    y = wrap(x, String(d.headline), 72, y + 10, W - 144, 58);
+  // Stat chips (2 columns), the "infographic" part.
+  const stats = (d.stats || []).slice(0, 4);
+  if (stats.length) {
+    const gap = 24;
+    const cw = (CW - gap) / 2;
+    const ch = 132;
+    const sy = y + 54;
+    stats.forEach((s, i) => {
+      const cxp = X + (i % 2) * (cw + gap);
+      const cyp = sy + Math.floor(i / 2) * (ch + gap);
+      x.fillStyle = "#f1f4f7";
+      rr(x, cxp, cyp, cw, ch, 22);
+      x.fill();
+      x.fillStyle = "#5a6675";
+      x.font = "600 32px system-ui, sans-serif";
+      x.fillText(String(s.label), cxp + 28, cyp + 54);
+      x.fillStyle = "#0f1720";
+      x.font = "800 54px system-ui, sans-serif";
+      x.fillText(String(s.value), cxp + 28, cyp + 106);
+    });
+    y = sy + Math.ceil(stats.length / 2) * (ch + gap) - gap;
   }
 
-  // The gentle tip / guidance.
+  // Gentle tip.
   if (d.tip) {
-    x.fillStyle = "#6b6258";
-    x.font = "400 40px system-ui, sans-serif";
-    y = wrap(x, String(d.tip), 72, y + 46, W - 144, 54);
+    x.fillStyle = "#5a6675";
+    x.font = "400 38px system-ui, sans-serif";
+    y = wrap(x, d.tip, X, y + 70, CW, 50);
   }
 
-  // Extra context (worst spot, event count, etc.).
+  // Extra context above the footer.
   if (d.extra) {
-    x.fillStyle = "#8a8277";
-    x.font = "400 34px system-ui, sans-serif";
-    wrap(x, String(d.extra), 72, 824, W - 144, 44);
+    x.fillStyle = "#8a94a3";
+    x.font = "400 32px system-ui, sans-serif";
+    wrap(x, d.extra, X, H - M - 108, CW, 42);
   }
 
   // Footer link.
-  x.fillStyle = "#b9b0a4";
+  x.fillStyle = "#8a94a3";
   x.font = "400 30px system-ui, sans-serif";
-  wrap(x, d.footer || "OhAlam · Malaysia air, weather & hazards", 72, H - 60, W - 144, 40);
+  wrap(x, d.footer || "OhAlam · Malaysia air, weather & hazards", X, H - M - 54, CW, 40);
   return c;
 }
 
