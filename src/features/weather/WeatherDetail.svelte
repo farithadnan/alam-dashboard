@@ -1,6 +1,6 @@
 <script>
 import { app } from "../../core/store.svelte.js";
-import { getOfficial, getHistory } from "../../core/api.js";
+import { getOfficial, getHistory, getHaze } from "../../core/api.js";
 import { moonPhase, numColor, uvWord } from "../../domain/flags.js";
 import { wmo, isNightNow } from "../../domain/weather-codes.js";
 import { mapPopup } from "../../domain/popup.js";
@@ -44,6 +44,19 @@ $effect(() => {
   });
 });
 const moon = moonPhase();
+
+// Haze outlook (model PM2.5) for this town — included on the share card.
+let haze = $state([]);
+const loadHaze = createLoader();
+$effect(() => {
+  const st = station;
+  if (!st) { haze = []; return; }
+  loadHaze(() => getHaze(st), {
+    onValue: (r) => (haze = r.haze ?? []),
+    onError: () => (haze = []),
+  });
+});
+const todayHaze = $derived(haze[0] ?? null);
 
 const mapPts = $derived(
   towns
@@ -115,7 +128,7 @@ const todayHiLo = $derived.by(() => {
       <h1 class="min-w-0 truncate text-[19px] font-extrabold tracking-tight">{townName}{#if stateName}<span class="font-semibold text-muted">, {stateName}</span>{/if}</h1>
       <div class="flex shrink-0 gap-1.5">
         {#if onClose}<button class="iconbtn inline-flex items-center gap-1.5 whitespace-nowrap !px-2.5" onclick={onClose} aria-label={tr("back")} title={tr("back")}><Icon name="arrowLeft" size={16} /><span class="hidden sm:inline">{tr("back")}</span></button>{/if}
-        <ShareButton payload={weatherSharePayload({ town: townName, state: stateName, now, humidity: now.meta?.humidity, wind: now.meta?.wind, high: todayHiLo?.hi, low: todayHiLo?.lo, feels: now.meta?.apparentTemp })} />
+        <ShareButton payload={weatherSharePayload({ town: townName, state: stateName, now, humidity: now.meta?.humidity, wind: now.meta?.wind, high: todayHiLo?.hi, low: todayHiLo?.lo, feels: now.meta?.apparentTemp, haze: todayHaze ? Math.round(todayHaze.pm25Max) : null })} />
       </div>
     </div>
 
@@ -213,13 +226,13 @@ const todayHiLo = $derived.by(() => {
     <p class="caption -mt-1">{tr("officialNote")} · {district.district}</p>
     <p class="caption -mt-0.5 mb-2">{tr("forecastLegend")}</p>
     {#if wkDays.length}
-      <div class="grid grid-cols-7 gap-1 overflow-x-auto">
+      <div class="grid grid-cols-7 gap-1 overflow-x-auto px-0.5 py-1">
         {#each wkDays as d, i (d.date)}
           {@const H = 64}
           {@const topPx = Math.round((1 - barPct(d.tmax ?? 0) / 100) * H)}
           {@const botPx = Math.round((barPct(d.tmin ?? 0) / 100) * H)}
           {@const barH = Math.max(4, H - topPx - botPx)}
-          <button type="button" class="flex min-w-[48px] cursor-pointer flex-col items-center gap-1 rounded-xl pb-2 pt-1 transition" class:bg-panel={selDay === i} class:ring-1={selDay === i} class:ring-accent={selDay === i} onclick={() => (selDay = i)}>
+          <button type="button" class="flex min-w-[48px] cursor-pointer flex-col items-center gap-1 rounded-xl pb-2 pt-1 transition" class:bg-panel={selDay === i} class:ring-2={selDay === i} class:ring-inset={selDay === i} class:ring-accent={selDay === i} onclick={() => (selDay = i)}>
             <span class="text-[11px] text-muted">{dayName(d.date)}</span>
             <span class="text-[17px] leading-none" aria-hidden="true">{metIcon(d.summary)}</span>
             <span class="relative block h-16 w-2.5 overflow-hidden rounded-full bg-line">

@@ -71,7 +71,7 @@ export function homeSharePayload({ town, state, now, townAir, warnings = [], flo
 export const sharePayload = homeSharePayload; // kept name so Home / preview callers stay stable
 
 /** Weather: the current conditions as a small infographic card. */
-export function weatherSharePayload({ town, state, now, humidity = now?.meta?.humidity ?? null, wind = now?.meta?.wind ?? null, precip = now?.meta?.precip ?? null, high = null, low = null, feels = null }) {
+export function weatherSharePayload({ town, state, now, humidity = now?.meta?.humidity ?? null, wind = now?.meta?.wind ?? null, precip = now?.meta?.precip ?? null, high = null, low = null, feels = null, haze = null }) {
   const place = [town, state].filter(Boolean).join(", ") || "your area";
   const temp = now ? Math.round(now.value) : null;
   const feel = feels != null ? Math.round(feels) : now?.meta?.apparentTemp != null ? Math.round(now.meta.apparentTemp) : null;
@@ -101,6 +101,7 @@ export function weatherSharePayload({ town, state, now, humidity = now?.meta?.hu
       wind != null ? { label: "Wind", value: `${wind} km/h` } : null,
       precip != null && precip > 0 ? { label: "Rain chance", value: `${Math.round(precip)}%` } : null,
       high != null && low != null ? { label: "High / Low", value: `${Math.round(high)}° / ${Math.round(low)}°` } : null,
+      haze != null ? { label: "Haze (PM2.5)", value: `${Math.round(haze)} µg/m³` } : null,
     ].filter(Boolean),
     footer: linkTo("#/weather"),
     color: "#3b6ea8",

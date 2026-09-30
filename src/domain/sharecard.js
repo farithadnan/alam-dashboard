@@ -103,27 +103,31 @@ function drawCard(d) {
     y = wrap(x, d.band, X, y + 66, CW, 60);
   }
 
-  // Stat chips (2 columns), the "infographic" part.
-  const stats = (d.stats || []).slice(0, 4);
+  // Stat chips (2 or 3 columns), the "infographic" part.
+  const stats = (d.stats || []).slice(0, 6);
   if (stats.length) {
-    const gap = 24;
-    const cw = (CW - gap) / 2;
-    const ch = 132;
-    const sy = y + 54;
+    const gap = 22;
+    const cols = stats.length > 4 ? 3 : 2;
+    const cw = (CW - gap * (cols - 1)) / cols;
+    const ch = cols === 3 ? 118 : 132;
+    const pad = cols === 3 ? 22 : 28;
+    const labelFont = cols === 3 ? "600 26px system-ui, sans-serif" : "600 32px system-ui, sans-serif";
+    const valFont = cols === 3 ? "800 44px system-ui, sans-serif" : "800 54px system-ui, sans-serif";
+    const sy = y + 50;
     stats.forEach((s, i) => {
-      const cxp = X + (i % 2) * (cw + gap);
-      const cyp = sy + Math.floor(i / 2) * (ch + gap);
+      const cxp = X + (i % cols) * (cw + gap);
+      const cyp = sy + Math.floor(i / cols) * (ch + gap);
       x.fillStyle = "#f1f4f7";
-      rr(x, cxp, cyp, cw, ch, 22);
+      rr(x, cxp, cyp, cw, ch, 20);
       x.fill();
       x.fillStyle = "#5a6675";
-      x.font = "600 32px system-ui, sans-serif";
-      x.fillText(String(s.label), cxp + 28, cyp + 54);
+      x.font = labelFont;
+      x.fillText(String(s.label), cxp + pad, cyp + 46);
       x.fillStyle = "#0f1720";
-      x.font = "800 54px system-ui, sans-serif";
-      x.fillText(String(s.value), cxp + 28, cyp + 106);
+      x.font = valFont;
+      x.fillText(String(s.value), cxp + pad, cyp + 96);
     });
-    y = sy + Math.ceil(stats.length / 2) * (ch + gap) - gap;
+    y = sy + Math.ceil(stats.length / cols) * (ch + gap) - gap;
   }
 
   // Gentle tip.

@@ -57,10 +57,9 @@
     {/if}
     {#if avg != null}
       <div class="mt-3 mb-2 flex flex-wrap gap-1.5">
-        <span class="statbadge">{tr("avg")} <b>{Math.round(avg)}°</b></span>
-        <span class="statbadge">{tr("high")} <b>{Math.round(hi)}°</b></span>
-        <span class="statbadge">{tr("low")} <b>{Math.round(lo)}°</b></span>
-        <span class="statbadge"><b>{towns.length}</b> {tr("townsWord")}</span>
+        <span class="statbadge">{tr("avgTemp")} <b>{Math.round(avg)}°</b></span>
+        <span class="statbadge">{tr("highTemp")} <b>{Math.round(hi)}°</b></span>
+        <span class="statbadge">{tr("lowTemp")} <b>{Math.round(lo)}°</b></span>
       </div>
     {/if}
     {#each scopeGroups as g (g.key)}
