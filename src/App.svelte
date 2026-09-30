@@ -77,6 +77,14 @@ async function nudgeLocate() {
 const scopeRelevant = $derived(view === "weather" || view === "air" || (view === "hazards" && app.hazard === "flood"));
 </script>
 
+{#snippet scopeSeg(cls = "", btnCls = "")}
+  <div class={"seg " + cls} role="group" aria-label="Scope">
+    {#each SCOPES as s (s.value)}
+      <button class:on={app.scope === s.value} class={"segbtn " + btnCls} onclick={() => (app.scope = s.value)}>{tr(s.key)}</button>
+    {/each}
+  </div>
+{/snippet}
+
 <header class="sticky top-0 z-40 border-b border-line bg-bg/80 backdrop-blur-xl">
   <div class="mx-auto flex w-full max-w-[1240px] items-center gap-2 px-3 py-2 sm:px-4">
     <button class="group flex items-center gap-2 pr-1" onclick={() => (view = "home")} aria-label="Home">
@@ -94,21 +102,23 @@ const scopeRelevant = $derived(view === "weather" || view === "air" || (view ===
       {/each}
     </nav>
 
-    <div class="ml-auto flex items-center gap-1.5">
+    <div class="ml-auto flex min-w-0 items-center gap-1.5">
       {#if scopeRelevant && !app.picked}
-        <div class="seg scope-seg" role="group" aria-label="Scope">
-          {#each SCOPES as s (s.value)}
-            <button class:on={app.scope === s.value} class="segbtn" onclick={() => (app.scope = s.value)}>{tr(s.key)}</button>
-          {/each}
-        </div>
+        <div class="hidden lg:block">{@render scopeSeg("scope-seg")}</div>
       {/if}
-      <button class="iconbtn inline-flex max-w-[42vw] items-center gap-1.5 sm:max-w-none" onclick={() => (locOpen = true)} aria-haspopup="dialog" aria-expanded={locOpen}>
+      <button class="iconbtn inline-flex min-w-0 max-w-[48vw] items-center gap-1.5 sm:max-w-none" onclick={() => (locOpen = true)} aria-haspopup="dialog" aria-expanded={locOpen}>
         <Icon name="pin" size={15} class="shrink-0 text-accent" />
         <span class="truncate font-semibold">{townName || tr("changeLoc")}</span>
       </button>
       <SettingsMenu />
     </div>
   </div>
+
+  {#if scopeRelevant && !app.picked}
+    <div class="px-3 pb-2 lg:hidden">
+      {@render scopeSeg("w-full", "flex-1 py-1.5")}
+    </div>
+  {/if}
 
   {#if app.loading}
     <div class="absolute inset-x-0 bottom-0 h-[2px] overflow-hidden" aria-hidden="true">

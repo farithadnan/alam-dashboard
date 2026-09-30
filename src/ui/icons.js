@@ -29,9 +29,10 @@ export const ICONS = {
     { path: "M12 2v2M12 20v2M2 12h2M20 12h2M5 5l1.4 1.4M17.6 17.6L19 19M19 5l-1.4 1.4M6.4 17.6L5 19" },
   ],
   moon: [{ path: "M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z" }],
-  gear: [
-    { circle: [12, 12, 3] },
-    { path: "M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M19.1 4.9 17 7M7 17l-2.1 2.1" },
+  sliders: [
+    { path: "M4 7h9M17 7h3" }, { circle: [15, 7, 2] },
+    { path: "M4 12h3M11 12h9" }, { circle: [9, 12, 2] },
+    { path: "M4 17h9M17 17h3" }, { circle: [15, 17, 2] },
   ],
   close: [{ path: "M6 6l12 12M18 6L6 18" }],
   share: [

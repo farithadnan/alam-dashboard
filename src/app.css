@@ -49,6 +49,9 @@ body {
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
   font-feature-settings: "cv11", "ss01";
+  /* Guard against accidental horizontal scroll without creating a scroll
+     container (clip, unlike hidden, keeps position:sticky working). */
+  overflow-x: clip;
 }
 ::selection { background: color-mix(in srgb, var(--color-accent) 22%, transparent); }
 

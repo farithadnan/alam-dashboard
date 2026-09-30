@@ -51,7 +51,7 @@
       <span class="text-[11px] font-medium text-white/60">Live · {tr("updated")} {new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</span>
       <div class="flex items-center gap-1.5">
         {#if town}<TelegramAlerts pill {town} {state} />{/if}
-        {#if share}<ShareButton pill {share} />{/if}
+        {#if share}<ShareButton pill payload={share} />{/if}
       </div>
     </div>
   </div>
