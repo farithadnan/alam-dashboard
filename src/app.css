@@ -231,3 +231,5 @@ input:focus-visible, select:focus-visible, textarea:focus-visible { outline: non
 @keyframes loadprogress { from { width: 0%; } to { width: 88%; } }
 
 [id] { scroll-margin-top: 5.5rem; }
+/* The mobile header is two rows on scope pages; keep anchor jumps clear of it. */
+@media (max-width: 1023px) { [id] { scroll-margin-top: 7.5rem; } }
