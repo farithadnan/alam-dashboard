@@ -1,5 +1,5 @@
 <script>
-    import { severityColor } from "../../domain/flags.js";
+    import { severityColor, severityRank } from "../../domain/flags.js";
     import { tr, severityWord } from "../../core/i18n.svelte.js";
     import Icon from "../../ui/Icon.svelte";
 
@@ -8,17 +8,9 @@
 
     // Hierarchy: 0-2 highest-severity items as banners; anything more is one "see all".
     const top = $derived(warnings.slice().sort(
-      (a, b) => (sev(b) - sev(a)) || String(b.measuredAt).localeCompare(String(a.measuredAt)),
+      (a, b) => (severityRank(b) - severityRank(a)) || String(b.measuredAt).localeCompare(String(a.measuredAt)),
     ).slice(0, 2));
 
-    function sev(w) {
-      switch (w?.severity) {
-        case "Danger": case "Warning": return 4;
-        case "High": case "Severe": return 3;
-        case "Moderate": return 2;
-        default: return 1;
-      }
-    }
     const date = (iso) => new Date(iso).toLocaleDateString("en-MY", { weekday: "short", day: "numeric", month: "short" });
   </script>
 
@@ -30,7 +22,7 @@
       </div>
       {#each top as w (w.station + w.measuredAt)}
         {@const c = severityColor(w.severity)}
-        {@const sevN = sev(w)}
+        {@const sevN = severityRank(w)}
         <div class="overflow-hidden rounded-2xl border p-3.5" style="border-color:color-mix(in srgb,{c} 45%, var(--color-line));background:color-mix(in srgb, {c} {sevN >= 3 ? 9 : 5}%, var(--color-panel))">
           <div class="flex items-start gap-3">
             <span class="grid size-9 shrink-0 place-items-center rounded-xl" style="background:color-mix(in srgb,{c} 16%, transparent);color:{c}"><Icon name="alert" size={17} /></span>

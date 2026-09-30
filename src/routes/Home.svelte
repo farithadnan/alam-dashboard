@@ -11,6 +11,7 @@
     import { sharePayload } from "../domain/share.js";
     import { activeWarnings } from "../domain/warnings.js";
     import { getFlood } from "../core/api.js";
+    import { createLoader } from "../core/async.js";
     import Skeleton from "../ui/Skeleton.svelte";
     import Warnings from "../features/hazards/Warnings.svelte";
     import { pushSupported, pushEnabled, subscribePush, unsubscribePush } from "../core/push.js";
@@ -53,13 +54,13 @@
     let floodCount = $state(0);
     let floodLoaded = $state(false);
     let floodErrored = $state(false);
+    const loadFlood = createLoader();
     $effect(() => {
-      let on = true;
       const scopeState = app.scope === "malaysia" ? undefined : app.state || undefined;
-      getFlood(scopeState)
-        .then((r) => { if (on) { floodCount = (r?.river?.length ?? 0) + (r?.rain?.length ?? 0); floodLoaded = true; floodErrored = false; } })
-        .catch(() => { if (on) { floodLoaded = true; floodErrored = true; } });
-      return () => (on = false);
+      loadFlood(() => getFlood(scopeState), {
+        onValue: (r) => { floodCount = (r?.river?.length ?? 0) + (r?.rain?.length ?? 0); floodLoaded = true; floodErrored = false; },
+        onError: () => { floodLoaded = true; floodErrored = true; },
+      });
     });
 
     let flash = $state(false);

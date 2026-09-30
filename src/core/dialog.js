@@ -7,6 +7,7 @@
  */
 export function dialog(node, params = {}) {
   let opts = params;
+  const opener = typeof document !== "undefined" ? document.activeElement : null;
   const prevOverflow = document.body.style.overflow;
   document.body.style.overflow = "hidden";
 
@@ -32,6 +33,7 @@ export function dialog(node, params = {}) {
     destroy() {
       node.removeEventListener("keydown", onKey);
       document.body.style.overflow = prevOverflow;
+      if (opener instanceof HTMLElement) opener.focus();
     },
   };
 }

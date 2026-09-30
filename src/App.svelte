@@ -2,12 +2,13 @@
 import { onMount } from "svelte";
 import { app, load, initLoc } from "./core/store.svelte.js";
 import { SITE } from "./core/config.js";
-import { theme, toggleTheme, applyTheme } from "./core/theme.svelte.js";
-import { lang, setLang, tr, trFmt } from "./core/i18n.svelte.js";
-import { nearestState } from "./domain/flags.js";
+import { applyTheme } from "./core/theme.svelte.js";
+import { tr, trFmt } from "./core/i18n.svelte.js";
 import { NAV, SCOPES } from "./core/shell.js";
-import { locate } from "./core/location.js";
-import { dialog } from "./core/dialog.js";
+import { useMyLocation } from "./features/location/location.js";
+import LocationPicker from "./features/location/LocationPicker.svelte";
+import SettingsMenu from "./features/settings/SettingsMenu.svelte";
+import BottomNav from "./ui/BottomNav.svelte";
 import Icon from "./ui/Icon.svelte";
 import Skeleton from "./ui/Skeleton.svelte";
 import Home from "./routes/Home.svelte";
@@ -33,9 +34,7 @@ $effect(() => {
   if (typeof location !== "undefined" && location.hash !== want) history.replaceState(null, "", want);
 });
 let locOpen = $state(false);
-let settingsOpen = $state(false);
 let locBusy = $state(false);
-let locTrigger = null;          // element that opened the dialog, for focus restore
 // Was this location ever actually claimed by the user, or are they seeing a default?
 let claimed = $state(true);
 $effect(() => {
@@ -45,7 +44,6 @@ $effect(() => {
 });
 
 const states = $derived(app.data?.states ?? []);
-const towns = $derived((app.data?.allTowns ?? []).filter((t) => t.state === app.state));
 const townName = $derived(app.data?.weather?.find((r) => r.station === app.town && r.kind === "weather")?.stationName ?? app.data?.allTowns?.find((t) => t.station === app.town)?.name ?? app.town ?? "");
 
 let _lastSig = "";
@@ -67,70 +65,14 @@ onMount(() => {
   window.addEventListener("hashchange", () => { const v = readHash(); if (v !== view) view = v; });
   return () => { clearInterval(t); window.removeEventListener("hashchange", () => {}); };
 });
-function onStatePick(e) {
-  // Move the town with the state right away, so we never request a town that
-  // belongs to the previous state (that returns no hourly/forecast data).
-  const st = e.currentTarget.value;
-  const first = (app.data?.allTowns ?? []).find((t) => t.state === st);
-  if (first) app.town = first.station;
-}
-// Location search with common informal aliases (JB → Johor Bahru, KL → Kuala Lumpur…).
-let q = $state("");
-const ALIASES = {
-  jb: "johor bahru", "johor bahru": "johor bahru", kl: "kuala lumpur", "kuala lumpur": "kuala lumpur",
-  pj: "petaling jaya", "petaling jaya": "petaling jaya", "shah alam": "shah alam", klang: "klang",
-  subang: "subang jaya", "subang jaya": "subang jaya", kk: "kota kinabalu", "kota kinabalu": "kota kinabalu",
-  kch: "kuching", kuching: "kuching", ipoh: "ipoh", penang: "george town", "george town": "george town",
-  melaka: "melaka", miri: "miri", sibu: "sibu", bintulu: "bintulu", bangi: "bangi", cyberjaya: "cyberjaya",
-};
-const normz = (s) => String(s || "").toLowerCase().replace(/[^a-z0-9 ]/g, "").replace(/\s+/g, " ").trim();
-const placeMatches = $derived.by(() => {
-  const raw = q.trim();
-  if (!raw) return [];
-  const sub = normz(raw);
-  const aliasTarget = normz(ALIASES[sub] || "");
-  return (app.data?.allTowns ?? []).filter((t) => {
-    const nm = normz(t.name), slug = normz(t.station);
-    if (nm.includes(sub) || slug.includes(sub)) return true;
-    if (aliasTarget && nm.includes(aliasTarget)) return true;
-    if (Object.values(ALIASES).some((tg) => normz(tg) === nm && sub.length >= 3 && nm.includes(sub))) return true;
-    return false;
-  }).slice(0, 12);
-});
-function pickPlace(t) {
-  app.state = t.state;
-  app.town = t.station;
-  q = "";
-}
 function markClaimed() {
   claimed = true;
   try { localStorage.setItem("alam.claimed", "1"); } catch {}
 }
-function openLoc(evt) {
-  locTrigger = evt?.currentTarget ?? null;
-  locOpen = true;
-}
-function closeLoc() {
-  locOpen = false;
-  if (locTrigger) { locTrigger.focus?.(); locTrigger = null; }
-}
-
-async function useLocation() {
+async function nudgeLocate() {
   markClaimed();
   locBusy = true;
-  try {
-    const { lat, lon } = await locate();
-    const near = nearestState(lat, lon);
-    if (near && states.includes(near.name)) app.state = near.name;
-    locOpen = false;
-  } catch {
-    /* denied or unavailable — leave the picker open */
-  } finally {
-    locBusy = false;
-  }
-}
-function toggleLang() {
-  setLang(lang.code === "en" ? "ms" : "en");
+  try { await useMyLocation(states); } catch { /* denied — ignore */ } finally { locBusy = false; }
 }
 const scopeRelevant = $derived(view === "weather" || view === "air" || (view === "hazards" && app.hazard === "flood"));
 </script>
@@ -160,28 +102,11 @@ const scopeRelevant = $derived(view === "weather" || view === "air" || (view ===
           {/each}
         </div>
       {/if}
-      <button class="iconbtn inline-flex max-w-[42vw] items-center gap-1.5 sm:max-w-none" onclick={openLoc} aria-haspopup="dialog" aria-expanded={locOpen}>
+      <button class="iconbtn inline-flex max-w-[42vw] items-center gap-1.5 sm:max-w-none" onclick={() => (locOpen = true)} aria-haspopup="dialog" aria-expanded={locOpen}>
         <Icon name="pin" size={15} class="shrink-0 text-accent" />
         <span class="truncate font-semibold">{townName || tr("changeLoc")}</span>
       </button>
-      <div class="relative">
-        <button class="iconbtn !px-2.5" onclick={() => (settingsOpen = !settingsOpen)} aria-label="Settings" aria-expanded={settingsOpen} aria-haspopup="true"><Icon name="gear" size={17} /></button>
-        {#if settingsOpen}
-          <button class="fixed inset-0 z-40 cursor-default" onclick={() => (settingsOpen = false)} aria-label="Close settings" tabindex="-1"></button>
-          <div class="absolute right-0 top-[calc(100%+8px)] z-50 w-64 rounded-2xl border border-line bg-panel p-4 shadow-[var(--shadow-pop)]">
-            <div class="eyebrow mb-2">Language</div>
-            <div class="seg flex w-full">
-              <button class:on={lang.code === "en"} class="segbtn flex-1 py-2" onclick={() => setLang("en")}>English</button>
-              <button class:on={lang.code === "ms"} class="segbtn flex-1 py-2" onclick={() => setLang("ms")}>Bahasa</button>
-            </div>
-            <div class="eyebrow mb-2 mt-4">Theme</div>
-            <div class="seg flex w-full">
-              <button class:on={!theme.dark} class="segbtn flex flex-1 items-center justify-center gap-1.5 py-2" onclick={() => { if (theme.dark) toggleTheme(); }}><Icon name="sun" size={14} /> Light</button>
-              <button class:on={theme.dark} class="segbtn flex flex-1 items-center justify-center gap-1.5 py-2" onclick={() => { if (!theme.dark) toggleTheme(); }}><Icon name="moon" size={14} /> Dark</button>
-            </div>
-          </div>
-        {/if}
-      </div>
+      <SettingsMenu />
     </div>
   </div>
 
@@ -199,65 +124,7 @@ const scopeRelevant = $derived(view === "weather" || view === "air" || (view ===
   {/if}
 </header>
 
-{#if locOpen}
-  <div class="fixed inset-0 z-50 flex items-end justify-center sm:items-center sm:p-4">
-    <button type="button" tabindex="-1" class="absolute inset-0 bg-black/45 backdrop-blur-sm" aria-label={tr("dismiss")} onclick={closeLoc}></button>
-    <div use:dialog={{ onClose: closeLoc }} class="relative w-full max-w-md rounded-t-3xl border border-line bg-panel p-5 shadow-2xl sm:rounded-3xl" role="dialog" aria-modal="true" aria-labelledby="loc-title" tabindex="-1">
-      <div class="mx-auto mb-3 h-1.5 w-10 rounded-full bg-line sm:hidden"></div>
-      <div class="flex items-center justify-between">
-        <h2 id="loc-title" class="m-0 text-[17px] font-bold">{tr("changeLoc")}</h2>
-        <button class="iconbtn !border-transparent !bg-transparent !px-2" onclick={closeLoc} aria-label={tr("dismiss")}><Icon name="close" size={16} /></button>
-      </div>
-
-      <label class="relative mt-3 block">
-        <span class="sr-only">{tr("searchPlace")}</span>
-        <span class="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-faint"><Icon name="search" size={16} /></span>
-        <input class="!pl-10" bind:value={q} placeholder={tr("searchPlacePh")} aria-label={tr("searchPlace")} />
-      </label>
-      {#if q}
-        <ul class="mt-2 max-h-52 list-none overflow-y-auto rounded-xl border border-line bg-panel-2 p-0">
-          {#if placeMatches.length}
-            {#each placeMatches as t (t.station)}
-              <li class="border-b border-line last:border-b-0">
-                <button class="flex w-full items-center justify-between gap-2 px-3 py-2.5 text-left text-[14px]" onclick={() => pickPlace(t)}>
-                  <span class="min-w-0 truncate font-medium">{t.name}</span>
-                  <span class="shrink-0 text-[12px] text-muted">{t.state}</span>
-                </button>
-              </li>
-            {/each}
-          {:else}
-            <li class="px-3 py-2.5 text-[13px] text-muted">{tr("noSearchResults")}</li>
-          {/if}
-        </ul>
-      {/if}
-
-      <div class="mt-3 grid grid-cols-2 gap-2">
-        <label class="flex flex-col gap-1.5">
-          <span class="eyebrow">{tr("state")}</span>
-          <select id="state-select" bind:value={app.state} onchange={onStatePick}>
-            {#each states as name (name)}
-              <option value={name}>{name}</option>
-            {/each}
-          </select>
-        </label>
-        <label class="flex flex-col gap-1.5">
-          <span class="eyebrow">{tr("town")}</span>
-          <select id="town-select" bind:value={app.town}>
-            {#each towns as t (t.station)}
-              <option value={t.station}>{t.name}</option>
-            {/each}
-          </select>
-        </label>
-      </div>
-
-      <button class="ghostbtn mt-3 w-full" onclick={useLocation}>
-        <Icon name="compass" size={15} /> {locBusy ? tr("locating") : tr("useLoc")}
-      </button>
-      <p class="caption mt-2 text-center text-[12px]">{tr("locHint")}</p>
-      <button class="btn-primary mt-3 w-full" onclick={closeLoc}>{tr("done")}</button>
-    </div>
-  </div>
-{/if}
+<LocationPicker bind:open={locOpen} onClaim={markClaimed} />
 
 <a class="skip-link" href="#main-content">{tr("skipToContent")}</a>
 <main id="main-content" class="mx-auto w-full max-w-[1240px] px-3 pt-3 pb-24 sm:px-4 lg:pb-10">
@@ -267,7 +134,7 @@ const scopeRelevant = $derived(view === "weather" || view === "air" || (view ===
       <Icon name="pin" size={14} class="shrink-0 text-accent" />
       <span class="min-w-0 text-muted">{trFmt("locationPrompt", { place: app.state || "Malaysia" })}</span>
       <span class="ml-auto flex shrink-0 items-center gap-1">
-        <button type="button" class="ghostbtn !min-h-0 !py-1 text-[12px]" onclick={useLocation}>{locBusy ? "…" : tr("useMyLocation")}</button>
+        <button type="button" class="ghostbtn !min-h-0 !py-1 text-[12px]" onclick={nudgeLocate}>{locBusy ? "…" : tr("useMyLocation")}</button>
         <button type="button" class="iconbtn !border-transparent !bg-transparent !p-1.5" onclick={markClaimed} aria-label={tr("dismiss")} title={tr("dismiss")}><Icon name="close" size={14} /></button>
       </span>
     </div>
@@ -315,18 +182,4 @@ const scopeRelevant = $derived(view === "weather" || view === "air" || (view ===
   </div>
 </footer>
 
-<nav class="fixed bottom-0 left-0 right-0 z-40 border-t border-line bg-panel/90 pt-1 backdrop-blur-xl lg:hidden" aria-label="Main">
-  <div class="mx-auto flex max-w-[560px]">
-    {#each NAV as n (n.view)}
-      <button
-        class="relative flex flex-1 flex-col items-center gap-0.5 pb-2 pt-1.5"
-        onclick={() => (view = n.view)}
-        aria-current={view === n.view ? "page" : undefined}
-      >
-        {#if view === n.view}<span class="absolute top-0 h-0.5 w-7 rounded-full bg-accent"></span>{/if}
-        <span class={view === n.view ? "text-accent" : "text-muted"}><Icon name={n.icon} size={21} /></span>
-        <span class={"text-[11px] font-medium " + (view === n.view ? "text-accent" : "text-muted")}>{tr(n.key)}</span>
-      </button>
-    {/each}
-  </div>
-</nav>
+<BottomNav items={NAV} value={view} onNavigate={(v) => (view = v)} />

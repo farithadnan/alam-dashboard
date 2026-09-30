@@ -10,16 +10,9 @@
     let rtype = $state("data");
     let rdesc = $state("");
     let remail = $state("");
-    let reportTrigger = null;
 
-    function openReport(evt) {
-      reportTrigger = evt?.currentTarget ?? null;
-      reportOpen = true;
-    }
-    function closeReport() {
-      reportOpen = false;
-      if (reportTrigger) { reportTrigger.focus?.(); reportTrigger = null; }
-    }
+    function openReport() { reportOpen = true; }
+    function closeReport() { reportOpen = false; }
 
     function sendReport() {
       const subj = encodeURIComponent(`[Alam report] ${rtype}`);

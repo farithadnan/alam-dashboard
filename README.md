@@ -41,13 +41,13 @@ src/
     async.js            createLoader: one implementation of latest-wins
     location.js         geolocation wrapper
     push.js             Web Push subscribe/unsubscribe
-    dialog.js           `use:dialog` action: scroll-lock + focus-trap + Escape
+    dialog.js           `use:dialog` action: scroll-lock, focus-trap, Escape, focus restore
     config.js           SITE identity + deployment settings
     shell.js            NAV + SCOPES definitions
     i18n.svelte.js      EN/BM strings + formatters
     theme.svelte.js     light/dark store
   domain/
-    flags.js            states, band colours, formatting, atTown, geo helpers
+    flags.js            states, band colours, severity rank, formatting, atTown, geo helpers
     weather-codes.js    WMO code → icon/label
     warnings.js         activeWarnings()
     share.js            per-view share payload builders
@@ -57,10 +57,12 @@ src/
     weather/            WeatherBanner, WeatherDetail, scene
     air/                AqiMeter, air.js (bands, stats, map points, nearest)
     hazards/            Flood, Quakes, Warnings, FloodAlerts, FloodRow, HazardAlerts
+    location/           LocationPicker sheet + useMyLocation()
+    settings/           SettingsMenu popover (language + theme)
   ui/
     Icon, PageHeader, Section, StatCard, EmptyState, Skeleton, Spinner,
     Carousel, FilterPills, SearchInput, ShareButton, TelegramAlerts,
-    MapView, TrendChart, AtAGlance, Legend, Disclosure
+    MapView, TrendChart, AtAGlance, Legend, Disclosure, BottomNav
   routes/               Home, Weather, Air, Hazards, News, About, Api
   public/               manifest.webmanifest, sw.js, icons
   functions/api/[[path]].js   Cloudflare Pages proxy to the API

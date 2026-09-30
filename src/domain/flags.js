@@ -77,6 +77,15 @@ export const nearestState = (lat, lon) => {
 
 /* MET warning severity (FIRST/SECOND/THIRD category -> 1/2/3) + presentation. */
 export const severityColor = (s) => (s >= 3 ? "#a51612" : s === 2 ? "#b3491a" : "#8f5c00");
+/** Ordering for sorting/limiting warnings by how severe they read (higher = worse). */
+export const severityRank = (w) => {
+  switch (w?.severity) {
+    case "Danger": case "Warning": return 4;
+    case "High": case "Severe": return 3;
+    case "Moderate": return 2;
+    default: return 1;
+  }
+};
 
 const REGION_KEYS = ["Indonesia", "Philippines", "Malaysia", "Singapore", "Brunei", "Thailand", "Vietnam", "Taiwan", "Papua New Guinea", "Australia", "New Zealand", "Vanuatu", "Fiji", "Tonga", "Solomon Islands", "Sri Lanka", "India", "Myanmar"];
 export function regionOf(place) {

@@ -4,6 +4,7 @@
     import ShareButton from "../../ui/ShareButton.svelte";
     import { app } from "../../core/store.svelte.js";
     import { getFlood } from "../../core/api.js";
+    import { createLoader } from "../../core/async.js";
     import { floodSharePayload } from "../../domain/share.js";
     import { tr } from "../../core/i18n.svelte.js";
 
@@ -17,14 +18,15 @@
     let data = $state({ river: [], rain: [] });
     let loading = $state(false);
     let updatedAt = $state("");
-    let seq = 0;
+    const loadFlood = createLoader();
     $effect(() => {
-      const id = ++seq;
+      const s = state || undefined;
       loading = true;
-      getFlood(state || undefined)
-        .then((r) => { if (id === seq) { data = r ?? { river: [], rain: [] }; updatedAt = r?.timestamp || ""; } })
-        .catch(() => { if (id === seq) data = { river: [], rain: [] }; })
-        .finally(() => { if (id === seq) loading = false; });
+      loadFlood(() => getFlood(s), {
+        onValue: (r) => { data = r ?? { river: [], rain: [] }; updatedAt = r?.timestamp || ""; },
+        onError: () => (data = { river: [], rain: [] }),
+        onSettled: () => (loading = false),
+      });
     });
 
     const summary = $derived.by(() => {
