@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { shareCaption } from "../src/lib/sharecard.js";
-import { airSharePayload, homeSharePayload, weatherSharePayload, floodSharePayload, quakeSharePayload, warningSharePayload, telegramAlertsUrl } from "../src/lib/share.js";
+import { shareCaption } from "../src/domain/sharecard.js";
+import { airSharePayload, homeSharePayload, weatherSharePayload, floodSharePayload, quakeSharePayload, warningSharePayload, telegramAlertsUrl } from "../src/domain/share.js";
 
 describe("shareCaption — the message that travels with the card", () => {
   it("leads with the place, then the numbers", () => {

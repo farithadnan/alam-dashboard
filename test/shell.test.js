@@ -1,6 +1,6 @@
 import { describe, expect, it, vi, afterEach } from "vitest";
-import { NAV, SCOPES } from "../src/lib/shell.js";
-import { locate } from "../src/lib/location.js";
+import { NAV, SCOPES } from "../src/core/shell.js";
+import { locate } from "../src/core/location.js";
 
 afterEach(() => vi.unstubAllGlobals());
 

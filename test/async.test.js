@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import { createLoader } from "../src/lib/async.js";
+import { createLoader } from "../src/core/async.js";
 
 const after = (ms, value, fail = false) => () =>
   new Promise((res, rej) => setTimeout(() => (fail ? rej(new Error("boom")) : res(value)), ms));

@@ -1,104 +1,187 @@
 @import "tailwindcss";
 
-/* Audited WCAG palette (muted/accent/band numbers >= 4.5:1 on bg) — kept from v1 design */
+/* ============================================================================
+   OhAlam design system — "modern airy data app"
+   One palette, one type scale, one surface language. Tokens are exposed to
+   Tailwind v4 via @theme so utilities (bg-panel, text-muted, border-line …)
+   stay the single way components paint themselves.
+   ========================================================================== */
 @theme {
-  --color-bg: #fbf8f3;
-  --color-fg: #242628;
-  --color-muted: #6b6258;
-  --color-line: #e6ddcf;
-  --color-ctrl: #c2ae90;   /* visible border for interactive controls */
-  --color-panel: #fffdfa;
-  --color-accent: #c14a1f;
-  --color-good: #43a047;
-  --color-moderate: #f4a922;
-  --color-unhealthy: #e05d2b;
-  --color-vunhealthy: #d3342f;
-  --color-hazardous: #8e24aa;
+  /* Surfaces */
+  --color-bg: #eef1f6;          /* airy, cool page ground */
+  --color-panel: #ffffff;       /* cards / sheets */
+  --color-panel-2: #f6f8fb;     /* subtle wells, tracks, chips */
+  --color-fg: #0f1720;          /* primary text */
+  --color-muted: #5a6675;       /* secondary text (>=4.5:1 on bg) */
+  --color-faint: #6b7686;       /* tertiary / meta (>=4.5:1 on panel) */
+  --color-line: #e2e8ef;        /* hairlines */
+  --color-ctrl: #c6d0da;        /* control borders */
+  --color-accent: #c2410c;      /* brand vermilion (AA text on light) */
+  --color-accent-2: #9a3412;
+  --color-accent-soft: #fdeee9;
+
+  /* Air-quality / status fills (vivid markers & meters) */
+  --color-good: #16a34a;
+  --color-moderate: #e8a317;
+  --color-unhealthy: #ef6c1a;
+  --color-vunhealthy: #dc2626;
+  --color-hazardous: #9333ea;
+
+  /* Radii + elevation */
+  --radius-lg: 0.75rem;
+  --radius-xl: 1rem;
+  --radius-2xl: 1.25rem;
+  --shadow-card: 0 1px 2px rgba(16, 24, 40, 0.04), 0 4px 16px rgba(16, 24, 40, 0.05);
+  --shadow-pop: 0 12px 40px rgba(16, 24, 40, 0.14);
+
+  /* Type */
+  --font-sans: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-mono: ui-monospace, "SF Mono", "JetBrains Mono", "Fira Code", Menlo, Consolas, monospace;
 }
 
-html, body { height: 100%; }
+html { height: 100%; -webkit-text-size-adjust: 100%; }
 body {
   margin: 0;
+  min-height: 100%;
   background: var(--color-bg);
   color: var(--color-fg);
-  font: 16px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font: 16px/1.55 var(--font-sans);
   -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  font-feature-settings: "cv11", "ss01";
 }
+::selection { background: color-mix(in srgb, var(--color-accent) 22%, transparent); }
 
+/* --- Surfaces ------------------------------------------------------------ */
+.card,
+.glass {
+  background: var(--color-panel);
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-card);
+}
+.card-hover { transition: border-color .15s, box-shadow .15s, transform .15s; }
+.card-hover:hover { border-color: color-mix(in srgb, var(--color-accent) 45%, var(--color-line)); box-shadow: var(--shadow-pop); }
+
+/* --- Typography ---------------------------------------------------------- */
+.qh {
+  font-size: 1.05rem; font-weight: 700; letter-spacing: -0.01em;
+  line-height: 1.25; color: var(--color-fg); margin: 1.75rem 0 0.5rem;
+}
+.eyebrow {
+  font-size: 0.72rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;
+  color: var(--color-muted);
+}
+.caption { font-size: 0.8125rem; color: var(--color-muted); line-height: 1.55; }
+.num { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+
+/* --- Controls ------------------------------------------------------------ */
 .navbtn {
-  background: none; border: none; padding: 6px 14px; min-height: 36px;
-  color: var(--color-muted); font: inherit; font-size: 14px; cursor: pointer;
-  border-bottom: 2px solid transparent; margin-bottom: -1px;
+  background: none; border: none; padding: 7px 13px; min-height: 36px; border-radius: 999px;
+  color: var(--color-muted); font: inherit; font-size: 14px; font-weight: 500; cursor: pointer;
+  display: inline-flex; align-items: center; gap: 6px;
+  transition: background .15s, color .15s;
 }
-.navbtn.on { color: var(--color-fg); font-weight: 650; border-bottom-color: var(--color-accent); }
+.navbtn:hover { background: var(--color-panel); color: var(--color-fg); }
+.navbtn.on { background: var(--color-fg); color: #fff; font-weight: 600; }
+
 .iconbtn {
-  background: none; border: 1px solid var(--color-ctrl); border-radius: 8px;
-  color: var(--color-fg); padding: 4px 10px; min-height: 32px; font: inherit; font-size: 13px;
-  cursor: pointer; transition: border-color .15s, background .15s;
+  background: var(--color-panel); border: 1px solid var(--color-line); border-radius: 10px;
+  color: var(--color-fg); padding: 6px 10px; min-height: 36px; font: inherit; font-size: 13px; font-weight: 500;
+  cursor: pointer; transition: border-color .15s, background .15s, color .15s;
 }
-.iconbtn:hover { border-color: var(--color-accent); }
+.iconbtn:hover { border-color: var(--color-ctrl); background: var(--color-panel-2); }
+
 .pillbtn {
   display: inline-flex; align-items: center; gap: 6px;
-  background: rgba(0,0,0,.35); border: none; border-radius: 999px;
-  backdrop-filter: blur(6px); color: #fff; padding: 3px 10px; min-height: 0;
-  font: inherit; font-size: 12px; font-weight: 500; line-height: 1.5; cursor: pointer;
-  transition: background .15s;
+  background: rgba(255,255,255,.22); border: none; border-radius: 999px;
+  backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); color: #fff;
+  padding: 4px 12px; min-height: 0; font: inherit; font-size: 12px; font-weight: 600;
+  line-height: 1.5; cursor: pointer; transition: background .15s;
 }
-@media (min-width: 640px) { .pillbtn { padding: 3px 12px; } }
-.pillbtn:hover { background: rgba(0,0,0,.5); }
-.pillfilter {
-  display: inline-flex; align-items: center; gap: 5px;
-  padding: 4px 11px; border-radius: 999px; min-height: 40px; white-space: nowrap;
-  border: 1px solid var(--color-ctrl); background: none; color: var(--color-fg);
-  font: inherit; font-size: 12.5px; font-weight: 500; cursor: pointer; transition: border-color .15s, background .15s;
-}
-.pillfilter:hover { border-color: var(--color-accent); }
-.pillfilter.on { border-color: var(--color-accent); color: var(--color-accent); background: var(--color-accent)1a; }
-.statbadge { display: inline-flex; align-items: baseline; gap: 4px; padding: 3px 11px; border: 1px solid var(--color-ctrl); border-radius: 999px; font-size: 12.5px; color: var(--color-muted); white-space: nowrap; }
-.statbadge b { color: var(--color-fg); font-weight: 650; }
-.ghostbtn {
-  background: none; border: 1px solid var(--color-ctrl); border-radius: 999px;
-  color: var(--color-muted); padding: 8px 14px; min-height: 44px;
-  display: inline-flex; align-items: center; font-size: 13px; cursor: pointer; font-family: inherit;
-  transition: border-color .15s, color .15s;
-}
-.ghostbtn:hover { border-color: var(--color-accent); color: var(--color-fg); }
-/* A clickable chip/pill (warnings, scope chips) — an obvious control, not a label. */
-.chip {
-  border: 1px solid var(--color-ctrl);
-  transition: border-color .15s, background .15s;
-}
-/* A small label pill (e.g. news outlet) — informational, not interactive. */
-.badge {
-  display: inline-flex; align-items: center;
-  border: 1px solid var(--color-ctrl); border-radius: 999px;
-  padding: 1px 8px; font-size: 11px; line-height: 1.4; color: var(--color-muted);
-}
-.btn-primary {
-  background: var(--color-accent); color: #fff; border: none; border-radius: 10px;
-  min-height: 44px; padding: 10px 16px; font: inherit; font-weight: 650; font-size: 14px;
-  cursor: pointer; transition: background .15s;
-}
-.btn-primary:hover { background: #a83c14; }
-select { min-height: 44px; border: 1px solid var(--color-ctrl); border-radius: 10px; background: var(--color-panel); padding: 6px 10px; font: inherit; font-size: 14px; color: var(--color-fg); }
-:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 2px; }
-.segbtn { background: none; border: none; padding: 3px 11px; font-size: 12px; color: var(--color-muted); cursor: pointer; font-family: inherit; }
-.segbtn.on { background: var(--color-accent); color: #fff; }
-/* The scope pills (Near me / State / Malaysia) compress in the tight mobile header.
-   Explicit heights beat any flex stretch a taller neighbor could impose. */
-.scope-seg { height: 24px; align-items: stretch; }
-.scope-seg .segbtn { padding: 0 9px; font-size: 11.5px; line-height: 1; min-height: 0; white-space: nowrap; }
-@media (min-width: 1024px) {
-  .scope-seg { height: 30px; }
-  .scope-seg .segbtn { padding: 0 12px; font-size: 12px; }
-}
-.seg { display: inline-flex; border: 1px solid var(--color-ctrl); border-radius: 999px; overflow: hidden; }
+.pillbtn:hover { background: rgba(255,255,255,.34); }
 
-/* Skip-to-content link: visually hidden until keyboard focus. */
+.pillfilter {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 5px 12px; border-radius: 999px; min-height: 38px; white-space: nowrap;
+  border: 1px solid var(--color-line); background: var(--color-panel); color: var(--color-muted);
+  font: inherit; font-size: 12.5px; font-weight: 600; cursor: pointer;
+  transition: border-color .15s, background .15s, color .15s;
+}
+.pillfilter:hover { border-color: var(--color-ctrl); color: var(--color-fg); }
+.pillfilter.on { border-color: var(--color-accent); color: var(--color-accent); background: var(--color-accent-soft); }
+
+.statbadge {
+  display: inline-flex; align-items: baseline; gap: 5px; padding: 4px 12px;
+  border: 1px solid var(--color-line); border-radius: 999px; font-size: 12.5px;
+  color: var(--color-muted); background: var(--color-panel); white-space: nowrap;
+}
+.statbadge b { color: var(--color-fg); font-weight: 700; }
+
+.ghostbtn,
+.btn {
+  background: var(--color-panel); border: 1px solid var(--color-line); border-radius: 999px;
+  color: var(--color-muted); padding: 8px 15px; min-height: 42px;
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  font-size: 13px; font-weight: 600; cursor: pointer; font-family: inherit;
+  transition: border-color .15s, color .15s, background .15s;
+}
+.ghostbtn:hover, .btn:hover { border-color: var(--color-accent); color: var(--color-fg); }
+
+.btn-primary {
+  background: var(--color-accent); color: #fff; border: none; border-radius: 999px;
+  min-height: 44px; padding: 10px 20px; font: inherit; font-weight: 650; font-size: 14px;
+  cursor: pointer; transition: background .15s, transform .1s;
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+}
+.btn-primary:hover { background: var(--color-accent-2); }
+.btn-primary:active { transform: translateY(1px); }
+
+input, select, textarea { color: var(--color-fg); }
+select {
+  min-height: 46px; border: 1px solid var(--color-ctrl); border-radius: 12px;
+  background: var(--color-panel); padding: 8px 12px; font: inherit; font-size: 14px; color: var(--color-fg);
+}
+input[type="search"], input[type="text"], input[type="email"], textarea {
+  border: 1px solid var(--color-ctrl); border-radius: 12px; background: var(--color-panel);
+  padding: 9px 12px; font: inherit; font-size: 14px; width: 100%; box-sizing: border-box;
+  transition: border-color .15s, box-shadow .15s;
+}
+input:focus-visible, select:focus-visible, textarea:focus-visible {
+  border-color: var(--color-accent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-accent) 16%, transparent);
+  outline: none;
+}
+:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 2px; }
+input:focus-visible, select:focus-visible, textarea:focus-visible { outline: none; }
+
+/* --- Segmented control --------------------------------------------------- */
+.seg { display: inline-flex; border: 1px solid var(--color-line); border-radius: 999px; overflow: hidden; background: var(--color-panel-2); }
+.segbtn {
+  background: none; border: none; padding: 5px 13px; font-size: 12.5px; font-weight: 600;
+  color: var(--color-muted); cursor: pointer; font-family: inherit; transition: background .15s, color .15s;
+}
+.segbtn.on { background: var(--color-accent); color: #fff; }
+.scope-seg { height: 28px; align-items: stretch; }
+.scope-seg .segbtn { padding: 0 10px; font-size: 11.5px; line-height: 1; min-height: 0; white-space: nowrap; }
+@media (min-width: 1024px) {
+  .scope-seg { height: 32px; }
+  .scope-seg .segbtn { padding: 0 13px; font-size: 12px; }
+}
+
+/* --- Chips / badges ------------------------------------------------------ */
+.badge {
+  display: inline-flex; align-items: center; gap: 4px;
+  border: 1px solid var(--color-line); border-radius: 999px;
+  padding: 2px 9px; font-size: 11px; font-weight: 600; line-height: 1.4; color: var(--color-muted);
+  background: var(--color-panel-2);
+}
+
+/* --- Accessibility ------------------------------------------------------- */
 .skip-link {
   position: absolute; left: 0.5rem; top: 0.5rem; z-index: 100;
-  background: var(--color-accent); color: #fff; border-radius: 8px; padding: 8px 14px;
-  font: inherit; font-size: 14px; font-weight: 600; text-decoration: none;
+  background: var(--color-accent); color: #fff; border-radius: 10px; padding: 9px 16px;
+  font: inherit; font-size: 14px; font-weight: 650; text-decoration: none;
   transform: translateY(-220%); transition: transform .15s;
 }
 .skip-link:focus { transform: none; }
@@ -110,72 +193,38 @@ select { min-height: 44px; border: 1px solid var(--color-ctrl); border-radius: 1
   footer.pb-20 { padding-bottom: calc(5rem + env(safe-area-inset-bottom, 0px)); }
 }
 
-/* Respect users who request reduced motion (without removing the hero's look). */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: 0.001s !important; transition-duration: 0.001s !important; scroll-behavior: auto !important; }
 }
 
-/* Dark theme — overrides the @theme tokens on <html data-theme="dark"> */
+/* --- Dark theme ---------------------------------------------------------- */
 [data-theme="dark"] {
-  --color-bg: #16181b;
-  --color-fg: #eceef1;
-  --color-muted: #c3baaa;
-  --color-line: #35393f;
-  --color-ctrl: #5d6a76;
-  --color-panel: #1e2126;
-  --color-accent: #e86a3a;
+  --color-bg: #0e1218;
+  --color-panel: #161b22;
+  --color-panel-2: #1c222b;
+  --color-fg: #e8edf3;
+  --color-muted: #9aa6b4;
+  --color-faint: #8693a2;
+  --color-line: #262d37;
+  --color-ctrl: #3a444f;
+  --color-accent: #ff6a3d;
+  --color-accent-2: #ff8259;
+  --color-accent-soft: #2a1a14;
 }
+[data-theme="dark"] .navbtn.on { background: #fff; color: #0e1218; }
+[data-theme="dark"] .card,
+[data-theme="dark"] .glass { box-shadow: 0 1px 2px rgba(0,0,0,.4); }
+[data-theme="dark"] .seg { background: var(--color-panel); }
 
-/* Glassy surfaces */
-.glass {
-  background: rgba(255, 255, 255, 0.6);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-}
-[data-theme="dark"] .glass {
-  background: rgba(30, 33, 38, 0.66);
-}
-
-/* Earthquake/flood pin pulse — slow + subtle so it reads as a calm ring, not a frantic blink. */
-.alam-pulse {
-  position: absolute; inset: 0; border-radius: 50%;
-  animation: alam-ripple 8s ease-out infinite; pointer-events: none;
-}
-@keyframes alam-ripple {
-  from { transform: scale(1); opacity: 0.45; }
-  to { transform: scale(2); opacity: 0; }
-}
-.qh { font-size: 16px; font-weight: 700; color: var(--color-fg); margin: 24px 0 6px; letter-spacing: -0.01em; line-height: 1.25; }
-.caption { font-size: 13px; color: var(--color-muted); line-height: 1.55; }
-/* Calmer interactive numbers on light surfaces — monospace is for data, not chrome. */
-.sparkline { width: 100%; height: 100%; display: block; }
+/* --- Motion surfaces (all motion honors prefers-reduced-motion above) ---- */
 .no-scrollbar::-webkit-scrollbar { display: none; }
 .no-scrollbar { scrollbar-width: none; -ms-overflow-style: none; }
 
-/* Top loading bar — one-pass, bit-by-bit progress that stops short of full width
-   (fills in 10 visible steps, capped at ~88%) instead of sweeping the whole bar. */
 .loadingbar {
   height: 100%;
   background: linear-gradient(90deg, var(--color-accent), #ff9660);
   animation: loadprogress 2.2s steps(10) forwards;
 }
-@keyframes loadprogress {
-  from { width: 0%; }
-  to   { width: 88%; }
-}
+@keyframes loadprogress { from { width: 0%; } to { width: 88%; } }
 
-/* Honor the OS-level "reduce motion" setting for the moving surfaces. This is the
-   system-native calm path: on machines whose GPU/compositor runs CSS keyframes
-   aggressively (a desktop-only flicker users report), flipping this OS setting or
-   matching it calms every surface at once — without touching mobile-by-default. */
-@media (prefers-reduced-motion: reduce) {
-  .alam-pulse, .drop, .sun, .moon, .star, .thunder-flash, .shooting-star, .spin { animation: none !important; }
-}
-/* Desktop also reduces concurrent-motion volume: see builders — only the primary
-   pin ripples per map, so a large screen never shows dozens of rings at once. */
-
-/* Anchor targets must clear the sticky header, or a jump lands underneath it.
-   Applies to every in-page target, so new ones behave without being told. */
-[id] {
-  scroll-margin-top: 5.5rem;
-}
+[id] { scroll-margin-top: 5.5rem; }

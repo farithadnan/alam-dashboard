@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { bandCounts, seriesStats, legendOf, airMapPoints, haversine, nearestBy } from "../src/lib/air.js";
+import { bandCounts, seriesStats, legendOf, airMapPoints, haversine, nearestBy } from "../src/features/air/air.js";
 
 const st = (name, value, label, lat, lon) => ({
   station: name,

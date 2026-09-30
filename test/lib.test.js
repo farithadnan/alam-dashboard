@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
-import { atTown, timeAgo, groupBy, numColor, regionOf } from "../src/lib/flags.js";
-import { wmo } from "../src/lib/weather-codes.js";
-import { mapPopup } from "../src/lib/popup.js";
+import { atTown, timeAgo, groupBy, numColor, regionOf } from "../src/domain/flags.js";
+import { wmo } from "../src/domain/weather-codes.js";
+import { mapPopup } from "../src/domain/popup.js";
 
 describe("atTown — matches an observation to the selected town", () => {
   it("matches on either name containing the other", () => {

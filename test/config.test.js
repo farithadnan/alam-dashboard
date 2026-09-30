@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { SITE } from "../src/lib/config.js";
+import { SITE } from "../src/core/config.js";
 
 describe("SITE config — one source for identity", () => {
   it("resolves a usable share URL and never ends with a slash", () => {

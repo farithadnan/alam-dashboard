@@ -1,5 +1,5 @@
 import { describe, expect, it, vi, beforeEach } from "vitest";
-import { app, load } from "../src/lib/store.svelte.js";
+import { app, load } from "../src/core/store.svelte.js";
 
 /** A state-scoped summary bundle, the shape the API returns for ?state=. */
 const bundle = (weather) => ({

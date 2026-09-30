@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { app, load } from "../src/lib/store.svelte.js";
+import { app, load } from "../src/core/store.svelte.js";
 
 /** A summary bundle with a marker so tests can tell which response landed. */
 const bundle = (marker, town, state) => ({

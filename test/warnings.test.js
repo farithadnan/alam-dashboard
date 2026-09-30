@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { activeWarnings } from "../src/lib/warnings.js";
+import { activeWarnings } from "../src/domain/warnings.js";
 
 const w = (validTo) => ({ title: "Thunderstorms Warning", meta: { validTo } });
 const now = Date.parse("2026-09-11T20:30:00Z");
