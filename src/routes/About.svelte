@@ -30,7 +30,8 @@
           <p class="text-[12.5px] text-muted">{tr("sources")}</p>
         </div>
       </div>
-      <p class="mt-3 text-[14px] leading-relaxed">{tr("aboutWhat")}</p>
+      <p class="mt-3 text-[14px] font-semibold leading-relaxed">{tr("aboutLead")}</p>
+      <p class="mt-2 text-[14px] leading-relaxed text-muted">{tr("aboutWhat")}</p>
     </div>
 
     <h3 class="qh">{tr("featTitle")}</h3>
@@ -59,16 +60,13 @@
     </div>
 
     <h3 class="qh">{tr("contactTitle")}</h3>
-    <div class="grid gap-2 sm:grid-cols-2">
-      <a class="card card-hover flex items-center gap-3 p-3.5" href={`mailto:${SITE.email}`}>
-        <span class="grid size-9 shrink-0 place-items-center rounded-xl bg-panel-2 text-muted"><Icon name="send" size={16} /></span>
-        <span class="min-w-0 truncate text-[13.5px] font-semibold">{SITE.email}</span>
-      </a>
-      <a class="card card-hover flex items-center gap-3 p-3.5" href={SITE.github} target="_blank" rel="noopener" aria-label="GitHub">
-        <span class="grid size-9 shrink-0 place-items-center rounded-xl bg-panel-2 text-muted"><Icon name="globe" size={16} /></span>
-        <span class="min-w-0 truncate text-[13.5px] font-semibold">farithadnan</span>
-      </a>
-    </div>
+    <a class="card card-hover flex items-center gap-3 p-4" href={`mailto:${SITE.email}`}>
+      <span class="grid size-9 shrink-0 place-items-center rounded-xl bg-panel-2 text-muted"><Icon name="send" size={16} /></span>
+      <span class="min-w-0">
+        <span class="block text-[11.5px] text-muted">{tr("contactTitle")}</span>
+        <span class="block truncate text-[14px] font-semibold">{SITE.email}</span>
+      </span>
+    </a>
 
     <button class="btn-primary mt-5" onclick={openReport} aria-haspopup="dialog" aria-expanded={reportOpen}><Icon name="alert" size={15} /> {tr("reportBtn")}</button>
   </section>

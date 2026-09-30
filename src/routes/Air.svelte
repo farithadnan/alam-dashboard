@@ -2,8 +2,7 @@
     import { app } from "../core/store.svelte.js";
     import { getHistory, getHaze } from "../core/api.js";
     import { numColor, cityOf, groupBy, atTown, uvWord } from "../domain/flags.js";
-    import { bandCounts, seriesStats, legendOf, airMapPoints, nearestBy } from "../features/air/air.js";
-    import { locate } from "../core/location.js";
+    import { bandCounts, seriesStats, legendOf, airMapPoints } from "../features/air/air.js";
     import ShareButton from "../ui/ShareButton.svelte";
     import PageHeader from "../ui/PageHeader.svelte";
     import FilterPills from "../ui/FilterPills.svelte";
@@ -19,7 +18,6 @@
     import AqiMeter from "../features/air/AqiMeter.svelte";
     import AqiScale from "../ui/AqiScale.svelte";
     import Disclosure from "../ui/Disclosure.svelte";
-    import Icon from "../ui/Icon.svelte";
 
     const stations = $derived((app.data?.stations ?? []).slice().sort((a, b) => b.value - a.value));
     const weather = $derived(app.data?.weather ?? []);
@@ -37,7 +35,6 @@
 
     let range = $state(24);
     let open = $state(null);
-    let nearInfo = $state("");
 
     /** The station currently being charted: the expanded row, or the "near me" hero. */
     const target = $derived(open ? stations.find((s) => s.station === open) ?? null : app.scope === "near" ? heroAir : null);
@@ -93,22 +90,6 @@
       open = open === o.station ? null : o.station;
       range = 24;
     }
-
-    /** Find the monitoring station closest to the user and open it. */
-    async function nearestStation() {
-      nearInfo = tr("locating");
-      try {
-        const me = await locate();
-        const hit = nearestBy(stations, me);
-        if (hit) {
-          open = hit.item.station;
-          setRange(24);
-          nearInfo = `${cityOf(hit.item.stationName)} · ${hit.km.toFixed(1)} km`;
-        } else nearInfo = "";
-      } catch {
-        nearInfo = "";
-      }
-    }
   </script>
 
   <PageHeader title={`${tr("navAQI")} · ${app.scope === "malaysia" ? "Malaysia" : app.state}`} updated={app.updated} source="DOE APIMS" />
@@ -155,17 +136,10 @@
     </div>
   {/if}
 
-  {#if app.scope === "near"}
-    <div class="mt-3 flex items-center gap-2">
-      <button class="ghostbtn" onclick={nearestStation}><Icon name="compass" size={14} /> {tr("nearest")}</button>
-      {#if nearInfo}<span class="num text-[12.5px] text-muted">{nearInfo}</span>{/if}
-    </div>
-  {/if}
-
   {#if app.scope === "near" && heroAir}
     {@const hc = numColor(heroAir.band?.label)}
-    <div class="mt-3 flex items-center justify-between gap-2">
-      <h2 class="qh !mt-0">{cityOf(heroAir.stationName)}</h2>
+    <div class="mt-3 mb-2 flex items-center justify-between gap-2">
+      <h2 class="qh !m-0">{cityOf(heroAir.stationName)}</h2>
       <ShareButton payload={airSharePayload({ station: cityOf(heroAir.stationName), state: app.state, value: heroAir.value, band: bandLabel(heroAir.band?.label), color: hc, advice: bandAdvice(heroAir.band?.label) || heroAir.band?.advice || "", worst: app.scope === "malaysia" && stations[0] ? `The worst spot today is ${cityOf(stations[0].stationName)} at AQI ${Math.round(stations[0].value)}, for context.` : "" })} />
     </div>
     <div class="card p-4" style="border-top:3px solid {hc}">
@@ -174,10 +148,10 @@
           <div class="num text-[48px] font-extrabold leading-none tracking-tighter" style="color:{hc}">{heroAir.value}</div>
           <div class="mt-1 text-[15px] font-bold" style="color:{hc}">{bandLabel(heroAir.band?.label)}</div>
         </div>
-        <div class="flex gap-3 rounded-2xl border border-line bg-panel-2 px-3 py-2.5 text-[12.5px]">
-          <div class="text-center"><div class="text-[10px] font-medium text-muted">PM2.5</div><div class="num font-bold">{airTown?.meta?.pm2_5 ?? "—"}</div></div>
-          <div class="text-center"><div class="text-[10px] font-medium text-muted">PM10</div><div class="num font-bold">{airTown?.meta?.pm10 ?? "—"}</div></div>
-          <div class="text-center"><div class="text-[10px] font-medium text-muted">UV</div><div class="num font-bold">{airTown?.meta?.uv ?? "—"}{#if airTown?.meta?.uv != null}<span class="ml-0.5 text-[10px] font-normal text-muted">{tr(uvWord(airTown.meta.uv))}</span>{/if}</div></div>
+        <div class="grid grid-cols-3 divide-x divide-line overflow-hidden rounded-2xl border border-line bg-panel-2 text-center">
+          <div class="px-3 py-2"><div class="text-[10.5px] font-semibold text-muted">PM2.5</div><div class="num text-[16px] font-bold leading-tight">{airTown?.meta?.pm2_5 ?? "—"}</div><div class="text-[9.5px] text-faint">µg/m³</div></div>
+          <div class="px-3 py-2"><div class="text-[10.5px] font-semibold text-muted">PM10</div><div class="num text-[16px] font-bold leading-tight">{airTown?.meta?.pm10 ?? "—"}</div><div class="text-[9.5px] text-faint">µg/m³</div></div>
+          <div class="px-3 py-2"><div class="text-[10.5px] font-semibold text-muted">UV</div><div class="num text-[16px] font-bold leading-tight">{airTown?.meta?.uv ?? "—"}</div><div class="text-[9.5px] text-faint">{airTown?.meta?.uv != null ? tr(uvWord(airTown.meta.uv)) : "index"}</div></div>
         </div>
       </div>
       <div class="mt-3"><AqiMeter value={heroAir.value} color={hc} showLabels={false} /></div>

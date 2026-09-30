@@ -56,10 +56,10 @@
       <MapView pts={weatherPts} onPick={(id) => (app.picked = id)} class="h-72 w-full rounded-2xl lg:h-[52vh] lg:min-h-[400px]" fitMax={app.scope === "state" ? 9 : 8} />
     {/if}
     {#if avg != null}
-      <div class="mt-3 mb-2 flex flex-wrap gap-1.5">
-        <span class="statbadge">{tr("avgTemp")} <b>{Math.round(avg)}°</b></span>
-        <span class="statbadge">{tr("highTemp")} <b>{Math.round(hi)}°</b></span>
-        <span class="statbadge">{tr("lowTemp")} <b>{Math.round(lo)}°</b></span>
+      <div class="mt-3 mb-2 grid grid-cols-3 gap-1.5">
+        <div class="card px-3 py-2"><div class="text-[11px] leading-tight text-muted">{tr("avgTemp")}</div><div class="num mt-0.5 text-[17px] font-bold">{Math.round(avg)}°</div></div>
+        <div class="card px-3 py-2"><div class="text-[11px] leading-tight text-muted">{tr("highTemp")}</div><div class="num mt-0.5 text-[17px] font-bold">{Math.round(hi)}°</div></div>
+        <div class="card px-3 py-2"><div class="text-[11px] leading-tight text-muted">{tr("lowTemp")}</div><div class="num mt-0.5 text-[17px] font-bold">{Math.round(lo)}°</div></div>
       </div>
     {/if}
     {#each scopeGroups as g (g.key)}
