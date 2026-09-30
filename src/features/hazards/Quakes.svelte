@@ -66,7 +66,6 @@
       { color: "#a51612", label: tr("quakeGuideStrong") },
     ]}
   />
-  <p class="caption mb-1 text-faint">{tr("quakeCountHint")}</p>
   </div>
   <div class="mt-2 min-w-0 lg:mt-0">
   {#each groups as g (g.key)}

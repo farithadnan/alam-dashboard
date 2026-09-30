@@ -11,14 +11,6 @@ let openW = $state({});
 function toggle(w) {
   openW[w.station + w.measuredAt] = !openW[w.station + w.measuredAt];
 }
-/** Short "where" line: affected places, capped. */
-function where(t) {
-  const c = (t || "").replace(/\s+/g, " ").trim();
-  const m = c.match(/over the (?:states|waters) of ([\s\S]{3,180}?)(?: until| from|\.|$)/i);
-  if (!m) return "";
-  const places = m[1].split("•").map((s) => s.trim()).filter(Boolean);
-  return places.length > 3 ? places.slice(0, 3).join(", ") + "…" : places.join(", ");
-}
 </script>
 
 {#if warnings.length}
@@ -32,12 +24,11 @@ function where(t) {
               <div class="text-[14.5px] font-bold leading-snug">{w.title}</div>
               <ShareButton textOnly payload={warningSharePayload({ title: w.title, text: w.meta?.textEn ?? w.meta?.textBm ?? "", when: timeAgo(w.measuredAt) })} />
             </div>
-            <div class="mt-1 text-[12.5px] text-muted">{w.meta?.titleBm || ""}{#if w.meta?.titleBm} ·{/if} {timeAgo(w.measuredAt)}</div>
+            <div class="mt-1 text-[12.5px] text-muted">{timeAgo(w.measuredAt)}</div>
             {#if w.meta?.validTo}
               <div class="text-[12px] text-faint">{tr("validUntil")} {new Date(w.meta.validTo).toLocaleDateString("en-MY", { weekday: "short", day: "numeric", month: "short" })}</div>
             {/if}
             {#if w.meta?.textEn}
-              {#if where(w.meta.textEn)}<p class="mt-1.5 text-[12.5px] text-muted">{where(w.meta.textEn)}</p>{/if}
               <button class="ghostbtn mt-2 !min-h-0 !py-1.5 text-[12px]" onclick={() => toggle(w)} aria-expanded={openW[w.station + w.measuredAt]}>
                 {openW[w.station + w.measuredAt] ? tr("hideFull") : tr("readFull")}
               </button>

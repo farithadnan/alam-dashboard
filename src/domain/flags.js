@@ -64,6 +64,11 @@ export function timeAgo(iso) {  const s = (Date.now() - new Date(iso).getTime())
   return `${Math.round(s / 86400)}d ago`;
 }
 export const cityOf = (s) => (s || "").split(",")[0];
+/** Hour label for a "YYYY-MM-DDTHH:MM:SS" timestamp: "9am", "12pm", "3pm". */
+export const hourLabel = (t) => {
+  const h = parseInt((t || "").slice(11, 13) || "0", 10) || 0;
+  return h < 12 ? `${h || 12}am` : h === 12 ? "12pm" : `${h - 12}pm`;
+};
 const distKm = (aLat, aLon, bLat, bLon) => {
   const R = 6371, dLa = ((bLat - aLat) * Math.PI) / 180, dLo = ((bLon - aLon) * Math.PI) / 180;
   const x = Math.sin(dLa / 2) ** 2 + Math.cos((aLat * Math.PI) / 180) * Math.cos((bLat * Math.PI) / 180) * Math.sin(dLo / 2) ** 2;

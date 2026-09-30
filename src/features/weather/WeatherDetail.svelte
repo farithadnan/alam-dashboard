@@ -1,7 +1,7 @@
 <script>
 import { app } from "../../core/store.svelte.js";
 import { getOfficial, getHistory, getHaze } from "../../core/api.js";
-import { moonPhase, numColor, uvWord } from "../../domain/flags.js";
+import { moonPhase, numColor, uvWord, hourLabel } from "../../domain/flags.js";
 import { wmo, isNightNow } from "../../domain/weather-codes.js";
 import { mapPopup } from "../../domain/popup.js";
 import { tr, trFmt, wmoLabel, bandLabel, bandAdvice } from "../../core/i18n.svelte.js";
@@ -108,10 +108,6 @@ const metIcon = (text) => {
   return "🌤️";
 };
 const hm = (t) => (t ? String(t).slice(11, 16) : "—");
-function hourLabel(t) {
-  const h = parseInt((t || "").slice(11, 13) || "0", 10) || 0;
-  return h < 12 ? `${h || 12}am` : h === 12 ? "12pm" : `${h - 12}pm`;
-}
 // Rain-first: surface the next hour with real rain chance + today's range right under
 // the temperature (Malaysians ask "will it rain later?" before anything else).
 const nextRain = $derived(hourly.find((h) => Number(h.meta?.precip || 0) >= 30) ?? null);
@@ -128,7 +124,7 @@ const todayHiLo = $derived.by(() => {
       <h1 class="min-w-0 truncate text-[19px] font-extrabold tracking-tight">{townName}{#if stateName}<span class="font-semibold text-muted">, {stateName}</span>{/if}</h1>
       <div class="flex shrink-0 gap-1.5">
         {#if onClose}<button class="iconbtn inline-flex items-center gap-1.5 whitespace-nowrap !px-2.5" onclick={onClose} aria-label={tr("back")} title={tr("back")}><Icon name="arrowLeft" size={16} /><span class="hidden sm:inline">{tr("back")}</span></button>{/if}
-        <ShareButton payload={weatherSharePayload({ town: townName, state: stateName, now, humidity: now.meta?.humidity, wind: now.meta?.wind, high: todayHiLo?.hi, low: todayHiLo?.lo, feels: now.meta?.apparentTemp, haze: todayHaze ? Math.round(todayHaze.pm25Max) : null })} />
+        <ShareButton payload={weatherSharePayload({ town: townName, state: stateName, now, humidity: now.meta?.humidity, wind: now.meta?.wind, high: todayHiLo?.hi, low: todayHiLo?.lo, feels: now.meta?.apparentTemp, haze: todayHaze ? Math.round(todayHaze.pm25Max) : null, precip: nextRain ? nextRain.meta?.precip : null, rainAt: nextRain ? hourLabel(nextRain.measuredAt) : "" })} />
       </div>
     </div>
 

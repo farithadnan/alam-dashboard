@@ -1,6 +1,6 @@
 <script>
     import { app, load } from "../core/store.svelte.js";
-    import { numColor, atTown, severityColor, apiBandOf } from "../domain/flags.js";
+    import { numColor, atTown, severityColor, apiBandOf, hourLabel } from "../domain/flags.js";
     import { wmo, isNightNow } from "../domain/weather-codes.js";
     import { tr, bandLabel } from "../core/i18n.svelte.js";
     import WeatherBanner from "../features/weather/WeatherBanner.svelte";
@@ -46,6 +46,10 @@
     const nextRainChance = $derived.by(() => {
       const n = hourlyTown.find((h) => Number(h.meta?.precip || 0) >= 30);
       return n ? Number(n.meta.precip) : null;
+    });
+    const nextRainAt = $derived.by(() => {
+      const n = hourlyTown.find((h) => Number(h.meta?.precip || 0) >= 30);
+      return n ? hourLabel(n.measuredAt) : "";
     });
 
     // Lightweight live flood count for the homepage chip (independent of the Flood tab).
@@ -94,7 +98,7 @@
   </script>
 
   {#if now}
-    {@const payload = sharePayload({ town: townName, state: app.state, now, townAir, air, warnings, floodCount })}
+    {@const payload = sharePayload({ town: townName, state: app.state, now, townAir, air, warnings, floodCount, high: dayHiLo.hi, low: dayHiLo.lo, precip: nextRainChance, rainAt: nextRainAt })}
     <div class="mt-1">
       <WeatherBanner icon={wmo2[0]} label={wmo2[1] || tr("weather")} temp={now.value} feels={now.meta?.apparentTemp ?? now.value} townName={townName} appState={app.state || ""} aqi={bannerAqi} town={app.town} state={app.state} share={payload} high={dayHiLo.hi} low={dayHiLo.lo} rainChance={nextRainChance} humidity={now.meta?.humidity} wind={now.meta?.wind} />
     </div>

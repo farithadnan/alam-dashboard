@@ -17,7 +17,7 @@
     import MapView from "../ui/MapView.svelte";
     import Section from "../ui/Section.svelte";
     import AqiMeter from "../features/air/AqiMeter.svelte";
-    import Legend from "../ui/Legend.svelte";
+    import AqiScale from "../ui/AqiScale.svelte";
     import Disclosure from "../ui/Disclosure.svelte";
     import Icon from "../ui/Icon.svelte";
 
@@ -34,15 +34,6 @@
     const mapFocus = $derived(open ? (() => { const s = stations.find((x) => x.station === open); return s?.coords ? { lat: s.coords.lat, lon: s.coords.lon, zoom: 11 } : null; })() : null);
     const legend = $derived(legendOf(stations));
     const groups = $derived(groupBy(shownStations, (s) => s.meta?.state ?? ""));
-
-    // Plain-language scale for the "what do the numbers mean?" legend.
-    const aqiScale = $derived([
-      { color: "#16a34a", label: tr("aqiMeanGood") },
-      { color: "#e8a317", label: tr("aqiMeanModerate") },
-      { color: "#ef6c1a", label: tr("aqiMeanUnhealthy") },
-      { color: "#dc2626", label: tr("aqiMeanVery") },
-      { color: "#9333ea", label: tr("aqiMeanHazardous") },
-    ]);
 
     let range = $state(24);
     let open = $state(null);
@@ -129,7 +120,7 @@
         <span class="inline-flex items-center gap-1.5 rounded-full border border-line bg-panel px-2.5 py-1 text-[12px]"><span class="inline-block size-2.5 rounded-full" style="background:{color}"></span> {bandLabel(label)}</span>
       {/each}
     </div>
-    <div class="mt-2"><Legend title={tr("aqiScaleToggle")} items={aqiScale} columns={2} /></div>
+    <div class="mt-2"><AqiScale /></div>
   {/if}
 
   {#if app.scope !== "near" && counts.length}
@@ -191,6 +182,9 @@
       </div>
       <div class="mt-3"><AqiMeter value={heroAir.value} color={hc} showLabels={false} /></div>
       <p class="mt-3 text-[13px] text-muted"><span class="font-semibold text-fg">{tr("outdoorActivity")}:</span> {bandAdvice(heroAir.band?.label) || heroAir.band?.advice}</p>
+      {#if airTown?.meta?.pm2_5 != null}
+        <p class="mt-1.5 text-[12.5px] text-muted">{tr("mainPollutant")}: <span class="font-semibold text-fg">PM2.5</span></p>
+      {/if}
       <div class="mt-3 flex items-center justify-between gap-2">
         <div class="seg">
           <button class:on={range === 24} class="segbtn" onclick={() => setRange(24)}>24h</button>

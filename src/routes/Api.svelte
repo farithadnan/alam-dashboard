@@ -28,7 +28,6 @@
     const filtered = $derived(ENDPOINTS.filter((e) => `${e.m} ${e.p} ${e.cat} ${e.d}`.toLowerCase().includes(q.trim().toLowerCase())));
     const curlOf = (p) => `curl "${base}${p.replace(/<[^>]+>/g, "{value}")}"`;
     const urlOf = (e) => (e.p.includes("<") ? "" : `${base}${e.p}`); // openable live sample (no placeholders)
-    const QS = `# whole Malaysia bundle\ncurl ${base}/api/summary\n\n# a state's water and rain alerts\ncurl "${base}/api/flood?state=Johor"`;
   </script>
 
   <section class="mx-auto max-w-[800px] py-4">
@@ -40,20 +39,8 @@
           <p class="text-[12.5px] text-muted">{tr("apiConventions")}</p>
         </div>
       </div>
-      <p class="mt-3 leading-relaxed">{tr("apiIntro")}</p>
-      <div class="mt-3 flex flex-wrap items-center gap-2">
-        <code class="num rounded-xl border border-line bg-panel-2 px-2.5 py-1.5 text-[12.5px]">{base}</code>
-        <button class="pillfilter" onclick={() => copy(base)}>{copied === base ? "Copied ✓" : "Copy base URL"}</button>
-      </div>
-      <p class="caption mt-2 leading-relaxed">{tr("apiNote")}</p>
-    </div>
-
-    <h3 class="qh">{tr("apiTry")}</h3>
-    <div class="card overflow-hidden">
-      <pre class="num m-0 overflow-auto p-3.5 text-[12px] leading-relaxed">{QS}</pre>
-      <div class="border-t border-line px-3.5 py-2.5">
-        <button class="pillfilter" onclick={() => copy(QS)}>{copied === QS ? "Copied ✓" : "Copy quickstart"}</button>
-      </div>
+      <p class="mt-3 text-[14px] leading-relaxed">{tr("apiIntro")}</p>
+      <p class="mt-2 text-[13px] leading-relaxed text-muted">{tr("apiNote")}</p>
     </div>
 
     <div class="mb-2 mt-6 flex flex-wrap items-center justify-between gap-2">

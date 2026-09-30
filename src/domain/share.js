@@ -1,4 +1,4 @@
-import { numColor } from "./flags.js";
+import { numColor, regionOf, apiBandOf } from "./flags.js";
 import { wmo } from "./weather-codes.js";
 import { SITE } from "../core/config.js";
 
@@ -31,10 +31,10 @@ function note(place, lines, overrides) {
 }
 
 /** Home: a quick, reassuring read on the location overall (air + weather + nearby alerts). */
-export function homeSharePayload({ town, state, now, townAir, warnings = [], floodCount = 0 }) {
+export function homeSharePayload({ town, state, now, townAir, air = null, warnings = [], floodCount = 0, high = null, low = null, precip = null, rainAt = "" }) {
   const place = [town, state].filter(Boolean).join(", ") || "your area";
-  const value = townAir?.value ?? null;
-  const band = townAir?.band?.label ?? null;
+  const value = townAir?.value ?? air?.value ?? null;
+  const band = townAir?.band?.label ?? (air?.value != null ? apiBandOf(air.value) : null);
   const advice = townAir?.band?.advice ?? "";
   const temp = now ? Math.round(now.value) : null;
   const cond = now?.meta?.code != null ? wmo(String(now.meta.code))[1] || "" : "";
@@ -63,15 +63,17 @@ export function homeSharePayload({ town, state, now, townAir, warnings = [], flo
       now?.meta?.apparentTemp != null ? { label: "Feels like", value: `${Math.round(now.meta.apparentTemp)}°` } : null,
       now?.meta?.humidity != null ? { label: "Humidity", value: `${now.meta.humidity}%` } : null,
       now?.meta?.wind != null ? { label: "Wind", value: `${now.meta.wind} km/h` } : null,
+      high != null && low != null ? { label: "High / Low", value: `${Math.round(high)}° / ${Math.round(low)}°` } : null,
+      precip != null ? { label: "Rain chance", value: `${Math.round(precip)}%${rainAt ? ` · ${rainAt}` : ""}` } : null,
     ].filter(Boolean),
     footer: linkTo(""),
-    color: townAir?.band?.label ? numColor(townAir.band.label) : "#c14a1f",
+    color: band ? numColor(band) : "#c14a1f",
   });
 }
 export const sharePayload = homeSharePayload; // kept name so Home / preview callers stay stable
 
 /** Weather: the current conditions as a small infographic card. */
-export function weatherSharePayload({ town, state, now, humidity = now?.meta?.humidity ?? null, wind = now?.meta?.wind ?? null, precip = now?.meta?.precip ?? null, high = null, low = null, feels = null, haze = null }) {
+export function weatherSharePayload({ town, state, now, humidity = now?.meta?.humidity ?? null, wind = now?.meta?.wind ?? null, precip = now?.meta?.precip ?? null, high = null, low = null, feels = null, haze = null, rainAt = "" }) {
   const place = [town, state].filter(Boolean).join(", ") || "your area";
   const temp = now ? Math.round(now.value) : null;
   const feel = feels != null ? Math.round(feels) : now?.meta?.apparentTemp != null ? Math.round(now.meta.apparentTemp) : null;
@@ -99,7 +101,7 @@ export function weatherSharePayload({ town, state, now, humidity = now?.meta?.hu
       feel != null ? { label: "Feels like", value: `${feel}°` } : null,
       humidity != null ? { label: "Humidity", value: `${humidity}%` } : null,
       wind != null ? { label: "Wind", value: `${wind} km/h` } : null,
-      precip != null && precip > 0 ? { label: "Rain chance", value: `${Math.round(precip)}%` } : null,
+      precip != null && precip > 0 ? { label: "Rain chance", value: `${Math.round(precip)}%${rainAt ? ` · ${rainAt}` : ""}` } : null,
       high != null && low != null ? { label: "High / Low", value: `${Math.round(high)}° / ${Math.round(low)}°` } : null,
       haze != null ? { label: "Haze (PM2.5)", value: `${Math.round(haze)} µg/m³` } : null,
     ].filter(Boolean),
@@ -154,6 +156,12 @@ export function floodSharePayload({ scope, state, river = [], rain = [] }) {
     valueLabel: highest ? `${highest.level} m` : null,
     band: highest?.severity || "",
     tip: total ? "Check the live map before heading out." : "",
+    stats: [
+      { label: "River sites", value: `${river.length}` },
+      { label: "Heavy rain", value: `${rain.length}` },
+      highest ? { label: "Highest level", value: `${highest.level} m` } : null,
+      highest?.severity ? { label: "Worst", value: highest.severity } : null,
+    ].filter(Boolean),
     footer: linkTo("#/flood"),
     color: total ? "#3b6ea8" : "#43a047",
   });
@@ -179,6 +187,12 @@ export function quakeSharePayload({ quakes = [], scope }) {
     band: "",
     tip: "",
     extra: quakes.length ? `${quakes.length} events this week` : "",
+    stats: [
+      big && m ? { label: "Strongest", value: `M${m}` } : null,
+      { label: "Events", value: `${quakes.length}` },
+      big ? { label: "Region", value: regionOf(big.stationName) } : null,
+      big?.meta?.depth != null ? { label: "Depth", value: `${Math.round(big.meta.depth)} km` } : null,
+    ].filter(Boolean),
     footer: linkTo("#/earthquakes"),
     color: "#8e24aa",
   });

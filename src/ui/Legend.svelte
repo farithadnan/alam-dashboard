@@ -12,9 +12,13 @@
 </button>
 {#if open}
   <div class={"card mb-2 p-3.5 " + cls}>
-    <ul class={"list-none m-0 grid gap-1.5 p-0 text-[12.5px] text-muted " + (columns === 2 ? "sm:grid-cols-2" : "")}>
+    <ul class={"list-none m-0 grid gap-2 p-0 text-[12.5px] " + (columns === 2 ? "sm:grid-cols-2" : "")}>
       {#each items as it (it.label)}
-        <li class="flex items-start gap-2"><span class="mt-1.5 size-2 shrink-0 rounded-full" style="background:{it.color}"></span>{it.label}</li>
+        {@const parts = String(it.label).split("·")}
+        <li class="flex items-start gap-2.5">
+          <span class="mt-1.5 size-2.5 shrink-0 rounded-full" style="background:{it.color}"></span>
+          <span><b class="font-semibold text-fg">{parts[0].trim()}</b>{#if parts.length > 1}<span class="text-muted"> — {parts.slice(1).join("·").trim()}</span>{/if}</span>
+        </li>
       {/each}
     </ul>
   </div>

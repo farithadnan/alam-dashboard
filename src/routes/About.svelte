@@ -21,7 +21,7 @@
     }
   </script>
 
-  <section class="mx-auto max-w-[760px] py-4">
+  <section class="mx-auto max-w-[720px] py-4">
     <div class="card p-5">
       <div class="flex items-center gap-3">
         <span class="grid size-11 place-items-center rounded-2xl text-white" style="background:linear-gradient(135deg,var(--color-accent),#ff8a5c)"><Icon name="air" size={22} stroke={2} /></span>
@@ -30,7 +30,7 @@
           <p class="text-[12.5px] text-muted">{tr("sources")}</p>
         </div>
       </div>
-      <p class="mt-3 leading-relaxed">{tr("aboutWhat")}</p>
+      <p class="mt-3 text-[14px] leading-relaxed">{tr("aboutWhat")}</p>
     </div>
 
     <h3 class="qh">{tr("featTitle")}</h3>
@@ -38,20 +38,24 @@
       {#each feats as f, i (f)}
         <li class="card flex items-center gap-3 p-3">
           <span class="grid size-9 shrink-0 place-items-center rounded-xl bg-accent-soft text-accent"><Icon name={FEAT_ICONS[i]} size={16} /></span>
-          <span class="min-w-0 text-[13.5px]">{f}</span>
+          <span class="min-w-0 text-[13.5px] leading-snug">{f}</span>
         </li>
       {/each}
     </ul>
 
     <h3 class="qh">{tr("sourcesTitle")}</h3>
-    <div class="card p-4">
-      <p class="leading-relaxed text-muted">{tr("sourcesCredit")}</p>
-    </div>
+    <div class="card p-4"><p class="text-[14px] leading-relaxed text-muted">{tr("sourcesCredit")}</p></div>
 
     <h3 class="qh">{tr("privTitle")}</h3>
-    <div class="card p-4">
-      <p class="leading-relaxed text-muted">{tr("privText")}</p>
-      <p class="mt-2 leading-relaxed text-muted">{tr("discText")}</p>
+    <div class="card space-y-3 p-4 text-[14px] leading-relaxed text-muted">
+      <p>{tr("privText")}</p>
+      <p>{tr("discText")}</p>
+    </div>
+
+    <h3 class="qh">{tr("accuracyTitle")}</h3>
+    <div class="card flex items-start gap-3 p-4">
+      <span class="grid size-9 shrink-0 place-items-center rounded-xl bg-panel-2 text-muted"><Icon name="alert" size={16} /></span>
+      <p class="text-[14px] leading-relaxed text-muted">{tr("dataNote")}</p>
     </div>
 
     <h3 class="qh">{tr("contactTitle")}</h3>
