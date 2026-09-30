@@ -1,11 +1,9 @@
   <script>
     import FloodAlerts from "./FloodAlerts.svelte";
     import PageHeader from "../../ui/PageHeader.svelte";
-    import ShareButton from "../../ui/ShareButton.svelte";
     import { app } from "../../core/store.svelte.js";
     import { getFlood } from "../../core/api.js";
     import { createLoader } from "../../core/async.js";
-    import { floodSharePayload } from "../../domain/share.js";
     import { tr } from "../../core/i18n.svelte.js";
 
     // Scope comes from the top nav bar (shared Near / State / Malaysia seg, same as
@@ -43,10 +41,7 @@
     const toggleSev = (s) => { sevFilter = sevFilter === s ? "" : s; };
   </script>
 
-  <div class="flex items-start justify-between gap-2">
-    <PageHeader title={tr("floodTitle")} updated={updatedAt ? new Date(updatedAt).toLocaleTimeString() : ""} source="JPS InfoBanjir" />
-    <div class="mt-1"><ShareButton payload={floodSharePayload({ scope: app.scope, state, river: data.river, rain: data.rain })} /></div>
-  </div>
+  <PageHeader title={tr("floodTitle")} updated={updatedAt ? new Date(updatedAt).toLocaleTimeString() : ""} source="JPS InfoBanjir" />
   <p class="caption mb-2">{tr("floodNote")} · <a class="font-medium text-accent underline" href="https://publicinfobanjir.water.gov.my/" target="_blank" rel="noopener">{tr("floodOpen")}</a></p>
 
   <FloodAlerts river={data.river} rain={data.rain} loading={loading} state={state} sevFilter={sevFilter} onSev={toggleSev} present={present} total={total} highest={summary.highest} />

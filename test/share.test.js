@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { shareCaption } from "../src/domain/sharecard.js";
-import { airSharePayload, homeSharePayload, weatherSharePayload, floodSharePayload, quakeSharePayload, warningSharePayload, telegramAlertsUrl } from "../src/domain/share.js";
+import { airSharePayload, homeSharePayload, weatherSharePayload, warningSharePayload, telegramAlertsUrl } from "../src/domain/share.js";
 
 describe("shareCaption — the message that travels with the card", () => {
   it("leads with the place, then the numbers", () => {
@@ -62,30 +62,10 @@ describe("share payloads for the other views", () => {
     expect(p.footer).toContain("#/weather");
   });
 
-  it("flood: sums river + rain, reassures when there is none", () => {
-    const river = [{ stationName: "Sungai Johor", level: 3.4, severity: "Alert" }, { stationName: "Sungai X", level: 2.1, severity: "Warning" }];
-    const p = floodSharePayload({ scope: "state", state: "Johor", river, rain: [{ severity: "Heavy" }] });
-    expect(p.text).toContain("Johor");
-    expect(p.text).toContain("2 river sites at alert");
-    expect(p.text).toContain("3.4 m");
-    const clear = floodSharePayload({ scope: "state", state: "Johor", river: [], rain: [] });
-    expect(clear.text).toContain("All clear");
-  });
-
-  it("earthquake: leads with the strongest event and reassures", () => {
-    const quakes = [{ magnitude: 5.1, stationName: "Sibolga" }, { magnitude: 4.6, stationName: "Elsewhere" }];
-    const p = quakeSharePayload({ quakes, scope: "malaysia" });
-    expect(p.text).toContain("M5.1");
-    expect(p.text).toContain("near Sibolga");
-    expect(p.valueLabel).toBe("M5.1");
-  });
-
   it("every note carries a working link", () => {
     for (const p of [
       homeSharePayload({ town: "Arau", state: "Perlis", now: null, townAir: null }),
       airSharePayload({ station: "Arau", state: "Perlis", value: 42, band: "Good" }),
-      floodSharePayload({ scope: "state", state: "Perlis" }),
-      quakeSharePayload({ quakes: [], scope: "state" }),
     ]) expect(p.text).toMatch(/https?:\/\/\S+/);
   });
 });

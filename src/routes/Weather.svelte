@@ -1,7 +1,7 @@
 <script>
   import PageHeader from "../ui/PageHeader.svelte";
   import { app } from "../core/store.svelte.js";
-  import { groupBy } from "../domain/flags.js";
+  import { groupBy, shortState } from "../domain/flags.js";
   import { wmo, isNightNow } from "../domain/weather-codes.js";
   import { mapPopup } from "../domain/popup.js";
   import { tr, trFmt, wmoLabel } from "../core/i18n.svelte.js";
@@ -40,7 +40,7 @@
 {:else if app.scope === "near"}
   <WeatherDetail station={app.town} />
 {:else}
-  {@const scopeLabel = app.scope === "malaysia" ? "Malaysia" : app.state}
+  {@const scopeLabel = app.scope === "malaysia" ? "Malaysia" : shortState(app.state)}
   <PageHeader title={`${tr("navWeather")} · ${scopeLabel}`} updated={app.updated} source="MET Malaysia / Open-Meteo" />
   {#if app.loading && !towns.length}
     <div class="mt-1 space-y-3">

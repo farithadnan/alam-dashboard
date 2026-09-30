@@ -5,14 +5,12 @@
     import { mapPopup } from "../../domain/popup.js";
     import MapView from "../../ui/MapView.svelte";
     import PageHeader from "../../ui/PageHeader.svelte";
-    import ShareButton from "../../ui/ShareButton.svelte";
     import Section from "../../ui/Section.svelte";
     import FilterPills from "../../ui/FilterPills.svelte";
     import EmptyState from "../../ui/EmptyState.svelte";
     import Legend from "../../ui/Legend.svelte";
     import Disclosure from "../../ui/Disclosure.svelte";
     import Icon from "../../ui/Icon.svelte";
-    import { quakeSharePayload } from "../../domain/share.js";
 
     const quakes = $derived(app.data?.hazards?.earthquakes ?? []);
     let magFilter = $state("all"); // all | strong | moderate | light
@@ -46,10 +44,7 @@
     let open = $state(null);
   </script>
 
-  <div class="flex items-start justify-between gap-2">
-    <PageHeader title={tr("quakeTitle")} updated={app.updated} source="USGS / MET Malaysia" />
-    <div class="mt-1"><ShareButton payload={quakeSharePayload({ quakes, scope: app.scope })} /></div>
-  </div>
+  <PageHeader title={tr("quakeTitle")} updated={app.updated} source="USGS / MET Malaysia" />
   <p class="caption mb-2">{tr("quakeCap")}</p>
   <div class="lg:grid lg:grid-cols-2 lg:items-start lg:gap-4">
     <div class="min-w-0">

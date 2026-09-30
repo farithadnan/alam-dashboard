@@ -48,12 +48,9 @@
       {#if wind != null}<span class="rounded-full bg-white/15 px-2.5 py-1"><span class="font-medium text-white/70 capitalize">{tr("wind")}</span> {wind} km/h</span>{/if}
     </div>
 
-    <div class="flex items-center justify-between gap-2">
-      <span class="text-[11px] font-medium text-white/60">Live · {tr("updated")} {new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</span>
-      <div class="flex items-center gap-1.5">
-        {#if town}<TelegramAlerts pill {town} {state} />{/if}
-        {#if share}<ShareButton pill payload={share} />{/if}
-      </div>
+    <div class="flex items-center justify-end gap-1.5">
+      {#if town}<TelegramAlerts pill {town} {state} />{/if}
+      {#if share}<ShareButton pill payload={share} />{/if}
     </div>
   </div>
 </div>

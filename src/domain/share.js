@@ -1,4 +1,4 @@
-import { numColor, regionOf, apiBandOf } from "./flags.js";
+import { numColor, apiBandOf } from "./flags.js";
 import { wmo } from "./weather-codes.js";
 import { SITE } from "../core/config.js";
 
@@ -131,70 +131,6 @@ export function airSharePayload({ station, state, value, band, color, advice = "
     extra: worst || "",
     footer: linkTo("#/air"),
     color: band ? numColor(band) : color || "#c14a1f",
-  });
-}
-
-/** Flood: river + rain alerts for the scope, reassuring. */
-export function floodSharePayload({ scope, state, river = [], rain = [] }) {
-  const where = scope === "malaysia" ? "Malaysia" : state || "your area";
-  const total = river.length + rain.length;
-  const highest = river.reduce((m, a) => (a.level > (m?.level ?? -1) ? a : m), null);
-
-  const lines = [`Sharing, in case anyone this reaches is in ${where}.`];
-  if (!total) {
-    lines.push("Right now there's no active flood or heavy-rain alert in view. All clear, just keep an eye out if the sky looks heavy.");
-  } else {
-    const rv = river.length ? `about ${river.length} river site${river.length > 1 ? "s" : ""} at alert` : "no river sites on alert";
-    const rn = rain.length ? "some heavy rain around" : "";
-    lines.push(`There ${river.length === 1 ? "is" : "are"} ${rv}${rn ? ` and ${rn}` : ""}, so it's worth being aware before you head out. Nothing to panic about.`);
-    if (highest) lines.push(`The highest reading is ${highest.stationName || "one site"} at ${highest.level} m${highest.severity ? ` (${highest.severity})` : ""}.`);
-  }
-  lines.push(`Live map here: ${linkTo("#/flood")}`);
-
-  return note(where, lines, {
-    headline: total ? `${total} alert${total > 1 ? "s" : ""}` : "All clear",
-    valueLabel: highest ? `${highest.level} m` : null,
-    band: highest?.severity || "",
-    tip: total ? "Check the live map before heading out." : "",
-    stats: [
-      { label: "River sites", value: `${river.length}` },
-      { label: "Heavy rain", value: `${rain.length}` },
-      highest ? { label: "Highest level", value: `${highest.level} m` } : null,
-      highest?.severity ? { label: "Worst", value: highest.severity } : null,
-    ].filter(Boolean),
-    footer: linkTo("#/flood"),
-    color: total ? "#3b6ea8" : "#43a047",
-  });
-}
-
-/** Earthquake: the notable recent event + reassurance. */
-export function quakeSharePayload({ quakes = [], scope }) {
-  const big = quakes.slice().sort((a, b) => b.magnitude - a.magnitude)[0];
-  const m = big?.magnitude != null ? Number(big.magnitude).toFixed(1) : "";
-  const where = scope === "malaysia" ? "the region" : "the area near you";
-
-  const lines = [`A quiet update for anyone keeping an eye on ${where}.`];
-  if (big && m) {
-    lines.push(`There's been seismic activity around SE Asia this week, with the strongest a M${m}${big.stationName ? ` near ${big.stationName}` : ""}. Not something felt locally, just worth knowing about.`);
-  } else {
-    lines.push("Nothing notable in the past week. Quiet, which is good.");
-  }
-  lines.push(`You can see the map here: ${linkTo("#/earthquakes")}`);
-
-  return note(where, lines, {
-    headline: big && m ? `M${m}${big.stationName ? ` · ${big.stationName}` : ""}` : "Quiet week",
-    valueLabel: big && m ? `M${m}` : null,
-    band: "",
-    tip: "",
-    extra: quakes.length ? `${quakes.length} events this week` : "",
-    stats: [
-      big && m ? { label: "Strongest", value: `M${m}` } : null,
-      { label: "Events", value: `${quakes.length}` },
-      big ? { label: "Region", value: regionOf(big.stationName) } : null,
-      big?.meta?.depth != null ? { label: "Depth", value: `${Math.round(big.meta.depth)} km` } : null,
-    ].filter(Boolean),
-    footer: linkTo("#/earthquakes"),
-    color: "#8e24aa",
   });
 }
 

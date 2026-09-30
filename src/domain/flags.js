@@ -64,6 +64,9 @@ export function timeAgo(iso) {  const s = (Date.now() - new Date(iso).getTime())
   return `${Math.round(s / 86400)}d ago`;
 }
 export const cityOf = (s) => (s || "").split(",")[0];
+/** Compact state label for tight headers. */
+const STATE_SHORT = { "WP Kuala Lumpur": "Kuala Lumpur", "WP Labuan": "Labuan", "WP Putrajaya": "Putrajaya", "Negeri Sembilan": "N. Sembilan" };
+export const shortState = (name) => STATE_SHORT[name] ?? name;
 /** Hour label for a "YYYY-MM-DDTHH:MM:SS" timestamp: "9am", "12pm", "3pm". */
 export const hourLabel = (t) => {
   const h = parseInt((t || "").slice(11, 13) || "0", 10) || 0;

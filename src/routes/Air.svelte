@@ -1,7 +1,7 @@
 <script>
     import { app } from "../core/store.svelte.js";
     import { getHistory, getHaze } from "../core/api.js";
-    import { numColor, cityOf, groupBy, atTown, uvWord } from "../domain/flags.js";
+    import { numColor, cityOf, groupBy, atTown, uvWord, shortState } from "../domain/flags.js";
     import { bandCounts, seriesStats, legendOf, airMapPoints } from "../features/air/air.js";
     import ShareButton from "../ui/ShareButton.svelte";
     import PageHeader from "../ui/PageHeader.svelte";
@@ -92,7 +92,7 @@
     }
   </script>
 
-  <PageHeader title={`${tr("navAQI")} · ${app.scope === "malaysia" ? "Malaysia" : app.state}`} updated={app.updated} source="DOE APIMS" />
+  <PageHeader title={`${tr("navAQI")} · ${app.scope === "malaysia" ? "Malaysia" : shortState(app.state)}`} updated={app.updated} source="DOE APIMS" />
   <p class="caption mb-2">{tr("aqiTip")}</p>
   <MapView pts={allPts} class="h-72 w-full rounded-2xl lg:h-[52vh] lg:min-h-[400px]" fitMax={app.scope === "near" ? 12 : app.scope === "state" ? 9 : 8} focus={mapFocus} />
   {#if legend.length}
