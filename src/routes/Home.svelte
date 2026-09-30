@@ -4,7 +4,6 @@
     import { wmo, isNightNow } from "../domain/weather-codes.js";
     import { tr, bandLabel } from "../core/i18n.svelte.js";
     import WeatherBanner from "../features/weather/WeatherBanner.svelte";
-    import HazardAlerts from "../features/hazards/HazardAlerts.svelte";
     import AtAGlance from "../ui/AtAGlance.svelte";
     import EmptyState from "../ui/EmptyState.svelte";
     import Icon from "../ui/Icon.svelte";
@@ -115,9 +114,7 @@
   {#if !app.data && !app.loading}
     <EmptyState icon="⚠️" title={tr("loadFailed")} action={{ label: tr("retry"), onClick: () => load() }} class="mt-2" />
   {:else}
-    <!-- Primary answer first: active alerts, then a compact at-a-glance. -->
-    <HazardAlerts warnings={warnings} onRead={() => jump("advisories", true)} onAll={() => jump("advisories")} extraCalm={floodLoaded && !floodCount && !warnings.length} />
-
+    <!-- Primary answer first: a compact at-a-glance, then the full advisories below. -->
     <h2 class="qh">{tr("atAGlance")}</h2>
     <AtAGlance
       onTap={(k) => {

@@ -71,7 +71,7 @@
               <button class="card card-hover flex w-full items-center gap-2.5 p-3 text-left" onclick={() => (app.picked = r.station)}>
                 <span class="text-[24px] leading-none" aria-hidden="true">{icon}</span>
                 <span class="min-w-0 flex-1">
-                  <span class="block truncate text-[13.5px] font-semibold">{r.stationName}</span>
+                  <span class="line-clamp-2 text-[13.5px] font-semibold leading-snug">{r.stationName}</span>
                   <span class="block truncate text-[12px] text-muted">{wmoLabel(label)}</span>
                 </span>
                 <span class="num shrink-0 text-[17px] font-bold" style="color:{tempColor(r.value)}">{Math.round(r.value)}°</span>

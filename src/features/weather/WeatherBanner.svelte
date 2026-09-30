@@ -12,6 +12,12 @@
 
   let { icon = "☀️", label = "", temp = 0, feels = 0, townName = "", appState = "", aqi = null, town = "", state = "", share = null, high = null, low = null, rainChance = null, humidity = null, wind = null } = $props();
   const scene = $derived(sceneOf(icon));
+  const facts = $derived([
+    high != null || low != null ? { key: "hl", label: `${tr("high")} / ${tr("low")}`, value: `${high != null ? Math.round(high) : "–"}° / ${low != null ? Math.round(low) : "–"}°` } : null,
+    rainChance != null ? { key: "rain", label: tr("rainChance"), value: `${Math.round(rainChance)}%` } : null,
+    humidity != null ? { key: "hum", label: tr("humidity"), value: `${humidity}%` } : null,
+    wind != null ? { key: "wind", label: tr("wind"), value: `${wind} km/h` } : null,
+  ].filter(Boolean));
 </script>
 
 <div class="banner scene-{scene} relative overflow-hidden rounded-2xl text-white shadow-lg" role="img" aria-label={label}>
@@ -40,13 +46,16 @@
       {/if}
     </div>
 
-    <div class="flex flex-wrap items-center gap-1.5 text-[11.5px] font-semibold">
-      {#if high != null}<span class="rounded-full bg-white/15 px-2.5 py-1"><span class="font-medium text-white/70">{tr("highTemp")}</span> {Math.round(high)}°</span>{/if}
-      {#if low != null}<span class="rounded-full bg-white/15 px-2.5 py-1"><span class="font-medium text-white/70">{tr("lowTemp")}</span> {Math.round(low)}°</span>{/if}
-      {#if rainChance != null}<span class="rounded-full bg-white/15 px-2.5 py-1"><span class="font-medium text-white/70">{tr("rainChance")}</span> {Math.round(rainChance)}%</span>{/if}
-      {#if humidity != null}<span class="rounded-full bg-white/15 px-2.5 py-1"><span class="font-medium text-white/70 capitalize">{tr("humidity")}</span> {humidity}%</span>{/if}
-      {#if wind != null}<span class="rounded-full bg-white/15 px-2.5 py-1"><span class="font-medium text-white/70 capitalize">{tr("wind")}</span> {wind} km/h</span>{/if}
-    </div>
+    {#if facts.length}
+      <div class="grid grid-cols-2 gap-1.5 sm:grid-cols-4">
+        {#each facts as f (f.key)}
+          <div class="rounded-xl bg-white/12 px-3 py-2">
+            <div class="truncate text-[10.5px] font-medium capitalize text-white/70">{f.label}</div>
+            <div class="num mt-0.5 text-[14px] font-bold leading-tight">{f.value}</div>
+          </div>
+        {/each}
+      </div>
+    {/if}
 
     <div class="flex items-center justify-end gap-1.5">
       {#if town}<TelegramAlerts pill {town} {state} />{/if}
