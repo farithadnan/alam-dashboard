@@ -8,7 +8,7 @@
 </script>
 
 <div class="relative">
-  <button class="iconbtn !px-2.5" onclick={() => (open = !open)} aria-label="Settings" title="Settings" aria-expanded={open} aria-haspopup="true"><Icon name="sliders" size={17} /></button>
+  <button class="iconbtn !border-transparent !bg-transparent !px-2.5 hover:!bg-panel-2" onclick={() => (open = !open)} aria-label="Settings" title="Settings" aria-expanded={open} aria-haspopup="true"><Icon name="sliders" size={18} /></button>
   {#if open}
     <button class="fixed inset-0 z-40 cursor-default" onclick={() => (open = false)} aria-label="Close settings" tabindex="-1"></button>
     <div class="absolute right-0 top-[calc(100%+8px)] z-50 w-64 rounded-2xl border border-line bg-panel p-4 shadow-[var(--shadow-pop)]">

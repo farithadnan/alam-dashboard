@@ -91,7 +91,7 @@ const scopeRelevant = $derived(view === "weather" || view === "air" || (view ===
       <span class="grid size-8 place-items-center rounded-xl text-white shadow-sm" style="background:linear-gradient(135deg,var(--color-accent),#ff8a5c)">
         <Icon name="air" size={17} stroke={2} />
       </span>
-      <span class="text-[17px] font-extrabold tracking-tight">{SITE.name}<span class="text-accent">.</span></span>
+      <span class="hidden text-[17px] font-extrabold tracking-tight sm:inline">{SITE.name}<span class="text-accent">.</span></span>
     </button>
 
     <nav class="ml-2 hidden items-center gap-0.5 lg:flex">

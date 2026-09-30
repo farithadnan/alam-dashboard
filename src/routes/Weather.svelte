@@ -1,12 +1,13 @@
 <script>
   import PageHeader from "../ui/PageHeader.svelte";
   import { app } from "../core/store.svelte.js";
-  import { groupBy, shortState } from "../domain/flags.js";
+  import { groupBy, shortState, cityOf } from "../domain/flags.js";
   import { wmo, isNightNow } from "../domain/weather-codes.js";
   import { mapPopup } from "../domain/popup.js";
   import { tr, trFmt, wmoLabel } from "../core/i18n.svelte.js";
   import MapView from "../ui/MapView.svelte";
   import Section from "../ui/Section.svelte";
+  import Marquee from "../ui/Marquee.svelte";
   import WeatherDetail from "../features/weather/WeatherDetail.svelte";
   import Skeleton from "../ui/Skeleton.svelte";
   import EmptyState from "../ui/EmptyState.svelte";
@@ -68,10 +69,10 @@
           {#each g.items as r (r.station)}
             {@const [icon, label] = wmo(String(r.meta?.code), isNightNow(r.meta))}
             <li>
-              <button class="card card-hover flex w-full items-center gap-2.5 p-3 text-left" onclick={() => (app.picked = r.station)}>
+              <button class="card card-hover flex h-[62px] w-full items-center gap-2.5 p-3 text-left" onclick={() => (app.picked = r.station)}>
                 <span class="text-[24px] leading-none" aria-hidden="true">{icon}</span>
                 <span class="min-w-0 flex-1">
-                  <span class="line-clamp-2 text-[13.5px] font-semibold leading-snug">{r.stationName}</span>
+                  <Marquee text={cityOf(r.stationName)} class="text-[13px] font-semibold leading-snug" />
                   <span class="block truncate text-[12px] text-muted">{wmoLabel(label)}</span>
                 </span>
                 <span class="num shrink-0 text-[17px] font-bold" style="color:{tempColor(r.value)}">{Math.round(r.value)}°</span>
