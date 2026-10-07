@@ -34,7 +34,7 @@ export const SITE = {
   /** Contact address used by the About page. */
   email: "dev@farithadnan.net",
   /** Owner shown in the page footer. */
-  author: "Farith Adnan",
+  author: "",
   /** CARTO basemap key (inlined at build time by Vite). */
   cartoKey: (typeof import.meta !== "undefined" && import.meta.env?.VITE_CARTO_KEY) || "",
 };

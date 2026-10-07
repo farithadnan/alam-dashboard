@@ -24,7 +24,7 @@
   <section class="mx-auto max-w-[720px] py-4">
     <div class="card p-5">
       <div class="flex items-center gap-3">
-        <span class="grid size-11 place-items-center rounded-2xl text-white" style="background:linear-gradient(135deg,var(--color-accent),#ff8a5c)"><Icon name="air" size={22} stroke={2} /></span>
+        <span class="grid size-11 place-items-center rounded-2xl text-white text-[15px] font-extrabold tracking-tight" style="background:linear-gradient(135deg,var(--color-accent),#ff8a5c)">FA</span>
         <div>
           <h2 class="text-[20px] font-extrabold tracking-tight">{tr("aboutTitle")}</h2>
           <p class="text-[12.5px] text-muted">{tr("sources")}</p>
