@@ -67,9 +67,9 @@ You usually don't build or upload anything from this repo by hand. Publishing is
 - The live address is your own custom domain, `app.oh-alam.my`.
 - Nothing runs on your computer or on a server you have to pay for.
 
-The one-time setup (adding a couple of Cloudflare and GitHub tokens) is written in plain
-English in `alam-api/docs/deployment.md` — if you skip it, the site simply keeps running the
-version already published.
+The one-time setup just means adding a couple of Cloudflare and GitHub tokens as repository
+secrets in the `alam-api` repo. If you skip it, the site simply keeps running the version
+already published.
 
 ---
 
