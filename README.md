@@ -65,7 +65,6 @@ src/
     MapView, TrendChart, AtAGlance, Legend, Disclosure, BottomNav
   routes/               Home, Weather, Air, Hazards, News, About, Api
   public/               manifest.webmanifest, sw.js, icons
-  functions/api/[[path]].js   Cloudflare Pages proxy to the API
 ```
 
 ## How it reads data
@@ -103,23 +102,17 @@ The dev server proxies `/api/*` to the API service (see `vite.config.ts`).
 
 ## Deploy
 
-GitHub Actions (`.github/workflows/publish.yml`) runs `npm test`, builds, and deploys
-`dist/` to Cloudflare Pages. Requires repo secrets `CLOUDFLARE_API_TOKEN` and
-`CLOUDFLARE_ACCOUNT_ID`, and `VITE_CARTO_KEY` as a build-time env var (it is inlined
-into the bundle).
+The dashboard is served by the `alam-api` Cloudflare Worker as static assets (the
+`[assets]` block) — it is **not** published to Cloudflare Pages anymore. Deployment is
+fully automated and runs on the Cloudflare edge, not on any VPS or development PC:
 
-## Operations
+- `.github/workflows/deploy.yml` (lives in the `alam-api` repo) builds this repo's `dist/`,
+  applies the remote D1 migrations, and `wrangler deploy`s a single Worker that serves both
+  the SPA and `/api/*` from the same origin. It runs on every push to `main`.
+- The live origin is the custom domain `app.oh-alam.my` (attached to the Worker in the
+  Cloudflare dashboard), plus a free `*.workers.dev` URL.
 
-The dashboard is served from two possible origins; keep them in sync:
-
-- **`scripts/update-vps-dashboard.sh`** — run *on the VPS box* to pull and rebuild the
-  bundle that `app.oh-alam.my` serves when it points at the VPS. The API serves `dist/`
-  straight from disk, so a rebuild updates the live UI immediately (no restart needed
-  for the UI). Use it after pulling UI changes the VPS should show.
-- **`scripts/domain-flip.sh`** (lives in the `alam-api` repo) — one command to route
-  `app.oh-alam.my` between the **Worker** (`worker`, uses D1 — subject to its daily
-  row-read cap) and the **VPS tunnel** (`vps`, own SQLite — reliable). Default to VPS
-  for reliability; flip to Worker after the 00:00 UTC D1 reset for the latest build.
+Nothing here is served from Pages, a VPS, or a tunnel anymore.
 
 ## Notes
 
