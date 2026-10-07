@@ -1,122 +1,80 @@
-# alam-dashboard
+# OhAlam — Malaysia air quality & weather dashboard
 
-A mobile-first view of Malaysia's air quality, weather, official forecasts and
-environmental hazards. Reads the `alam-api` service; talks to no upstream directly.
+A simple, mobile-friendly website that shows Malaysia's air quality, weather, and
+environmental hazards (earthquakes, floods, official warnings) all in one place.
 
-## Stack
+**Live at:** https://app.oh-alam.my
 
-- **Svelte 5** (runes) + **Vite** + **Tailwind v4**
-- **Leaflet** for maps, with a CARTO basemap that follows the theme (light/dark)
-- No chart library: one hand-rolled SVG `TrendChart` instead of ~45 KB of uPlot
-- **vitest** + jsdom + the Svelte plugin (62 tests, including runes modules)
-- Installable **PWA**: manifest, icons, service worker (registered in production only)
+It speaks English or Bahasa Malaysia, and can be used in light or dark mode.
 
-## Architecture
+---
 
-Layers point one way — `routes → features → ui / domain → core`. Nothing at a lower
-layer imports from a higher one.
+## What it does
 
-| Folder      | Responsibility                                                                 |
-| ----------- | ------------------------------------------------------------------------------ |
-| `core/`     | Platform + app services: API client, state store, async helper, location, push, theme, i18n, shell config, deployment config. |
-| `domain/`   | Pure, framework-free logic and formatting: bands/colours, WMO codes, warnings, share payloads + card, map popup, JSDoc types. |
-| `features/` | One folder per feature (`weather`, `air`, `hazards`): the composite components and pure helpers that only that feature needs. |
-| `ui/`       | Generic, feature-agnostic design system: buttons, cards, charts, maps, form controls, icons. |
-| `routes/`   | Page-level views, one per navigation route. Compose features + ui; own no business logic. |
+One page you open on your phone to answer "is it safe to go out right now?"
 
-Rules of thumb: a component that knows about a specific hazard/weather shape belongs in
-`features/`; anything reusable across features belongs in `ui/`; anything that talks to
-the network or the browser belongs in `core/`; pure calculations belong in `domain/`.
+- Air quality (AQI) for towns across all 16 states
+- Current weather and a few-day forecast
+- Earthquakes, flood alerts, and official MET Malaysia warnings
+- A share button so you can send a picture of the reading to a friend
 
-## Layout
+It only reads from one place — the OhAlam API. It never talks to the data sources
+directly, so all the messy stuff (which government site, which weather service) is kept
+behind the scenes.
 
-```
-src/
-  App.svelte            shell: header, nav, scope, settings, location picker, bottom nav
-  main.js               mount + theme/lang bootstrap + service-worker registration
-  app.css               design tokens + base styles (one palette, one type scale)
-  core/
-    api.js              endpoint helpers
-    store.svelte.js     app state, town-scoped loading, latest-wins requests
-    async.js            createLoader: one implementation of latest-wins
-    location.js         geolocation wrapper
-    push.js             Web Push subscribe/unsubscribe
-    dialog.js           `use:dialog` action: scroll-lock, focus-trap, Escape, focus restore
-    config.js           SITE identity + deployment settings
-    shell.js            NAV + SCOPES definitions
-    i18n.svelte.js      EN/BM strings + formatters
-    theme.svelte.js     light/dark store
-  domain/
-    flags.js            states, band colours, severity rank, formatting, atTown, geo helpers
-    weather-codes.js    WMO code → icon/label
-    warnings.js         activeWarnings()
-    share.js            per-view share payload builders
-    sharecard.js        canvas share card + intents
-    popup.js            the single map-popup HTML builder
-  features/
-    weather/            WeatherBanner, WeatherDetail, scene
-    air/                AqiMeter, air.js (bands, stats, map points, nearest)
-    hazards/            Flood, Quakes, Warnings, FloodAlerts, FloodRow, HazardAlerts
-    location/           LocationPicker sheet + useMyLocation()
-    settings/           SettingsMenu popover (language + theme)
-  ui/
-    Icon, PageHeader, Section, StatCard, EmptyState, Skeleton, Spinner,
-    Carousel, FilterPills, SearchInput, ShareButton, TelegramAlerts,
-    MapView, TrendChart, AtAGlance, Legend, Disclosure, BottomNav
-  routes/               Home, Weather, Air, Hazards, News, About, Api
-  public/               manifest.webmanifest, sw.js, icons
-```
+---
 
-## How it reads data
+## Run it on your machine (for development)
 
-Every view renders from one town-scoped bundle, `/api/summary?state=&town=&towns=`,
-plus `/api/official` and `/api/history` on demand. Notes:
-
-- Requests are **latest-wins** (`core/async.js`): a slow earlier response can never
-  overwrite a newer one. This was a real bug twice, so it has one implementation.
-- Every API-driven block has three states: ready, loading (skeleton), empty
-  (explicit message). Absent data is never rendered as if it were present.
-- The client never triggers an upstream fetch. The API serves from SQLite, with
-  `Cache-Control` and a service worker on top.
-
-## Accessibility & responsive notes
-
-- WCAG-audited palette: text tokens meet 4.5:1 on their surfaces in both themes; the
-  condition hero gradients are deep enough for white text.
-- Keyboard support: skip link, focus-visible rings, focus-trapped location/report dialogs
-  (ESC to close), `aria-current` on nav, `role="img"` + labels on charts and the hero.
-- iOS safe-area insets for the fixed bottom nav; `prefers-reduced-motion` disables motion.
-- Layout is mobile-first: a fixed bottom tab bar < 1024px, a top nav bar at ≥ 1024px.
-
-## Run
+You need [Node.js](https://nodejs.org) installed.
 
 ```bash
+# 1. Install the tools it needs
 npm install
-npm run dev        # dashboard only
-npm test           # 62 tests
-npm run typecheck  # tsc --noEmit
-npm run build      # production build to dist/
+
+# 2. Start the website
+npm run dev
 ```
 
-The dev server proxies `/api/*` to the API service (see `vite.config.ts`).
+Your browser opens a local copy. During development it automatically reads the local API at
+`http://localhost:8788` (start that with the instructions in the `alam-api` README).
 
-## Deploy
+Other handy commands:
 
-The dashboard is served by the `alam-api` Cloudflare Worker as static assets (the
-`[assets]` block) — it is **not** published to Cloudflare Pages anymore. Deployment is
-fully automated and runs on the Cloudflare edge, not on any VPS or development PC:
+```bash
+npm test                # run the automated checks
+npm run typecheck       # check for mistakes in the code
+npm run build           # make the production version (into the dist/ folder)
+```
 
-- `.github/workflows/deploy.yml` (lives in the `alam-api` repo) builds this repo's `dist/`,
-  applies the remote D1 migrations, and `wrangler deploy`s a single Worker that serves both
-  the SPA and `/api/*` from the same origin. It runs on every push to `main`.
-- The live origin is the custom domain `app.oh-alam.my` (attached to the Worker in the
-  Cloudflare dashboard), plus a free `*.workers.dev` URL.
+---
 
-Nothing here is served from Pages, a VPS, or a tunnel anymore.
+## How it's laid out (short version)
+
+The code is split so that anything that talks to the network or the browser lives in one
+place (`src/core/`), anything that's just a calculation lives in another (`src/domain/`),
+and each part of the screen — weather, air, hazards — has its own folder (`src/features/`).
+That way a change to one screen never quietly breaks another.
+
+---
+
+## Putting it live
+
+You usually don't build or upload anything from this repo by hand. Publishing is automatic:
+
+- The `alam-api` repo's deploy workflow builds this site and publishes it to Cloudflare on
+  every update to the `main` branch.
+- The live address is your own custom domain, `app.oh-alam.my`.
+- Nothing runs on your computer or on a server you have to pay for.
+
+The one-time setup (adding a couple of Cloudflare and GitHub tokens) is written in plain
+English in `alam-api/docs/deployment.md` — if you skip it, the site simply keeps running the
+version already published.
+
+---
 
 ## Notes
 
-- Bilingual (English / Bahasa Malaysia) and dark mode, both toggled in the header.
-- Share card renders a 1080x1080 PNG on canvas (Web Share API on mobile, download
-  otherwise).
-- No social links in the footer by choice; contact is `[EMAIL]`.
+- Made with Svelte 5 + Vite, a map (Leaflet), and Tailwind.
+- Works offline after first visit (adds to home screen on a phone).
+- Tests and visual checks run automatically before anything is published.
